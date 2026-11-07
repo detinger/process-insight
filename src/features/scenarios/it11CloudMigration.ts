@@ -9,7 +9,9 @@ import type {
   DiscoveryInterview, DiscoveryInterviewItem, DiscoveryObservation,
   StormingCard, Contradiction,
   SipocDiagram, SipocRow, ProcessMap, MapLane, MapActivity, ProcessMapEdge,
+  Service, Capability,
 } from '../../domain/contracts/types';
+import type { ProcessRating } from '../../domain/scoring';
 import type { ScenarioBundle } from './it02SaasOnboarding';
 
 export function buildIT11Scenario(): ScenarioBundle {
@@ -28,6 +30,15 @@ export function buildIT11Scenario(): ScenarioBundle {
   const procAssess    = newId('proc');
   const procMigrate   = newId('proc');
   const procCutover   = newId('proc');
+
+  // ─── Service & Capability IDs ─────────────────────────────────────────────
+  const svcMigration    = newId('svc');
+  const svcReadiness    = newId('svc');
+
+  const capDataMig      = newId('cap');
+  const capCutover      = newId('cap');
+  const capReadiness    = newId('cap');
+
   const candId1 = newId('cand');
   const candId2 = newId('cand');
   const candId3 = newId('cand');
@@ -127,7 +138,7 @@ export function buildIT11Scenario(): ScenarioBundle {
     },
   ];
 
-  const manifest: ProjectManifest = { id: projId, title: 'IT-11 · Cloud Migration Journey', description: 'Customer experience migrating on-premise workloads to cloud: readiness assessment, batch migration, failed cutover, rollback and second attempt.', createdAt: now, updatedAt: now, schemaVersion: 1 };
+  const manifest: ProjectManifest = { id: projId, title: 'IT-11 · Cloud Migration Journey', description: 'Customer experience migrating on-premise workloads to cloud: readiness assessment, batch migration, failed cutover, rollback and second attempt.', createdAt: now, updatedAt: now, schemaVersion: 2 };
   const candidates: ProcessCandidate[] = [
     { projectId: projId, id: candId1, title: 'Migration readiness assessment', status: 'accepted', rationale: 'Discovery phase before any migration work begins.', sourceRefs: [], createdAt: now },
     { projectId: projId, id: candId2, title: 'Data migration and validation', status: 'accepted', rationale: 'Core technical migration process; distinct from planning and cutover.', sourceRefs: [], createdAt: now },
@@ -135,7 +146,7 @@ export function buildIT11Scenario(): ScenarioBundle {
   ];
   const processes: ProcessDefinition[] = [
     // ── Management layer ──────────────────────────────────────────────────────
-    { projectId: projId, id: procAssess, title: 'Migration readiness assessment', purpose: 'Evaluate workload complexity, dependencies and risks before committing to migration.', levelLabel: 'management', trigger: 'Customer decides to migrate a workload to cloud.', outcome: 'Complexity report and migration plan approved; risks and blockers documented.', inScope: ['Workload inventory', 'Dependency mapping', 'Schema compatibility check', 'Risk assessment'], outOfScope: ['Actual data migration', 'Cutover planning'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysMigration], evidenceIds: [] },
+    { projectId: projId, id: procAssess, title: 'Migration readiness assessment', purpose: 'Evaluate workload complexity, dependencies and risks before committing to migration.', levelLabel: 'management', trigger: 'Customer decides to migrate a workload to cloud.', outcome: 'Complexity report and migration plan approved; risks and blockers documented.', inScope: ['Workload inventory', 'Dependency mapping', 'Schema compatibility check', 'Risk assessment'], outOfScope: ['Actual data migration', 'Cutover planning'], status: 'draft', serviceIds: [svcReadiness], capabilityIds: [capReadiness], systemIds: [sysMigration], evidenceIds: [] },
     // ── Core group ────────────────────────────────────────────────────────────
     { projectId: projId, id: procCoreGroup, title: 'Workload Migration',
       purpose: 'Execute the end-to-end transfer of on-premise workloads to the cloud environment, including validation and cutover.',
@@ -144,11 +155,11 @@ export function buildIT11Scenario(): ScenarioBundle {
       outcome: 'Workload running in cloud; legacy decommissioned; hardcoded dependencies resolved.',
       inScope: ['Batch data migration', 'Schema transformation', 'Production cutover', 'Rollback execution', 'Post-migration validation'],
       outOfScope: ['Readiness assessment', 'Billing and commercial transition'],
-      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [], evidenceIds: [],
+      status: 'draft', serviceIds: [svcMigration, svcReadiness], capabilityIds: [capDataMig, capCutover, capReadiness], systemIds: [], evidenceIds: [],
     },
     // ── Core sub-processes ────────────────────────────────────────────────────
-    { projectId: projId, id: procMigrate, title: 'Data migration and validation', purpose: 'Transfer workload data to the target environment with integrity verification.', levelLabel: 'core', parentId: procCoreGroup, trigger: 'Migration plan approved and cutover window agreed.', outcome: 'All data transferred and validated; rollback plan confirmed.', inScope: ['Batch migration execution', 'Integrity checks', 'Schema transforms', 'Integration config updates'], outOfScope: ['Cutover coordination', 'Legacy decommission'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysMigration, sysCloud], evidenceIds: [] },
-    { projectId: projId, id: procCutover, title: 'Production cutover and rollback', purpose: 'Switch live traffic from legacy to cloud environment within an agreed window; rollback if criteria not met.', levelLabel: 'core', parentId: procCoreGroup, trigger: 'Migration complete and cutover window approved.', outcome: 'Traffic routed to cloud; legacy in standby; validation complete; legacy decommissioned.', inScope: ['Traffic cutover', 'Post-cutover validation', 'Rollback execution', 'Stakeholder communication'], outOfScope: ['Data migration', 'Billing transition'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysCloud, sysSupport], evidenceIds: [] },
+    { projectId: projId, id: procMigrate, title: 'Data migration and validation', purpose: 'Transfer workload data to the target environment with integrity verification.', levelLabel: 'core', parentId: procCoreGroup, trigger: 'Migration plan approved and cutover window agreed.', outcome: 'All data transferred and validated; rollback plan confirmed.', inScope: ['Batch migration execution', 'Integrity checks', 'Schema transforms', 'Integration config updates'], outOfScope: ['Cutover coordination', 'Legacy decommission'], status: 'draft', serviceIds: [svcMigration], capabilityIds: [capDataMig], systemIds: [sysMigration, sysCloud], evidenceIds: [] },
+    { projectId: projId, id: procCutover, title: 'Production cutover and rollback', purpose: 'Switch live traffic from legacy to cloud environment within an agreed window; rollback if criteria not met.', levelLabel: 'core', parentId: procCoreGroup, trigger: 'Migration complete and cutover window approved.', outcome: 'Traffic routed to cloud; legacy in standby; validation complete; legacy decommissioned.', inScope: ['Traffic cutover', 'Post-cutover validation', 'Rollback execution', 'Stakeholder communication'], outOfScope: ['Data migration', 'Billing transition'], status: 'draft', serviceIds: [svcMigration], capabilityIds: [capCutover], systemIds: [sysCloud, sysSupport], evidenceIds: [] },
   ];
   const personas: Persona[] = [{ projectId: projId, id: personaId, name: 'Elena Voss', role: 'Infrastructure Architect', goals: ['Complete migration with zero data loss', 'Minimize business disruption during cutover', 'Decommission legacy before next billing cycle'], needs: ['Reliable schema compatibility check', 'Realistic cutover time estimates', 'Clear rollback criteria'], constraints: ['Cutover must complete within 4-hour Saturday window', 'Cannot extend parallel run beyond 30 days', 'Must notify all affected teams 2 weeks in advance'], accessibilityNeeds: [], evidenceIds: [] }];
   const systems: ITSystem[] = [
@@ -339,9 +350,31 @@ export function buildIT11Scenario(): ScenarioBundle {
     { id: newId('rel'), projectId: projId, fromId: procAssess,    toId: procMigrate,  type: 'supportsService' },
   ];
 
+  // ─── Services ───────────────────────────────────────────────────────────────
+  const services: Service[] = [
+    { id: svcMigration, projectId: projId, name: 'Cloud Workload Migration', customerOutcome: 'On-premise workloads fully migrated to cloud with zero data loss and minimal downtime.', scope: 'Batch data migration, schema transformation, production cutover, rollback execution and post-migration validation.' },
+    { id: svcReadiness, projectId: projId, name: 'Migration Readiness Assessment', customerOutcome: 'Customer receives a detailed complexity report and migration plan identifying all risks and blockers before work begins.', scope: 'Workload inventory, dependency mapping, schema compatibility check and risk assessment.' },
+  ];
+
+  // ─── Capabilities ────────────────────────────────────────────────────────────
+  const capabilities: Capability[] = [
+    { id: capReadiness, projectId: projId, name: 'Migration Readiness Assessment', description: 'Ability to assess workload complexity, schema compatibility and dependency risks before migration commitment.', realizingProcessIds: [procAssess, procCoreGroup] },
+    { id: capDataMig,   projectId: projId, name: 'Batch Data Migration', description: 'Ability to transfer workload data to the cloud with integrity verification and schema transformation.', realizingProcessIds: [procMigrate, procCoreGroup] },
+    { id: capCutover,   projectId: projId, name: 'Production Cutover & Rollback', description: 'Ability to switch live traffic to cloud within a defined window and execute rollback if validation criteria are not met.', realizingProcessIds: [procCutover, procCoreGroup] },
+  ];
+
+  // ─── Process Ratings ─────────────────────────────────────────────────────────
+  const processRatings: ProcessRating[] = [
+    { id: `${procAssess}__default`,    projectId: projId, processId: procAssess,    configId: 'default', ratings: { strategic_impact: 4, pain_severity: 4, feasibility: 3, volume: 2 } },
+    { id: `${procCoreGroup}__default`, projectId: projId, processId: procCoreGroup, configId: 'default', ratings: { strategic_impact: 5, pain_severity: 4, feasibility: 3, volume: 2 } },
+    { id: `${procMigrate}__default`,   projectId: projId, processId: procMigrate,   configId: 'default', ratings: { strategic_impact: 5, pain_severity: 4, feasibility: 3, volume: 2 } },
+    { id: `${procCutover}__default`,   projectId: projId, processId: procCutover,   configId: 'default', ratings: { strategic_impact: 5, pain_severity: 5, feasibility: 2, volume: 2 } },
+  ];
+
   return {
     manifest, candidates, processes, relations, personas, systems, channels, touchpoints,
     journeys: [journey], stages, steps: journeySteps, rows, cells, cards, painPoints,
+    services, capabilities, processRatings,
     interviews, interviewItems, observations, stormingCards, contradictions,
     sipocDiagrams, sipocRows, processMaps, mapLanes, mapActivities, mapEdges,
   };

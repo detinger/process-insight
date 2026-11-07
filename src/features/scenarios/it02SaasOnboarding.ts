@@ -11,8 +11,9 @@ import type {
   DiscoveryInterview, DiscoveryInterviewItem, DiscoveryObservation,
   StormingCard, Contradiction,
   SipocDiagram, SipocRow, ProcessMap, MapLane, MapActivity, ProcessMapEdge,
-  LandscapeRelation,
+  LandscapeRelation, Service, Capability,
 } from '../../domain/contracts/types';
+import type { ProcessRating } from '../../domain/scoring';
 
 export interface ScenarioBundle {
   manifest: ProjectManifest;
@@ -37,6 +38,11 @@ export interface ScenarioBundle {
   contradictions?: Contradiction[];
   // Landscape relations (graph edges)
   relations?: LandscapeRelation[];
+  // Dictionary
+  services?: Service[];
+  capabilities?: Capability[];
+  // Priority scoring
+  processRatings?: ProcessRating[];
   // Map workspace
   sipocDiagrams?: SipocDiagram[];
   sipocRows?: SipocRow[];
@@ -69,6 +75,17 @@ export function buildIT02Scenario(): ScenarioBundle {
   const procMigration  = newId('proc');  // core: Customer data migration
   const procIdSupport  = newId('proc');  // support: Identity & Access Management
   const procTechSupport = newId('proc'); // support: Technical Onboarding Support
+
+  // ─── Service & Capability IDs ─────────────────────────────────────────────
+  const svcOnboarding  = newId('svc');
+  const svcMigration   = newId('svc');
+  const svcIdMgmt      = newId('svc');
+
+  const capTenantProv  = newId('cap');
+  const capIdpSso      = newId('cap');
+  const capDataMig     = newId('cap');
+  const capSupport     = newId('cap');
+
   const candId1 = newId('cand');
   const candId2 = newId('cand');
   const candId3 = newId('cand');
@@ -273,7 +290,7 @@ export function buildIT02Scenario(): ScenarioBundle {
     description: 'Enterprise customer onboarding for a cloud collaboration platform. IT admin perspective.',
     createdAt: now,
     updatedAt: now,
-    schemaVersion: 1,
+    schemaVersion: 2,
   };
 
   const candidates: ProcessCandidate[] = [
@@ -310,7 +327,7 @@ export function buildIT02Scenario(): ScenarioBundle {
       outcome: 'Published onboarding SLA targets; KPI dashboard updated; escalation paths confirmed.',
       inScope: ['SLA definition', 'Onboarding KPI monitoring', 'Escalation path management', 'CSM assignment'],
       outOfScope: ['Day-to-day technical support', 'Billing and renewal'],
-      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [], evidenceIds: [],
+      status: 'draft', serviceIds: [svcOnboarding], capabilityIds: [], systemIds: [], evidenceIds: [],
     },
     { projectId: projId, id: procMgmt2,
       title: 'Vendor & Partnership Governance',
@@ -320,7 +337,7 @@ export function buildIT02Scenario(): ScenarioBundle {
       outcome: 'Active vendor contracts reviewed; integration standards published; compliance status confirmed.',
       inScope: ['Vendor contract management', 'Third-party IdP certification', 'SLA compliance review'],
       outOfScope: ['Individual customer configuration', 'Internal IT procurement'],
-      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [], evidenceIds: [],
+      status: 'draft', serviceIds: [svcIdMgmt], capabilityIds: [], systemIds: [], evidenceIds: [],
     },
     // ── Core group ────────────────────────────────────────────────────────────
     { projectId: projId, id: procCoreGroup,
@@ -331,7 +348,7 @@ export function buildIT02Scenario(): ScenarioBundle {
       outcome: 'All users authenticated; workspace live; customer acknowledges go-live.',
       inScope: ['Tenant provisioning', 'IdP/SSO setup', 'User import', 'Setup wizard', 'Data migration'],
       outOfScope: ['Ongoing customer support post-go-live', 'Billing management'],
-      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [], evidenceIds: [],
+      status: 'draft', serviceIds: [svcOnboarding, svcMigration], capabilityIds: [capTenantProv, capIdpSso, capDataMig], systemIds: [], evidenceIds: [],
     },
     // ── Core sub-processes (children of procCoreGroup) ────────────────────────
     { projectId: projId, id: procOnboard,
@@ -354,8 +371,8 @@ export function buildIT02Scenario(): ScenarioBundle {
         'Billing disputes',
       ],
       status: 'draft',
-      serviceIds: [],
-      capabilityIds: [],
+      serviceIds: [svcOnboarding],
+      capabilityIds: [capTenantProv, capIdpSso],
       systemIds: [sysPortal, sysIdp],
       evidenceIds: [],
     },
@@ -367,7 +384,7 @@ export function buildIT02Scenario(): ScenarioBundle {
       outcome: 'All selected data migrated and verified; migration report delivered to admin.',
       inScope: ['Data export from source system', 'Format transformation', 'Bulk import', 'Integrity verification'],
       outOfScope: ['IdP/SSO configuration', 'User permission assignment'],
-      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysPortal], evidenceIds: [],
+      status: 'draft', serviceIds: [svcMigration], capabilityIds: [capDataMig], systemIds: [sysPortal], evidenceIds: [],
     },
     // ── Support layer ─────────────────────────────────────────────────────────
     { projectId: projId, id: procIdSupport,
@@ -378,7 +395,7 @@ export function buildIT02Scenario(): ScenarioBundle {
       outcome: 'IdP integration verified; access policy published; admin notified.',
       inScope: ['IdP template maintenance', 'SSO configuration standards', 'Access policy enforcement', 'Role definition'],
       outOfScope: ['Tenant-specific configuration', 'End-user authentication troubleshooting'],
-      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysIdp], evidenceIds: [],
+      status: 'draft', serviceIds: [svcIdMgmt], capabilityIds: [capIdpSso], systemIds: [sysIdp], evidenceIds: [],
     },
     { projectId: projId, id: procTechSupport,
       title: 'Technical Onboarding Support',
@@ -388,7 +405,7 @@ export function buildIT02Scenario(): ScenarioBundle {
       outcome: 'Issue resolved or escalated; resolution documented in knowledge base.',
       inScope: ['Live chat support', 'Screenshare-assisted troubleshooting', 'Knowledge base authoring'],
       outOfScope: ['Post-go-live general support', 'Product bug fixes'],
-      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [], evidenceIds: [],
+      status: 'draft', serviceIds: [svcOnboarding], capabilityIds: [capSupport], systemIds: [], evidenceIds: [],
     },
   ];
 
@@ -670,6 +687,32 @@ export function buildIT02Scenario(): ScenarioBundle {
     { id: newId('rel'), projectId: projId, fromId: procTechSupport, toId: procOnboard,   type: 'supportsService' },
   ];
 
+  // ─── Services ───────────────────────────────────────────────────────────────
+  const services: Service[] = [
+    { id: svcOnboarding, projectId: projId, name: 'Enterprise SaaS Onboarding', customerOutcome: 'Enterprise customer fully configured and all users live on the platform within contracted SLA.', scope: 'Tenant provisioning, IdP/SSO setup, user import and go-live support for enterprise accounts.' },
+    { id: svcMigration,  projectId: projId, name: 'Data Migration', customerOutcome: 'Customer data transferred from legacy tools to the new platform with verified integrity.', scope: 'Export, transformation, bulk import and integrity verification of customer data.' },
+    { id: svcIdMgmt,     projectId: projId, name: 'Identity & Access Management', customerOutcome: 'Secure, standards-compliant IdP integration maintained for all tenants.', scope: 'IdP template management, SSO standards, access policy governance across all customer tenants.' },
+  ];
+
+  // ─── Capabilities ────────────────────────────────────────────────────────────
+  const capabilities: Capability[] = [
+    { id: capTenantProv, projectId: projId, name: 'Tenant Provisioning', description: 'Ability to create, configure and activate a new customer tenant end-to-end.', realizingProcessIds: [procCoreGroup, procOnboard] },
+    { id: capIdpSso,     projectId: projId, name: 'IdP / SSO Configuration', description: 'Ability to integrate customer identity providers via SAML or OIDC and verify SSO.', realizingProcessIds: [procOnboard, procIdSupport] },
+    { id: capDataMig,    projectId: projId, name: 'Data Migration', description: 'Ability to bulk-migrate customer data from legacy platforms with integrity checks.', realizingProcessIds: [procMigration] },
+    { id: capSupport,    projectId: projId, name: 'Onboarding Technical Support', description: 'Ability to resolve technical onboarding issues via live chat and screenshare within SLA.', realizingProcessIds: [procTechSupport] },
+  ];
+
+  // ─── Process Ratings ─────────────────────────────────────────────────────────
+  const processRatings: ProcessRating[] = [
+    { id: `${procMgmt1}__default`,     projectId: projId, processId: procMgmt1,     configId: 'default', ratings: { strategic_impact: 4, pain_severity: 2, feasibility: 4, volume: 2 } },
+    { id: `${procMgmt2}__default`,     projectId: projId, processId: procMgmt2,     configId: 'default', ratings: { strategic_impact: 3, pain_severity: 2, feasibility: 4, volume: 1 } },
+    { id: `${procCoreGroup}__default`, projectId: projId, processId: procCoreGroup, configId: 'default', ratings: { strategic_impact: 5, pain_severity: 4, feasibility: 3, volume: 4 } },
+    { id: `${procOnboard}__default`,   projectId: projId, processId: procOnboard,   configId: 'default', ratings: { strategic_impact: 5, pain_severity: 5, feasibility: 3, volume: 4 } },
+    { id: `${procMigration}__default`, projectId: projId, processId: procMigration, configId: 'default', ratings: { strategic_impact: 4, pain_severity: 4, feasibility: 2, volume: 3 } },
+    { id: `${procIdSupport}__default`, projectId: projId, processId: procIdSupport, configId: 'default', ratings: { strategic_impact: 4, pain_severity: 5, feasibility: 3, volume: 3 } },
+    { id: `${procTechSupport}__default`, projectId: projId, processId: procTechSupport, configId: 'default', ratings: { strategic_impact: 3, pain_severity: 4, feasibility: 4, volume: 5 } },
+  ];
+
   return {
     manifest,
     candidates,
@@ -686,6 +729,7 @@ export function buildIT02Scenario(): ScenarioBundle {
     cards,
     painPoints,
     relations,
+    services, capabilities, processRatings,
     interviews, interviewItems, observations, stormingCards, contradictions,
     sipocDiagrams, sipocRows, processMaps, mapLanes, mapActivities, mapEdges,
   };

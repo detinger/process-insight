@@ -395,7 +395,7 @@ const CONCEPTS: ConceptDef[] = [
       '"Average form completion: 22 min (observed, service desk walk-through, 2024-10, n=4)" — evidence with confidence: medium.',
     ],
     watchOut: 'Silently upgrading an assumption to evidence by repeating it in multiple documents. The source is still one person\'s opinion. If two people independently observed the same thing, that raises confidence — but only if collected independently.',
-    tryIt: { label: 'Log evidence in Discover', workspace: 'discover' },
+    tryIt: { label: 'Open IT-03, go to Interview synthesis — mark each quote as evidence or assumption', scenarioId: 'IT-03', workspace: 'discover' },
   },
   {
     title: 'Observation vs Target',

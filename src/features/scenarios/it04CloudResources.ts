@@ -10,7 +10,9 @@ import type {
   DiscoveryInterview, DiscoveryInterviewItem, DiscoveryObservation,
   StormingCard, Contradiction,
   SipocDiagram, SipocRow, ProcessMap, MapLane, MapActivity, ProcessMapEdge,
+  Service, Capability,
 } from '../../domain/contracts/types';
+import type { ProcessRating } from '../../domain/scoring';
 import type { ScenarioBundle } from './it02SaasOnboarding';
 
 export function buildIT04Scenario(): ScenarioBundle {
@@ -34,6 +36,15 @@ export function buildIT04Scenario(): ScenarioBundle {
   const procProvision = newId('proc');  // core: Automated Provisioning
   const procCost      = newId('proc');  // support: Cost Management
   const procSecurity  = newId('proc');  // support: Security & Access Control
+
+  // ─── Service & Capability IDs ─────────────────────────────────────────────
+  const svcCloudProv   = newId('svc');
+  const svcCostMgmt    = newId('svc');
+
+  const capSelfService = newId('cap');
+  const capAutoProvision = newId('cap');
+  const capCostAlloc   = newId('cap');
+
   const candId1 = newId('cand');
   const candId2 = newId('cand');
   const candId3 = newId('cand');
@@ -166,7 +177,7 @@ export function buildIT04Scenario(): ScenarioBundle {
     id: projId,
     title: 'IT-04 · Cloud Resource Request Journey',
     description: 'Developer experience requesting a Kubernetes namespace and storage through a self-service cloud catalog.',
-    createdAt: now, updatedAt: now, schemaVersion: 1,
+    createdAt: now, updatedAt: now, schemaVersion: 2,
   };
 
   const candidates: ProcessCandidate[] = [
@@ -183,7 +194,7 @@ export function buildIT04Scenario(): ScenarioBundle {
       outcome: 'Up-to-date governance policies; audit-ready cloud environment.',
       inScope: ['Policy definition', 'Compliance audits', 'Architecture review board'],
       outOfScope: ['Day-to-day provisioning operations'],
-      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [], evidenceIds: [],
+      status: 'draft', serviceIds: [svcCloudProv], capabilityIds: [], systemIds: [], evidenceIds: [],
     },
     { projectId: projId, id: procMgmt2, title: 'Cloud Strategy & Architecture',
       purpose: 'Define the multi-cloud adoption strategy, standard resource tiers and cost targets.',
@@ -191,7 +202,7 @@ export function buildIT04Scenario(): ScenarioBundle {
       outcome: 'Published cloud strategy; approved service catalog with standard tiers.',
       inScope: ['Service catalog design', 'Provider selection', 'Cost target-setting'],
       outOfScope: ['Individual request handling'],
-      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [], evidenceIds: [],
+      status: 'draft', serviceIds: [svcCloudProv], capabilityIds: [], systemIds: [], evidenceIds: [],
     },
     // ── Core group ────────────────────────────────────────────────────────────
     { projectId: projId, id: procGroup, title: 'Cloud Infrastructure Operations',
@@ -201,7 +212,7 @@ export function buildIT04Scenario(): ScenarioBundle {
       outcome: 'Resources provisioned, cost-allocated and verified.',
       inScope: ['Self-service request', 'Approval', 'Provisioning', 'Verification'],
       outOfScope: ['Billing negotiation', 'Strategic cloud selection'],
-      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [], evidenceIds: [],
+      status: 'draft', serviceIds: [svcCloudProv, svcCostMgmt], capabilityIds: [capSelfService, capAutoProvision, capCostAlloc], systemIds: [], evidenceIds: [],
     },
     // ── Core sub-processes (children of procGroup) ────────────────────────────
     { projectId: projId, id: procRequest, title: 'Request & Approval',
@@ -211,7 +222,7 @@ export function buildIT04Scenario(): ScenarioBundle {
       outcome: 'Request approved or rejected; developer notified with reason.',
       inScope: ['Catalog browsing', 'Request configuration', 'Budget approval', 'Security review', 'Requester notification'],
       outOfScope: ['Actual resource provisioning', 'Cost centre maintenance'],
-      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysCatalog, sysApproval], evidenceIds: [],
+      status: 'draft', serviceIds: [svcCloudProv], capabilityIds: [capSelfService], systemIds: [sysCatalog, sysApproval], evidenceIds: [],
     },
     { projectId: projId, id: procProvision, title: 'Automated Provisioning',
       purpose: 'Create cloud resources from an approved request spec without manual intervention.',
@@ -220,7 +231,7 @@ export function buildIT04Scenario(): ScenarioBundle {
       outcome: 'Resources created, tagged and accessible; requester receives access credentials.',
       inScope: ['Infrastructure-as-code execution', 'Resource tagging', 'Credential delivery', 'Post-provision verification'],
       outOfScope: ['Approval workflow', 'Billing reconciliation'],
-      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysCatalog, sysCloud], evidenceIds: [],
+      status: 'draft', serviceIds: [svcCloudProv], capabilityIds: [capAutoProvision], systemIds: [sysCatalog, sysCloud], evidenceIds: [],
     },
     // ── Support layer ─────────────────────────────────────────────────────────
     { projectId: projId, id: procCost, title: 'Cost Management & Tagging',
@@ -230,7 +241,7 @@ export function buildIT04Scenario(): ScenarioBundle {
       outcome: 'All resources tagged with valid cost centre; untagged spend alerted to owner.',
       inScope: ['Tag validation at provisioning', 'Monthly cost allocation reports', 'Untagged resource alerts'],
       outOfScope: ['Budget approval', 'Procurement'],
-      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysCloud], evidenceIds: [],
+      status: 'draft', serviceIds: [svcCostMgmt], capabilityIds: [capCostAlloc], systemIds: [sysCloud], evidenceIds: [],
     },
     { projectId: projId, id: procSecurity, title: 'Security & Access Control',
       purpose: 'Enforce least-privilege access and security baselines on all provisioned resources.',
@@ -239,7 +250,7 @@ export function buildIT04Scenario(): ScenarioBundle {
       outcome: 'Resources meet security baseline; access logs retained.',
       inScope: ['IAM policy enforcement', 'Network security group rules', 'Access log retention'],
       outOfScope: ['Application-level security', 'DDoS protection negotiation'],
-      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysCloud], evidenceIds: [],
+      status: 'draft', serviceIds: [svcCloudProv], capabilityIds: [], systemIds: [sysCloud], evidenceIds: [],
     },
   ];
 
@@ -495,9 +506,34 @@ export function buildIT04Scenario(): ScenarioBundle {
     { id: newId('me'), projectId: projId, mapId: pmId, fromId: maAccess,   toId: maEnd,      label: '' },
   ];
 
+  // ─── Services ───────────────────────────────────────────────────────────────
+  const services: Service[] = [
+    { id: svcCloudProv, projectId: projId, name: 'Cloud Resource Provisioning', customerOutcome: 'Developer receives a correctly configured, cost-tagged cloud resource within 2 business days of submission.', scope: 'Self-service catalog requests, approval, automated IaC provisioning and post-provision verification.' },
+    { id: svcCostMgmt,  projectId: projId, name: 'Cloud Cost Management', customerOutcome: 'All cloud spend accurately allocated to cost centres with timely alerts for untagged resources.', scope: 'Resource tagging at provisioning, monthly cost allocation reports and untagged resource alerting.' },
+  ];
+
+  // ─── Capabilities ────────────────────────────────────────────────────────────
+  const capabilities: Capability[] = [
+    { id: capSelfService,   projectId: projId, name: 'Self-Service Resource Catalog', description: 'Ability for developers to discover, configure and submit infrastructure requests without manual IT involvement.', realizingProcessIds: [procRequest, procGroup] },
+    { id: capAutoProvision, projectId: projId, name: 'Automated Infrastructure Provisioning', description: 'Ability to execute IaC pipelines and deliver correctly tagged, accessible cloud resources on approved requests.', realizingProcessIds: [procProvision, procGroup] },
+    { id: capCostAlloc,     projectId: projId, name: 'Cost Allocation & Tagging', description: 'Ability to enforce cost centre tags at provisioning and report unallocated spend to owners.', realizingProcessIds: [procCost, procGroup] },
+  ];
+
+  // ─── Process Ratings ─────────────────────────────────────────────────────────
+  const processRatings: ProcessRating[] = [
+    { id: `${procMgmt1}__default`,     projectId: projId, processId: procMgmt1,     configId: 'default', ratings: { strategic_impact: 4, pain_severity: 2, feasibility: 4, volume: 2 } },
+    { id: `${procMgmt2}__default`,     projectId: projId, processId: procMgmt2,     configId: 'default', ratings: { strategic_impact: 5, pain_severity: 3, feasibility: 3, volume: 1 } },
+    { id: `${procGroup}__default`,     projectId: projId, processId: procGroup,     configId: 'default', ratings: { strategic_impact: 5, pain_severity: 4, feasibility: 3, volume: 4 } },
+    { id: `${procRequest}__default`,   projectId: projId, processId: procRequest,   configId: 'default', ratings: { strategic_impact: 4, pain_severity: 4, feasibility: 3, volume: 4 } },
+    { id: `${procProvision}__default`, projectId: projId, processId: procProvision, configId: 'default', ratings: { strategic_impact: 5, pain_severity: 3, feasibility: 4, volume: 4 } },
+    { id: `${procCost}__default`,      projectId: projId, processId: procCost,      configId: 'default', ratings: { strategic_impact: 4, pain_severity: 3, feasibility: 4, volume: 3 } },
+    { id: `${procSecurity}__default`,  projectId: projId, processId: procSecurity,  configId: 'default', ratings: { strategic_impact: 5, pain_severity: 2, feasibility: 4, volume: 3 } },
+  ];
+
   return {
     manifest, candidates, processes, personas, systems, channels, touchpoints,
     journeys: [journey], stages, steps: journeySteps, rows, cells, cards, painPoints,
+    services, capabilities, processRatings,
     interviews, interviewItems, observations, stormingCards, contradictions,
     sipocDiagrams, sipocRows, processMaps, mapLanes, mapActivities, mapEdges,
   };

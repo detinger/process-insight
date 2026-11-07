@@ -88,6 +88,53 @@ export function findDependencyCycles(relations: LandscapeRelation[]): Set<string
   return result;
 }
 
+// ─── Auto-connection inference ───
+
+function inferRelations(
+  processes: ProcessDefinition[],
+  explicit: LandscapeRelation[],
+): LandscapeRelation[] {
+  if (processes.length === 0) return [];
+  const projectId = processes[0].projectId;
+  const explicitPairs = new Set(explicit.map(r => `${r.fromId}:${r.toId}`));
+  const inferred: LandscapeRelation[] = [];
+
+  // Rule 1: parentId → decomposesInto
+  for (const p of processes) {
+    if (p.parentId && !explicitPairs.has(`${p.parentId}:${p.id}`)) {
+      inferred.push({
+        id: `inferred-parent-${p.id}`,
+        projectId,
+        fromId: p.parentId,
+        toId: p.id,
+        type: 'decomposesInto',
+      } as LandscapeRelation);
+    }
+  }
+
+  // Rule 2: support processes with no outgoing relations → supportsService to core-group
+  const coreGroups = processes.filter(p => p.levelLabel === 'core-group');
+  if (coreGroups.length === 1) {
+    const cg = coreGroups[0];
+    for (const p of processes) {
+      if (p.levelLabel !== 'support') continue;
+      const hasOutgoing = explicit.some(r => r.fromId === p.id) ||
+                          inferred.some(r => r.fromId === p.id);
+      if (!hasOutgoing && !explicitPairs.has(`${p.id}:${cg.id}`)) {
+        inferred.push({
+          id: `inferred-support-${p.id}`,
+          projectId,
+          fromId: p.id,
+          toId: cg.id,
+          type: 'supportsService',
+        } as LandscapeRelation);
+      }
+    }
+  }
+
+  return inferred;
+}
+
 // ─── Layout ───
 
 const TIER_ROW: Record<string, number> = {
@@ -235,18 +282,29 @@ export function LandscapeGraph({
     selected: p.id === selectedId,
   })), [processes, positions, cycleNodes, selectedId]);
 
-  const initialEdges: Edge[] = useMemo(() => relations.map(r => {
+  const allRelations = useMemo(
+    () => [...relations, ...inferRelations(processes, relations)],
+    [processes, relations],
+  );
+
+  const initialEdges: Edge[] = useMemo(() => allRelations.map(r => {
     const style = EDGE_STYLE[r.type] ?? EDGE_STYLE['dependsOn'];
+    const isInferred = r.id.startsWith('inferred-');
     return {
       id: r.id,
       source: r.fromId,
       target: r.toId,
       label: style.label,
-      style: { stroke: style.stroke, strokeDasharray: style.strokeDasharray, strokeWidth: 1.5 },
-      labelStyle: { fontSize: 10, fill: 'var(--text-subtle)' },
+      style: {
+        stroke: style.stroke,
+        strokeDasharray: isInferred ? '6 3' : style.strokeDasharray,
+        strokeWidth: isInferred ? 1 : 1.5,
+        opacity: isInferred ? 0.5 : 1,
+      },
+      labelStyle: { fontSize: 10, fill: 'var(--text-subtle)', opacity: isInferred ? 0.5 : 1 },
       labelBgStyle: { fill: 'var(--bg)', fillOpacity: 0.9 },
     };
-  }), [relations]);
+  }), [allRelations]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, , onEdgesChange] = useEdgesState(initialEdges);

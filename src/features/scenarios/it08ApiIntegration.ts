@@ -9,7 +9,9 @@ import type {
   DiscoveryInterview, DiscoveryInterviewItem, DiscoveryObservation,
   StormingCard, Contradiction,
   SipocDiagram, SipocRow, ProcessMap, MapLane, MapActivity, ProcessMapEdge,
+  Service, Capability,
 } from '../../domain/contracts/types';
+import type { ProcessRating } from '../../domain/scoring';
 import type { ScenarioBundle } from './it02SaasOnboarding';
 
 export function buildIT08Scenario(): ScenarioBundle {
@@ -28,6 +30,14 @@ export function buildIT08Scenario(): ScenarioBundle {
   const procCoreGroup = newId('proc');  // core-group: Developer API Enablement
   const procOnboard   = newId('proc');
   const procSecurity  = newId('proc');
+
+  // ─── Service & Capability IDs ─────────────────────────────────────────────
+  const svcApiOnboard  = newId('svc');
+  const svcProdAccess  = newId('svc');
+
+  const capSandbox     = newId('cap');
+  const capProdKey     = newId('cap');
+
   const candId1 = newId('cand');
   const candId2 = newId('cand');
 
@@ -120,14 +130,14 @@ export function buildIT08Scenario(): ScenarioBundle {
     },
   ];
 
-  const manifest: ProjectManifest = { id: projId, title: 'IT-08 · Public API Integration Journey', description: "Developer's experience integrating a third-party API: docs discovery, sandbox, production access approval, first call and rate-limit handling.", createdAt: now, updatedAt: now, schemaVersion: 1 };
+  const manifest: ProjectManifest = { id: projId, title: 'IT-08 · Public API Integration Journey', description: "Developer's experience integrating a third-party API: docs discovery, sandbox, production access approval, first call and rate-limit handling.", createdAt: now, updatedAt: now, schemaVersion: 2 };
   const candidates: ProcessCandidate[] = [
     { projectId: projId, id: candId1, title: 'Developer API onboarding', status: 'accepted', rationale: 'Primary self-service journey from docs to first production call.', sourceRefs: [], createdAt: now },
     { projectId: projId, id: candId2, title: 'Production API access approval', status: 'accepted', rationale: 'Security-gated subprocess; different team and timebox.', sourceRefs: [], createdAt: now },
   ];
   const processes: ProcessDefinition[] = [
     // ── Management layer ──────────────────────────────────────────────────────
-    { projectId: projId, id: procSecurity, title: 'Production API access approval', purpose: 'Review and approve production API key requests against security and usage policy.', levelLabel: 'management', trigger: 'Developer submits production access application.', outcome: 'Production key issued or request rejected with explanation.', inScope: ['Application review', 'Security questionnaire', 'Usage policy check', 'Key provisioning'], outOfScope: ['Sandbox access', 'Developer support'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysApproval], evidenceIds: [] },
+    { projectId: projId, id: procSecurity, title: 'Production API access approval', purpose: 'Review and approve production API key requests against security and usage policy.', levelLabel: 'management', trigger: 'Developer submits production access application.', outcome: 'Production key issued or request rejected with explanation.', inScope: ['Application review', 'Security questionnaire', 'Usage policy check', 'Key provisioning'], outOfScope: ['Sandbox access', 'Developer support'], status: 'draft', serviceIds: [svcProdAccess], capabilityIds: [capProdKey], systemIds: [sysApproval], evidenceIds: [] },
     // ── Core group ────────────────────────────────────────────────────────────
     { projectId: projId, id: procCoreGroup, title: 'Developer API Enablement',
       purpose: 'Enable external developers to discover, test and integrate APIs from first contact to production.',
@@ -136,10 +146,10 @@ export function buildIT08Scenario(): ScenarioBundle {
       outcome: 'Developer makes first successful production API call and handles rate limits.',
       inScope: ['Documentation', 'Sandbox access', 'Production access', 'First integration support'],
       outOfScope: ['Billing and commercial terms', 'Custom API development'],
-      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [], evidenceIds: [],
+      status: 'draft', serviceIds: [svcApiOnboard, svcProdAccess], capabilityIds: [capSandbox, capProdKey], systemIds: [], evidenceIds: [],
     },
     // ── Core sub-processes ────────────────────────────────────────────────────
-    { projectId: projId, id: procOnboard, title: 'Developer API onboarding', purpose: 'Enable external developers to discover, test and integrate an API into their product.', levelLabel: 'core', parentId: procCoreGroup, trigger: 'Developer registers for API access.', outcome: 'Developer makes first successful production API call.', inScope: ['Documentation access', 'Sandbox provisioning', 'Credential delivery', 'First-call guidance'], outOfScope: ['Production access security review', 'Billing setup'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysDocs, sysSandbox], evidenceIds: [] },
+    { projectId: projId, id: procOnboard, title: 'Developer API onboarding', purpose: 'Enable external developers to discover, test and integrate an API into their product.', levelLabel: 'core', parentId: procCoreGroup, trigger: 'Developer registers for API access.', outcome: 'Developer makes first successful production API call.', inScope: ['Documentation access', 'Sandbox provisioning', 'Credential delivery', 'First-call guidance'], outOfScope: ['Production access security review', 'Billing setup'], status: 'draft', serviceIds: [svcApiOnboard], capabilityIds: [capSandbox], systemIds: [sysDocs, sysSandbox], evidenceIds: [] },
   ];
   const personas: Persona[] = [{ projectId: projId, id: personaId, name: 'Ravi Sharma', role: 'Backend Developer', goals: ['Integrate API within sprint', 'Understand rate limits before production', 'Avoid production surprises'], needs: ['Accurate docs with working code examples', 'Transparent production access SLA', 'Sandbox that mirrors production behaviour'], constraints: ['Cannot bypass production approval process', 'Sprint deadline cannot slip more than one day', 'No internal contact at API vendor'], accessibilityNeeds: [], evidenceIds: [] }];
   const systems: ITSystem[] = [
@@ -328,9 +338,29 @@ export function buildIT08Scenario(): ScenarioBundle {
     { id: newId('rel'), projectId: projId, fromId: procSecurity,  toId: procOnboard, type: 'supportsService' },
   ];
 
+  // ─── Services ───────────────────────────────────────────────────────────────
+  const services: Service[] = [
+    { id: svcApiOnboard, projectId: projId, name: 'API Developer Onboarding', customerOutcome: 'Developer makes first successful sandbox API call within hours of registration, with accurate documentation.', scope: 'API documentation, sandbox provisioning, credential delivery and first-call guidance for new integrators.' },
+    { id: svcProdAccess, projectId: projId, name: 'Production API Access', customerOutcome: 'Production API key issued within SLA after security review, enabling live integration.', scope: 'Production access application review, security questionnaire, usage policy check and key provisioning.' },
+  ];
+
+  // ─── Capabilities ────────────────────────────────────────────────────────────
+  const capabilities: Capability[] = [
+    { id: capSandbox, projectId: projId, name: 'Sandbox API Environment', description: 'Ability to provision a sandboxed API environment with documentation for developer testing.', realizingProcessIds: [procOnboard, procCoreGroup] },
+    { id: capProdKey, projectId: projId, name: 'Production API Key Issuance', description: 'Ability to review and approve production API access applications and issue keys within SLA.', realizingProcessIds: [procSecurity, procCoreGroup] },
+  ];
+
+  // ─── Process Ratings ─────────────────────────────────────────────────────────
+  const processRatings: ProcessRating[] = [
+    { id: `${procCoreGroup}__default`, projectId: projId, processId: procCoreGroup, configId: 'default', ratings: { strategic_impact: 5, pain_severity: 4, feasibility: 4, volume: 4 } },
+    { id: `${procOnboard}__default`,   projectId: projId, processId: procOnboard,   configId: 'default', ratings: { strategic_impact: 5, pain_severity: 4, feasibility: 4, volume: 4 } },
+    { id: `${procSecurity}__default`,  projectId: projId, processId: procSecurity,  configId: 'default', ratings: { strategic_impact: 4, pain_severity: 4, feasibility: 3, volume: 3 } },
+  ];
+
   return {
     manifest, candidates, processes, relations, personas, systems, channels, touchpoints,
     journeys: [journey], stages, steps: journeySteps, rows, cells, cards, painPoints,
+    services, capabilities, processRatings,
     interviews, interviewItems, observations, stormingCards, contradictions,
     sipocDiagrams, sipocRows, processMaps, mapLanes, mapActivities, mapEdges,
   };

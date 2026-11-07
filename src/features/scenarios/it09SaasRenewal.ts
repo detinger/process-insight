@@ -9,7 +9,9 @@ import type {
   DiscoveryInterview, DiscoveryInterviewItem, DiscoveryObservation,
   StormingCard, Contradiction,
   SipocDiagram, SipocRow, ProcessMap, MapLane, MapActivity, ProcessMapEdge,
+  Service, Capability,
 } from '../../domain/contracts/types';
+import type { ProcessRating } from '../../domain/scoring';
 import type { ScenarioBundle } from './it02SaasOnboarding';
 
 export function buildIT09Scenario(): ScenarioBundle {
@@ -27,6 +29,14 @@ export function buildIT09Scenario(): ScenarioBundle {
   const procCoreGroup = newId('proc');  // core-group: Subscription & Account Lifecycle
   const procRenewal   = newId('proc');
   const procExport    = newId('proc');
+
+  // ─── Service & Capability IDs ─────────────────────────────────────────────
+  const svcSubscription = newId('svc');
+  const svcDataExport   = newId('svc');
+
+  const capRenewalMgmt  = newId('cap');
+  const capDataPort     = newId('cap');
+
   const candId1 = newId('cand');
   const candId2 = newId('cand');
 
@@ -122,7 +132,7 @@ export function buildIT09Scenario(): ScenarioBundle {
     },
   ];
 
-  const manifest: ProjectManifest = { id: projId, title: 'IT-09 · SaaS Renewal/Cancellation Journey', description: 'SaaS administrator evaluating renewal, negotiating terms, cancelling, exporting data and closing account.', createdAt: now, updatedAt: now, schemaVersion: 1 };
+  const manifest: ProjectManifest = { id: projId, title: 'IT-09 · SaaS Renewal/Cancellation Journey', description: 'SaaS administrator evaluating renewal, negotiating terms, cancelling, exporting data and closing account.', createdAt: now, updatedAt: now, schemaVersion: 2 };
   const candidates: ProcessCandidate[] = [
     { projectId: projId, id: candId1, title: 'Subscription renewal and cancellation management', status: 'accepted', rationale: 'Core account lifecycle process; spans billing, account management and customer success.', sourceRefs: [], createdAt: now },
     { projectId: projId, id: candId2, title: 'Customer data export and portability', status: 'accepted', rationale: 'Distinct data process; regulatory and compliance implications.', sourceRefs: [], createdAt: now },
@@ -136,7 +146,7 @@ export function buildIT09Scenario(): ScenarioBundle {
       outcome: 'Published renewal policy; cancellation rights documented; data retention SLA confirmed.',
       inScope: ['Renewal policy definition', 'Cancellation rights', 'Data retention policy', 'Customer portability compliance'],
       outOfScope: ['Individual subscription processing', 'Billing dispute resolution'],
-      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysBilling], evidenceIds: [],
+      status: 'draft', serviceIds: [svcSubscription], capabilityIds: [], systemIds: [sysBilling], evidenceIds: [],
     },
     // ── Core group ────────────────────────────────────────────────────────────
     { projectId: projId, id: procCoreGroup, title: 'Subscription & Account Lifecycle',
@@ -146,12 +156,12 @@ export function buildIT09Scenario(): ScenarioBundle {
       outcome: 'Subscription renewed or account closed; data exported; billing reconciled.',
       inScope: ['Renewal and cancellation', 'Data export', 'Final invoicing', 'Account closure'],
       outOfScope: ['Post-closure data deletion', 'Procurement of replacement service'],
-      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [], evidenceIds: [],
+      status: 'draft', serviceIds: [svcSubscription, svcDataExport], capabilityIds: [capRenewalMgmt, capDataPort], systemIds: [], evidenceIds: [],
     },
     // ── Core sub-processes ────────────────────────────────────────────────────
-    { projectId: projId, id: procRenewal, title: 'Subscription renewal and cancellation management', purpose: 'Handle subscription lifecycle events including renewal, negotiation, downgrade and cancellation.', levelLabel: 'core', parentId: procCoreGroup, trigger: 'Renewal date approaches or customer initiates cancellation.', outcome: 'Subscription renewed, modified or cancelled; customer notified; billing reconciled.', inScope: ['Renewal notice', 'Negotiation', 'Cancellation processing', 'Final invoicing'], outOfScope: ['Data export', 'Post-cancellation data retention'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysBilling, sysAdmin], evidenceIds: [] },
+    { projectId: projId, id: procRenewal, title: 'Subscription renewal and cancellation management', purpose: 'Handle subscription lifecycle events including renewal, negotiation, downgrade and cancellation.', levelLabel: 'core', parentId: procCoreGroup, trigger: 'Renewal date approaches or customer initiates cancellation.', outcome: 'Subscription renewed, modified or cancelled; customer notified; billing reconciled.', inScope: ['Renewal notice', 'Negotiation', 'Cancellation processing', 'Final invoicing'], outOfScope: ['Data export', 'Post-cancellation data retention'], status: 'draft', serviceIds: [svcSubscription], capabilityIds: [capRenewalMgmt], systemIds: [sysBilling, sysAdmin], evidenceIds: [] },
     // ── Support layer ─────────────────────────────────────────────────────────
-    { projectId: projId, id: procExport, title: 'Customer data export and portability', purpose: 'Provide customers with a complete, verifiable export of all their data before or after account closure.', levelLabel: 'support', trigger: 'Customer requests data export.', outcome: 'Complete data package delivered; customer confirms receipt.', inScope: ['Export request intake', 'Data package generation', 'Delivery', 'Completeness verification support'], outOfScope: ['Data deletion', 'Account closure'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysAdmin], evidenceIds: [] },
+    { projectId: projId, id: procExport, title: 'Customer data export and portability', purpose: 'Provide customers with a complete, verifiable export of all their data before or after account closure.', levelLabel: 'support', trigger: 'Customer requests data export.', outcome: 'Complete data package delivered; customer confirms receipt.', inScope: ['Export request intake', 'Data package generation', 'Delivery', 'Completeness verification support'], outOfScope: ['Data deletion', 'Account closure'], status: 'draft', serviceIds: [svcDataExport], capabilityIds: [capDataPort], systemIds: [sysAdmin], evidenceIds: [] },
   ];
   const personas: Persona[] = [{ projectId: projId, id: personaId, name: 'Dana Patel', role: 'IT Systems Administrator', goals: ['Manage SaaS costs within budget', 'Ensure data portability before closure', 'Complete cancellation before auto-renewal date'], needs: ['Transparent seat utilization data', 'Self-service cancellation', 'Complete data export with manifest'], constraints: ['Finance must approve spend decisions', 'Cannot extend beyond contract renewal date', 'Must retain audit logs for 3 years per policy'], accessibilityNeeds: [], evidenceIds: [] }];
   const systems: ITSystem[] = [
@@ -340,9 +350,30 @@ export function buildIT09Scenario(): ScenarioBundle {
     { id: newId('rel'), projectId: projId, fromId: procExport,    toId: procRenewal, type: 'supportsService' },
   ];
 
+  // ─── Services ───────────────────────────────────────────────────────────────
+  const services: Service[] = [
+    { id: svcSubscription, projectId: projId, name: 'Subscription Lifecycle Management', customerOutcome: 'Customer can renew, downgrade or cancel their subscription at any time through self-service with accurate billing.', scope: 'Renewal notices, negotiation, cancellation processing and final invoicing.' },
+    { id: svcDataExport,   projectId: projId, name: 'Data Export & Portability', customerOutcome: 'Customer receives a complete, verifiable export of all organizational data before account closure.', scope: 'Export request intake, data package generation, delivery and completeness support.' },
+  ];
+
+  // ─── Capabilities ────────────────────────────────────────────────────────────
+  const capabilities: Capability[] = [
+    { id: capRenewalMgmt, projectId: projId, name: 'Subscription Renewal & Cancellation', description: 'Ability to process subscription renewals, negotiations and cancellations with accurate billing reconciliation.', realizingProcessIds: [procRenewal, procCoreGroup] },
+    { id: capDataPort,    projectId: projId, name: 'Customer Data Portability', description: 'Ability to generate and deliver a complete, documented export of all customer data on request.', realizingProcessIds: [procExport, procCoreGroup] },
+  ];
+
+  // ─── Process Ratings ─────────────────────────────────────────────────────────
+  const processRatings: ProcessRating[] = [
+    { id: `${procMgmt1}__default`,     projectId: projId, processId: procMgmt1,     configId: 'default', ratings: { strategic_impact: 4, pain_severity: 3, feasibility: 4, volume: 2 } },
+    { id: `${procCoreGroup}__default`, projectId: projId, processId: procCoreGroup, configId: 'default', ratings: { strategic_impact: 4, pain_severity: 3, feasibility: 3, volume: 3 } },
+    { id: `${procRenewal}__default`,   projectId: projId, processId: procRenewal,   configId: 'default', ratings: { strategic_impact: 4, pain_severity: 4, feasibility: 3, volume: 3 } },
+    { id: `${procExport}__default`,    projectId: projId, processId: procExport,    configId: 'default', ratings: { strategic_impact: 3, pain_severity: 4, feasibility: 3, volume: 2 } },
+  ];
+
   return {
     manifest, candidates, processes, relations, personas, systems, channels, touchpoints,
     journeys: [journey], stages, steps: journeySteps, rows, cells, cards, painPoints,
+    services, capabilities, processRatings,
     interviews, interviewItems, observations, stormingCards, contradictions,
     sipocDiagrams, sipocRows, processMaps, mapLanes, mapActivities, mapEdges,
   };

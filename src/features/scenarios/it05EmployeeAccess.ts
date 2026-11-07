@@ -10,7 +10,9 @@ import type {
   DiscoveryInterview, DiscoveryInterviewItem, DiscoveryObservation,
   StormingCard, Contradiction,
   SipocDiagram, SipocRow, ProcessMap, MapLane, MapActivity, ProcessMapEdge,
+  Service, Capability,
 } from '../../domain/contracts/types';
+import type { ProcessRating } from '../../domain/scoring';
 import type { ScenarioBundle } from './it02SaasOnboarding';
 
 export function buildIT05Scenario(): ScenarioBundle {
@@ -32,6 +34,14 @@ export function buildIT05Scenario(): ScenarioBundle {
   const procOnboard   = newId('proc');
   const procAccess    = newId('proc');
   const procSecurity  = newId('proc');
+
+  // ─── Service & Capability IDs ─────────────────────────────────────────────
+  const svcOnboarding  = newId('svc');
+  const svcAccessReq   = newId('svc');
+
+  const capDayOneAccess = newId('cap');
+  const capSelfSvcAccess = newId('cap');
+
   const candId1 = newId('cand');
   const candId2 = newId('cand');
   const candId3 = newId('cand');
@@ -170,7 +180,7 @@ export function buildIT05Scenario(): ScenarioBundle {
     id: projId,
     title: 'IT-05 · New Employee Access Journey',
     description: "New software engineer's experience requesting system access in their first week, navigating broken links, wrong forms and approval loops.",
-    createdAt: now, updatedAt: now, schemaVersion: 1,
+    createdAt: now, updatedAt: now, schemaVersion: 2,
   };
 
   const candidates: ProcessCandidate[] = [
@@ -189,7 +199,7 @@ export function buildIT05Scenario(): ScenarioBundle {
       outcome: 'Employee has all required system access; IAM records up to date.',
       inScope: ['Onboarding access packages', 'Self-service access requests', 'Manager approval routing', 'IAM provisioning'],
       outOfScope: ['Security group policy definition', 'Emergency break-glass access'],
-      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [], evidenceIds: [],
+      status: 'draft', serviceIds: [svcOnboarding, svcAccessReq], capabilityIds: [capDayOneAccess, capSelfSvcAccess], systemIds: [], evidenceIds: [],
     },
     // ── Core sub-processes ────────────────────────────────────────────────────
     { projectId: projId, id: procOnboard, title: 'Employee onboarding access provisioning',
@@ -198,7 +208,7 @@ export function buildIT05Scenario(): ScenarioBundle {
       outcome: 'Standard access package activated; employee can begin productive work.',
       inScope: ['Account creation', 'Standard access package assignment', 'Activation email delivery', 'IT orientation'],
       outOfScope: ['Role-specific access beyond standard package', 'Hardware provisioning'],
-      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysHRIS, sysIAM], evidenceIds: [],
+      status: 'draft', serviceIds: [svcOnboarding], capabilityIds: [capDayOneAccess], systemIds: [sysHRIS, sysIAM], evidenceIds: [],
     },
     { projectId: projId, id: procAccess, title: 'Access request and approval workflow',
       purpose: 'Process employee requests for system access beyond the standard onboarding package.',
@@ -206,7 +216,7 @@ export function buildIT05Scenario(): ScenarioBundle {
       outcome: 'Access granted or denied with explanation; IAM records updated.',
       inScope: ['Request intake', 'Manager approval routing', 'IT validation', 'IAM provisioning', 'Requester notification'],
       outOfScope: ['Standard onboarding access', 'Emergency break-glass access'],
-      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysITPortal, sysIAM], evidenceIds: [],
+      status: 'draft', serviceIds: [svcAccessReq], capabilityIds: [capSelfSvcAccess], systemIds: [sysITPortal, sysIAM], evidenceIds: [],
     },
     { projectId: projId, id: procSecurity, title: 'Security group membership review',
       purpose: 'Validate that access requests to sensitive systems meet security policy before provisioning.',
@@ -214,7 +224,7 @@ export function buildIT05Scenario(): ScenarioBundle {
       outcome: 'Request approved or denied with policy justification; audit record created.',
       inScope: ['Policy check', 'Risk assessment', 'Approval or denial', 'Audit logging'],
       outOfScope: ['Routine access requests below sensitivity threshold'],
-      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysIAM], evidenceIds: [],
+      status: 'draft', serviceIds: [svcAccessReq], capabilityIds: [], systemIds: [sysIAM], evidenceIds: [],
     },
   ];
 
@@ -434,9 +444,30 @@ export function buildIT05Scenario(): ScenarioBundle {
     { id: newId('rel'), projectId: projId, fromId: procSecurity,  toId: procAccess,   type: 'supportsService' },
   ];
 
+  // ─── Services ───────────────────────────────────────────────────────────────
+  const services: Service[] = [
+    { id: svcOnboarding,  projectId: projId, name: 'Employee Day-One Access', customerOutcome: 'New employee fully productive on day one with all standard system access activated.', scope: 'Account creation, standard access package provisioning and activation email delivery for new hires.' },
+    { id: svcAccessReq,   projectId: projId, name: 'Self-Service Access Request', customerOutcome: 'Employee receives role-appropriate system access within agreed SLA after a single approved request.', scope: 'Access request intake, manager approval routing, security review and IAM provisioning for existing employees.' },
+  ];
+
+  // ─── Capabilities ────────────────────────────────────────────────────────────
+  const capabilities: Capability[] = [
+    { id: capDayOneAccess,   projectId: projId, name: 'Day-One Access Provisioning', description: 'Ability to deliver a complete, role-matched access package to a new employee before their start date.', realizingProcessIds: [procOnboard, procCoreGroup] },
+    { id: capSelfSvcAccess,  projectId: projId, name: 'Access Request & Approval', description: 'Ability to process, approve and provision additional system access via a governed self-service workflow.', realizingProcessIds: [procAccess, procCoreGroup] },
+  ];
+
+  // ─── Process Ratings ─────────────────────────────────────────────────────────
+  const processRatings: ProcessRating[] = [
+    { id: `${procCoreGroup}__default`, projectId: projId, processId: procCoreGroup, configId: 'default', ratings: { strategic_impact: 4, pain_severity: 4, feasibility: 3, volume: 4 } },
+    { id: `${procOnboard}__default`,   projectId: projId, processId: procOnboard,   configId: 'default', ratings: { strategic_impact: 5, pain_severity: 5, feasibility: 3, volume: 4 } },
+    { id: `${procAccess}__default`,    projectId: projId, processId: procAccess,    configId: 'default', ratings: { strategic_impact: 4, pain_severity: 5, feasibility: 3, volume: 5 } },
+    { id: `${procSecurity}__default`,  projectId: projId, processId: procSecurity,  configId: 'default', ratings: { strategic_impact: 4, pain_severity: 2, feasibility: 3, volume: 3 } },
+  ];
+
   return {
     manifest, candidates, processes, relations, personas, systems, channels, touchpoints,
     journeys: [journey], stages, steps: journeySteps, rows, cells, cards, painPoints,
+    services, capabilities, processRatings,
     interviews, interviewItems, observations, stormingCards, contradictions,
     sipocDiagrams, sipocRows, processMaps, mapLanes, mapActivities, mapEdges,
   };

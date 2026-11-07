@@ -10,7 +10,9 @@ import type {
   DiscoveryInterview, DiscoveryInterviewItem, DiscoveryObservation,
   StormingCard, Contradiction,
   SipocDiagram, SipocRow, ProcessMap, MapLane, MapActivity, ProcessMapEdge,
+  Service, Capability,
 } from '../../domain/contracts/types';
+import type { ProcessRating } from '../../domain/scoring';
 import type { ScenarioBundle } from './it02SaasOnboarding';
 
 export function buildIT03Scenario(): ScenarioBundle {
@@ -31,6 +33,13 @@ export function buildIT03Scenario(): ScenarioBundle {
   const procCoreGroup  = newId('proc');  // core-group: Incident & Service Fulfillment
   const procIncident   = newId('proc');
   const procFulfill    = newId('proc');
+
+  // ─── Service & Capability IDs ─────────────────────────────────────────────
+  const svcIncident    = newId('svc');
+  const svcLoaner      = newId('svc');
+
+  const capTicket      = newId('cap');
+  const capLoanerFul   = newId('cap');
   const candId1 = newId('cand');
   const candId2 = newId('cand');
   const candId3 = newId('cand');
@@ -173,7 +182,7 @@ export function buildIT03Scenario(): ScenarioBundle {
     id: projId,
     title: 'IT-03 · IT Service Desk Journey',
     description: 'Developer end-user experience reporting a hardware incident and receiving a loaner device.',
-    createdAt: now, updatedAt: now, schemaVersion: 1,
+    createdAt: now, updatedAt: now, schemaVersion: 2,
   };
 
   const candidates: ProcessCandidate[] = [
@@ -192,7 +201,7 @@ export function buildIT03Scenario(): ScenarioBundle {
       outcome: 'SLA targets reviewed; improvement actions agreed and assigned.',
       inScope: ['SLA definition and review', 'Ticket quality audits', 'Continual service improvement', 'CSAT trend analysis'],
       outOfScope: ['Individual ticket handling', 'Hardware procurement'],
-      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysItsm], evidenceIds: [],
+      status: 'draft', serviceIds: [svcIncident], capabilityIds: [], systemIds: [sysItsm], evidenceIds: [],
     },
     // ── Core group ────────────────────────────────────────────────────────────
     { projectId: projId, id: procCoreGroup,
@@ -203,7 +212,7 @@ export function buildIT03Scenario(): ScenarioBundle {
       outcome: 'User productive again; ticket closed; CSAT collected.',
       inScope: ['Incident management', 'Hardware fulfillment', 'Asset management during repair'],
       outOfScope: ['Problem management', 'Procurement of new hardware'],
-      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [], evidenceIds: [],
+      status: 'draft', serviceIds: [svcIncident, svcLoaner], capabilityIds: [capTicket, capLoanerFul], systemIds: [], evidenceIds: [],
     },
     // ── Core sub-processes ────────────────────────────────────────────────────
     { projectId: projId, id: procIncident, title: 'Incident management',
@@ -213,7 +222,7 @@ export function buildIT03Scenario(): ScenarioBundle {
       outcome: 'Incident resolved and user confirmed; ticket closed with CSAT collected.',
       inScope: ['Incident logging', 'Categorization and priority', 'Triage and diagnosis', 'Resolution and closure'],
       outOfScope: ['Root cause analysis (Problem Management)', 'Hardware repair execution'],
-      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysItsm], evidenceIds: [],
+      status: 'draft', serviceIds: [svcIncident], capabilityIds: [capTicket], systemIds: [sysItsm], evidenceIds: [],
     },
     // ── Support layer ─────────────────────────────────────────────────────────
     { projectId: projId, id: procFulfill, title: 'Loaner device fulfillment',
@@ -222,7 +231,7 @@ export function buildIT03Scenario(): ScenarioBundle {
       outcome: 'User receives and returns loaner; asset records updated.',
       inScope: ['Loaner assignment', 'Asset transfer documentation', 'Device configuration', 'Return and re-imaging'],
       outOfScope: ['Original device repair', 'Procurement of new hardware'],
-      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysItsm], evidenceIds: [],
+      status: 'draft', serviceIds: [svcLoaner], capabilityIds: [capLoanerFul], systemIds: [sysItsm], evidenceIds: [],
     },
   ];
 
@@ -439,9 +448,30 @@ export function buildIT03Scenario(): ScenarioBundle {
     { id: newId('rel'), projectId: projId, fromId: procFulfill,   toId: procIncident,  type: 'supportsService' },
   ];
 
+  // ─── Services ───────────────────────────────────────────────────────────────
+  const services: Service[] = [
+    { id: svcIncident, projectId: projId, name: 'Incident Resolution', customerOutcome: 'User productive again after hardware or software failure, within SLA.', scope: 'All hardware and software incidents for end users, from logging to closure.' },
+    { id: svcLoaner,   projectId: projId, name: 'Loaner Device Provision', customerOutcome: 'User receives a configured replacement device within hours of hardware failure.', scope: 'Loaner assignment, configuration, asset tracking and return for employees awaiting repair.' },
+  ];
+
+  // ─── Capabilities ────────────────────────────────────────────────────────────
+  const capabilities: Capability[] = [
+    { id: capTicket,    projectId: projId, name: 'Ticket Management', description: 'Ability to log, triage, route and close IT incidents and service requests within SLA.', realizingProcessIds: [procIncident, procCoreGroup] },
+    { id: capLoanerFul, projectId: projId, name: 'Loaner Device Fulfillment', description: 'Ability to provision a pre-configured loaner device and manage its return and re-imaging.', realizingProcessIds: [procFulfill, procCoreGroup] },
+  ];
+
+  // ─── Process Ratings ─────────────────────────────────────────────────────────
+  const processRatings: ProcessRating[] = [
+    { id: `${procMgmt1}__default`,     projectId: projId, processId: procMgmt1,     configId: 'default', ratings: { strategic_impact: 3, pain_severity: 2, feasibility: 4, volume: 2 } },
+    { id: `${procCoreGroup}__default`, projectId: projId, processId: procCoreGroup, configId: 'default', ratings: { strategic_impact: 4, pain_severity: 4, feasibility: 3, volume: 5 } },
+    { id: `${procIncident}__default`,  projectId: projId, processId: procIncident,  configId: 'default', ratings: { strategic_impact: 4, pain_severity: 5, feasibility: 3, volume: 5 } },
+    { id: `${procFulfill}__default`,   projectId: projId, processId: procFulfill,   configId: 'default', ratings: { strategic_impact: 3, pain_severity: 4, feasibility: 3, volume: 3 } },
+  ];
+
   return {
     manifest, candidates, processes, relations, personas, systems, channels, touchpoints,
     journeys: [journey], stages, steps: journeySteps, rows, cells, cards, painPoints,
+    services, capabilities, processRatings,
     interviews, interviewItems, observations, stormingCards, contradictions,
     sipocDiagrams, sipocRows, processMaps, mapLanes, mapActivities, mapEdges,
   };

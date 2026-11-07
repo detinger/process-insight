@@ -39,14 +39,18 @@ export function HomeScreen({ onOpenProject, activeProjectId, onProjectsReset, on
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function loadScenario(titlePrefix: string, build: () => ReturnType<typeof buildIT02Scenario>) {
-    const existing = await db.projects.where('title').startsWith(titlePrefix).first();
-    if (existing) { onOpenProject(existing.id); return; }
     const s = build();
+    const existing = await db.projects.where('title').startsWith(titlePrefix).first();
+    if (existing) {
+      if (existing.schemaVersion >= s.manifest.schemaVersion) { onOpenProject(existing.id); return; }
+      await deleteProject(existing.id);
+    }
     await db.transaction('rw',
       [db.projects, db.candidates, db.processes, db.relations, db.personas, db.systems,
        db.channels, db.touchpoints, db.journeys, db.stages, db.steps,
        db.rows, db.cells, db.cards, db.painPoints,
        db.interviews, db.interviewItems, db.observations, db.stormingCards, db.contradictions,
+       db.services, db.capabilities, db.processRatings,
        db.sipocDiagrams, db.sipocRows, db.processMaps, db.mapLanes, db.mapActivities, db.mapEdges],
       async () => {
         await db.projects.add(s.manifest);
@@ -69,6 +73,9 @@ export function HomeScreen({ onOpenProject, activeProjectId, onProjectsReset, on
         if (s.observations?.length) await db.observations.bulkAdd(s.observations);
         if (s.stormingCards?.length) await db.stormingCards.bulkAdd(s.stormingCards);
         if (s.contradictions?.length) await db.contradictions.bulkAdd(s.contradictions);
+        if (s.services?.length) await db.services.bulkAdd(s.services);
+        if (s.capabilities?.length) await db.capabilities.bulkAdd(s.capabilities);
+        if (s.processRatings?.length) await db.processRatings.bulkAdd(s.processRatings);
         if (s.sipocDiagrams?.length) await db.sipocDiagrams.bulkAdd(s.sipocDiagrams);
         if (s.sipocRows?.length) await db.sipocRows.bulkAdd(s.sipocRows);
         if (s.processMaps?.length) await db.processMaps.bulkAdd(s.processMaps);

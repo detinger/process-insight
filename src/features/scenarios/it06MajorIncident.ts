@@ -9,7 +9,9 @@ import type {
   DiscoveryInterview, DiscoveryInterviewItem, DiscoveryObservation,
   StormingCard, Contradiction,
   SipocDiagram, SipocRow, ProcessMap, MapLane, MapActivity, ProcessMapEdge,
+  Service, Capability,
 } from '../../domain/contracts/types';
+import type { ProcessRating } from '../../domain/scoring';
 import type { ScenarioBundle } from './it02SaasOnboarding';
 
 export function buildIT06Scenario(): ScenarioBundle {
@@ -27,6 +29,13 @@ export function buildIT06Scenario(): ScenarioBundle {
   const procCoreGroup = newId('proc');  // core-group: Incident Response & Communications
   const procDetect    = newId('proc');
   const procComms     = newId('proc');
+
+  // ─── Service & Capability IDs ─────────────────────────────────────────────
+  const svcIncidentResp = newId('svc');
+  const svcComms        = newId('svc');
+
+  const capDetectResp   = newId('cap');
+  const capCustComms    = newId('cap');
   const candId1 = newId('cand');
   const candId2 = newId('cand');
 
@@ -125,7 +134,7 @@ export function buildIT06Scenario(): ScenarioBundle {
     },
   ];
 
-  const manifest: ProjectManifest = { id: projId, title: 'IT-06 · Major Incident Customer Journey', description: 'Enterprise customer experience during a 4-hour service outage: detection, workaround, escalation and PIR review.', createdAt: now, updatedAt: now, schemaVersion: 1 };
+  const manifest: ProjectManifest = { id: projId, title: 'IT-06 · Major Incident Customer Journey', description: 'Enterprise customer experience during a 4-hour service outage: detection, workaround, escalation and PIR review.', createdAt: now, updatedAt: now, schemaVersion: 2 };
   const candidates: ProcessCandidate[] = [
     { projectId: projId, id: candId1, title: 'Major incident detection and response', status: 'accepted', rationale: 'Core operational process; directly impacts customer trust and SLA.', sourceRefs: [], createdAt: now },
     { projectId: projId, id: candId2, title: 'Customer incident communication', status: 'accepted', rationale: 'Distinct comms subprocess; involves different roles and tools than technical response.', sourceRefs: [], createdAt: now },
@@ -139,7 +148,7 @@ export function buildIT06Scenario(): ScenarioBundle {
       outcome: 'Published severity matrix; SLA targets reviewed; PIR process standards updated.',
       inScope: ['SLA definition', 'Severity classification', 'Escalation policy', 'PIR standards'],
       outOfScope: ['Live incident response', 'Customer communication during incidents'],
-      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysSupport], evidenceIds: [],
+      status: 'draft', serviceIds: [svcIncidentResp], capabilityIds: [], systemIds: [sysSupport], evidenceIds: [],
     },
     // ── Core group ────────────────────────────────────────────────────────────
     { projectId: projId, id: procCoreGroup, title: 'Incident Response & Communications',
@@ -149,12 +158,12 @@ export function buildIT06Scenario(): ScenarioBundle {
       outcome: 'Service restored; customers notified; PIR published.',
       inScope: ['Technical incident response', 'Customer communications', 'SLA credit processing'],
       outOfScope: ['SLA policy definition', 'Problem management'],
-      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [], evidenceIds: [],
+      status: 'draft', serviceIds: [svcIncidentResp, svcComms], capabilityIds: [capDetectResp, capCustComms], systemIds: [], evidenceIds: [],
     },
     // ── Core sub-processes ────────────────────────────────────────────────────
-    { projectId: projId, id: procDetect, title: 'Major incident detection and response', purpose: 'Detect, contain and resolve service-affecting incidents within SLA.', levelLabel: 'core', parentId: procCoreGroup, trigger: 'Monitoring alert or customer report indicates P1 impact.', outcome: 'Service restored; root cause identified; PIR published.', inScope: ['Alert triage', 'Incident command', 'Technical response', 'Service restoration'], outOfScope: ['Customer communication', 'SLA credit processing'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysStatus, sysSupport], evidenceIds: [] },
+    { projectId: projId, id: procDetect, title: 'Major incident detection and response', purpose: 'Detect, contain and resolve service-affecting incidents within SLA.', levelLabel: 'core', parentId: procCoreGroup, trigger: 'Monitoring alert or customer report indicates P1 impact.', outcome: 'Service restored; root cause identified; PIR published.', inScope: ['Alert triage', 'Incident command', 'Technical response', 'Service restoration'], outOfScope: ['Customer communication', 'SLA credit processing'], status: 'draft', serviceIds: [svcIncidentResp], capabilityIds: [capDetectResp], systemIds: [sysStatus, sysSupport], evidenceIds: [] },
     // ── Support layer ─────────────────────────────────────────────────────────
-    { projectId: projId, id: procComms, title: 'Customer incident communication', purpose: 'Keep affected customers informed with accurate, timely updates during and after incidents.', levelLabel: 'support', trigger: 'P1 incident declared.', outcome: 'Status page updated; customers notified; PIR delivered.', inScope: ['Status page updates', 'Customer notifications', 'Post-incident report'], outOfScope: ['Technical incident response', 'SLA credit approval'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysStatus], evidenceIds: [] },
+    { projectId: projId, id: procComms, title: 'Customer incident communication', purpose: 'Keep affected customers informed with accurate, timely updates during and after incidents.', levelLabel: 'support', trigger: 'P1 incident declared.', outcome: 'Status page updated; customers notified; PIR delivered.', inScope: ['Status page updates', 'Customer notifications', 'Post-incident report'], outOfScope: ['Technical incident response', 'SLA credit approval'], status: 'draft', serviceIds: [svcComms], capabilityIds: [capCustComms], systemIds: [sysStatus], evidenceIds: [] },
   ];
   const personas: Persona[] = [{ projectId: projId, id: personaId, name: 'Claire Osei', role: 'Head of Platform Engineering (Customer)', goals: ['Maintain service uptime for internal users', 'Make informed decisions during outage', 'Hold vendor accountable to SLA'], needs: ['Real-time status updates', 'Actionable workaround guidance', 'Clear SLA credit process'], constraints: ['Cannot access vendor internal systems', 'On-call 24/7 but cannot fix vendor infrastructure'], accessibilityNeeds: [], evidenceIds: [] }];
   const systems: ITSystem[] = [
@@ -348,9 +357,30 @@ export function buildIT06Scenario(): ScenarioBundle {
     { id: newId('rel'), projectId: projId, fromId: procComms,     toId: procDetect, type: 'supportsService' },
   ];
 
+  // ─── Services ───────────────────────────────────────────────────────────────
+  const services: Service[] = [
+    { id: svcIncidentResp, projectId: projId, name: 'Major Incident Response', customerOutcome: 'Service restored within SLA with root cause identified and PIR published.', scope: 'P1/P2 incident triage, command, technical resolution and post-incident review.' },
+    { id: svcComms,        projectId: projId, name: 'Incident Customer Communications', customerOutcome: 'Customers receive timely, accurate updates during outages and a post-incident report within 7 days.', scope: 'Status page maintenance, customer notifications and PIR delivery during and after major incidents.' },
+  ];
+
+  // ─── Capabilities ────────────────────────────────────────────────────────────
+  const capabilities: Capability[] = [
+    { id: capDetectResp, projectId: projId, name: 'Incident Detection & Response', description: 'Ability to detect, declare, command and resolve major service incidents within SLA.', realizingProcessIds: [procDetect, procCoreGroup] },
+    { id: capCustComms,  projectId: projId, name: 'Customer Incident Communication', description: 'Ability to publish timely status updates, notifications and post-incident reports to affected customers.', realizingProcessIds: [procComms, procCoreGroup] },
+  ];
+
+  // ─── Process Ratings ─────────────────────────────────────────────────────────
+  const processRatings: ProcessRating[] = [
+    { id: `${procMgmt1}__default`,     projectId: projId, processId: procMgmt1,     configId: 'default', ratings: { strategic_impact: 4, pain_severity: 3, feasibility: 4, volume: 2 } },
+    { id: `${procCoreGroup}__default`, projectId: projId, processId: procCoreGroup, configId: 'default', ratings: { strategic_impact: 5, pain_severity: 5, feasibility: 3, volume: 3 } },
+    { id: `${procDetect}__default`,    projectId: projId, processId: procDetect,    configId: 'default', ratings: { strategic_impact: 5, pain_severity: 5, feasibility: 3, volume: 3 } },
+    { id: `${procComms}__default`,     projectId: projId, processId: procComms,     configId: 'default', ratings: { strategic_impact: 4, pain_severity: 5, feasibility: 4, volume: 3 } },
+  ];
+
   return {
     manifest, candidates, processes, relations, personas, systems, channels, touchpoints,
     journeys: [journey], stages, steps: journeySteps, rows, cells, cards, painPoints,
+    services, capabilities, processRatings,
     interviews, interviewItems, observations, stormingCards, contradictions,
     sipocDiagrams, sipocRows, processMaps, mapLanes, mapActivities, mapEdges,
   };

@@ -2,8 +2,8 @@ import { ChevronRight } from 'lucide-react';
 import type { Workspace } from '../app/AppShell';
 
 const STEPS: { id: Workspace; label: string; short: string }[] = [
-  { id: 'identify', label: 'Identify',  short: '1' },
-  { id: 'discover', label: 'Discover',  short: '2' },
+  { id: 'discover', label: 'Discover',  short: '1' },
+  { id: 'identify', label: 'Identify',  short: '2' },
   { id: 'journey',  label: 'Journey',   short: '3' },
   { id: 'map',      label: 'Map',       short: '4' },
 ];
