@@ -276,6 +276,7 @@ interface ChevronBoxProps {
 function ChevronBox({ proc, index, total, bg, color, selected, onSelect, onRename, onDelete }: ChevronBoxProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(proc.title);
+  const [hovered, setHovered] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { if (editing) inputRef.current?.focus(); }, [editing]);
@@ -298,6 +299,8 @@ function ChevronBox({ proc, index, total, bg, color, selected, onSelect, onRenam
         marginLeft: index === 0 ? 0 : -tip + 2,
         zIndex: index,
       }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
       <div
         style={{
@@ -335,7 +338,6 @@ function ChevronBox({ proc, index, total, bg, color, selected, onSelect, onRenam
           </span>
         )}
       </div>
-      {/* Delete on hover */}
       <button
         onClick={e => { e.stopPropagation(); onDelete(); }}
         style={{
@@ -344,14 +346,13 @@ function ChevronBox({ proc, index, total, bg, color, selected, onSelect, onRenam
           background: 'var(--error)', color: '#fff',
           border: 'none', cursor: 'pointer', fontSize: 10,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          opacity: 0,
+          opacity: hovered ? 1 : 0,
+          transition: 'opacity 120ms',
         }}
-        className="chevron-delete"
         title="Delete"
       >
         <X size={10} />
       </button>
-      <style>{`.chevron-delete { opacity: 0; } *:hover > .chevron-delete { opacity: 1; }`}</style>
     </div>
   );
 }
@@ -398,6 +399,7 @@ function SwimlaneRow({
 }: SwimlaneProps) {
   const [editingGroup, setEditingGroup] = useState(false);
   const [groupDraft, setGroupDraft] = useState(group.title);
+  const [groupHovered, setGroupHovered] = useState(false);
 
   useEffect(() => { setGroupDraft(group.title); }, [group.title]);
 
@@ -425,6 +427,8 @@ function SwimlaneRow({
         }}
         onClick={onSelectGroup}
         onDoubleClick={() => setEditingGroup(true)}
+        onMouseEnter={() => setGroupHovered(true)}
+        onMouseLeave={() => setGroupHovered(false)}
         title="Click to select · Double-click to rename"
       >
         {editingGroup ? (
@@ -450,7 +454,6 @@ function SwimlaneRow({
             {group.title}
           </span>
         )}
-        {/* Delete group */}
         <button
           onClick={e => { e.stopPropagation(); onDeleteGroup(); }}
           style={{
@@ -459,14 +462,13 @@ function SwimlaneRow({
             background: 'var(--error)', color: '#fff',
             border: 'none', cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            opacity: 0, transition: 'opacity 120ms',
+            opacity: groupHovered ? 1 : 0,
+            transition: 'opacity 120ms',
           }}
-          className="group-delete"
           title="Delete group"
         >
           <X size={10} />
         </button>
-        <style>{`.group-delete { opacity: 0; } *:hover > .group-delete { opacity: 1; }`}</style>
       </div>
 
       {/* Arrow from group to children */}
@@ -517,6 +519,7 @@ function SupportBox({ proc, selected, onSelect, onRename, onDelete }: {
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(proc.title);
+  const [hovered, setHovered] = useState(false);
   useEffect(() => { setDraft(proc.title); }, [proc.title]);
 
   async function commit() {
@@ -539,6 +542,8 @@ function SupportBox({ proc, selected, onSelect, onRename, onDelete }: {
       }}
       onClick={onSelect}
       onDoubleClick={() => setEditing(true)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       title="Click to select · Double-click to rename"
     >
       {editing ? (
@@ -567,14 +572,13 @@ function SupportBox({ proc, selected, onSelect, onRename, onDelete }: {
           width: 18, height: 18, borderRadius: '50%',
           background: 'var(--error)', color: '#fff', border: 'none', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          opacity: 0, transition: 'opacity 120ms',
+          opacity: hovered ? 1 : 0,
+          transition: 'opacity 120ms',
         }}
-        className="support-delete"
         title="Delete"
       >
         <X size={10} />
       </button>
-      <style>{`.support-delete { opacity: 0; } *:hover > .support-delete { opacity: 1; }`}</style>
     </div>
   );
 }

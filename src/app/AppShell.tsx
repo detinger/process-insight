@@ -20,8 +20,8 @@ const NAV_GROUPS = [
   {
     label: 'Workspace',
     items: [
-      { id: 'identify' as Workspace, label: 'Identify', icon: <Search size={16} /> },
       { id: 'discover' as Workspace, label: 'Discover', icon: <Compass size={16} /> },
+      { id: 'identify' as Workspace, label: 'Identify', icon: <Search size={16} /> },
       { id: 'journey'  as Workspace, label: 'Journey',  icon: <LayoutGrid size={16} /> },
       { id: 'map'      as Workspace, label: 'Map',      icon: <Map size={16} /> },
     ],
@@ -77,7 +77,7 @@ export function AppShell({ active, onNavigate, children, toolbarContent, project
           {!collapsed && (
             <div className="brand-text">
               <div className="brand-name">Process Insight</div>
-              <div className="brand-sub">identify · journey · map</div>
+              <div className="brand-sub">discover · identify · map</div>
             </div>
           )}
         </button>

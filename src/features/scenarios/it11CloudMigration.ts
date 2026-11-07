@@ -2,7 +2,7 @@
 
 import { newId } from '../../domain/contracts/ids';
 import type {
-  ProjectManifest, ProcessCandidate, ProcessDefinition,
+  ProjectManifest, ProcessCandidate, ProcessDefinition, LandscapeRelation,
   Persona, ITSystem, Channel, Touchpoint,
   Journey, JourneyStage, JourneyStep, JourneyRow, Cell, JourneyCard,
   PainPoint,
@@ -24,9 +24,10 @@ export function buildIT11Scenario(): ScenarioBundle {
   const tpAssessment = newId('tp');
   const tpMigration = newId('tp');
 
-  const procAssess = newId('proc');
-  const procMigrate = newId('proc');
-  const procCutover = newId('proc');
+  const procCoreGroup = newId('proc');  // core-group: Workload Migration
+  const procAssess    = newId('proc');
+  const procMigrate   = newId('proc');
+  const procCutover   = newId('proc');
   const candId1 = newId('cand');
   const candId2 = newId('cand');
   const candId3 = newId('cand');
@@ -133,9 +134,21 @@ export function buildIT11Scenario(): ScenarioBundle {
     { projectId: projId, id: candId3, title: 'Production cutover and rollback', status: 'accepted', rationale: 'High-risk coordinated event; different roles, timebox and rollback criteria.', sourceRefs: [], createdAt: now },
   ];
   const processes: ProcessDefinition[] = [
+    // ── Management layer ──────────────────────────────────────────────────────
     { projectId: projId, id: procAssess, title: 'Migration readiness assessment', purpose: 'Evaluate workload complexity, dependencies and risks before committing to migration.', levelLabel: 'management', trigger: 'Customer decides to migrate a workload to cloud.', outcome: 'Complexity report and migration plan approved; risks and blockers documented.', inScope: ['Workload inventory', 'Dependency mapping', 'Schema compatibility check', 'Risk assessment'], outOfScope: ['Actual data migration', 'Cutover planning'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysMigration], evidenceIds: [] },
-    { projectId: projId, id: procMigrate, title: 'Data migration and validation', purpose: 'Transfer workload data to the target environment with integrity verification.', levelLabel: 'core', trigger: 'Migration plan approved and cutover window agreed.', outcome: 'All data transferred and validated; rollback plan confirmed.', inScope: ['Batch migration execution', 'Integrity checks', 'Schema transforms', 'Integration config updates'], outOfScope: ['Cutover coordination', 'Legacy decommission'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysMigration, sysCloud], evidenceIds: [] },
-    { projectId: projId, id: procCutover, title: 'Production cutover and rollback', purpose: 'Switch live traffic from legacy to cloud environment within an agreed window; rollback if criteria not met.', levelLabel: 'core', trigger: 'Migration complete and cutover window approved.', outcome: 'Traffic routed to cloud; legacy in standby; validation complete; legacy decommissioned.', inScope: ['Traffic cutover', 'Post-cutover validation', 'Rollback execution', 'Stakeholder communication'], outOfScope: ['Data migration', 'Billing transition'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysCloud, sysSupport], evidenceIds: [] },
+    // ── Core group ────────────────────────────────────────────────────────────
+    { projectId: projId, id: procCoreGroup, title: 'Workload Migration',
+      purpose: 'Execute the end-to-end transfer of on-premise workloads to the cloud environment, including validation and cutover.',
+      levelLabel: 'core-group',
+      trigger: 'Migration readiness assessment approved and cutover window agreed with stakeholders.',
+      outcome: 'Workload running in cloud; legacy decommissioned; hardcoded dependencies resolved.',
+      inScope: ['Batch data migration', 'Schema transformation', 'Production cutover', 'Rollback execution', 'Post-migration validation'],
+      outOfScope: ['Readiness assessment', 'Billing and commercial transition'],
+      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [], evidenceIds: [],
+    },
+    // ── Core sub-processes ────────────────────────────────────────────────────
+    { projectId: projId, id: procMigrate, title: 'Data migration and validation', purpose: 'Transfer workload data to the target environment with integrity verification.', levelLabel: 'core', parentId: procCoreGroup, trigger: 'Migration plan approved and cutover window agreed.', outcome: 'All data transferred and validated; rollback plan confirmed.', inScope: ['Batch migration execution', 'Integrity checks', 'Schema transforms', 'Integration config updates'], outOfScope: ['Cutover coordination', 'Legacy decommission'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysMigration, sysCloud], evidenceIds: [] },
+    { projectId: projId, id: procCutover, title: 'Production cutover and rollback', purpose: 'Switch live traffic from legacy to cloud environment within an agreed window; rollback if criteria not met.', levelLabel: 'core', parentId: procCoreGroup, trigger: 'Migration complete and cutover window approved.', outcome: 'Traffic routed to cloud; legacy in standby; validation complete; legacy decommissioned.', inScope: ['Traffic cutover', 'Post-cutover validation', 'Rollback execution', 'Stakeholder communication'], outOfScope: ['Data migration', 'Billing transition'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysCloud, sysSupport], evidenceIds: [] },
   ];
   const personas: Persona[] = [{ projectId: projId, id: personaId, name: 'Elena Voss', role: 'Infrastructure Architect', goals: ['Complete migration with zero data loss', 'Minimize business disruption during cutover', 'Decommission legacy before next billing cycle'], needs: ['Reliable schema compatibility check', 'Realistic cutover time estimates', 'Clear rollback criteria'], constraints: ['Cutover must complete within 4-hour Saturday window', 'Cannot extend parallel run beyond 30 days', 'Must notify all affected teams 2 weeks in advance'], accessibilityNeeds: [], evidenceIds: [] }];
   const systems: ITSystem[] = [
@@ -319,8 +332,15 @@ export function buildIT11Scenario(): ScenarioBundle {
     { id: newId('me'), projectId: projId, mapId: pmId, fromId: maD2,   toId: maEnd, label: '' },
   ];
 
+  const relations: LandscapeRelation[] = [
+    { id: newId('rel'), projectId: projId, fromId: procCoreGroup, toId: procMigrate,  type: 'decomposesInto' },
+    { id: newId('rel'), projectId: projId, fromId: procCoreGroup, toId: procCutover,  type: 'decomposesInto' },
+    { id: newId('rel'), projectId: projId, fromId: procMigrate,   toId: procCutover,  type: 'precedesInValueChain' },
+    { id: newId('rel'), projectId: projId, fromId: procAssess,    toId: procMigrate,  type: 'supportsService' },
+  ];
+
   return {
-    manifest, candidates, processes, personas, systems, channels, touchpoints,
+    manifest, candidates, processes, relations, personas, systems, channels, touchpoints,
     journeys: [journey], stages, steps: journeySteps, rows, cells, cards, painPoints,
     interviews, interviewItems, observations, stormingCards, contradictions,
     sipocDiagrams, sipocRows, processMaps, mapLanes, mapActivities, mapEdges,

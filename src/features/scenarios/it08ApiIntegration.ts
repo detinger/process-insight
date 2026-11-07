@@ -2,7 +2,7 @@
 
 import { newId } from '../../domain/contracts/ids';
 import type {
-  ProjectManifest, ProcessCandidate, ProcessDefinition,
+  ProjectManifest, ProcessCandidate, ProcessDefinition, LandscapeRelation,
   Persona, ITSystem, Channel, Touchpoint,
   Journey, JourneyStage, JourneyStep, JourneyRow, Cell, JourneyCard,
   PainPoint,
@@ -25,8 +25,9 @@ export function buildIT08Scenario(): ScenarioBundle {
   const tpSandbox = newId('tp');
   const tpProdAccess = newId('tp');
 
-  const procOnboard = newId('proc');
-  const procSecurity = newId('proc');
+  const procCoreGroup = newId('proc');  // core-group: Developer API Enablement
+  const procOnboard   = newId('proc');
+  const procSecurity  = newId('proc');
   const candId1 = newId('cand');
   const candId2 = newId('cand');
 
@@ -125,8 +126,20 @@ export function buildIT08Scenario(): ScenarioBundle {
     { projectId: projId, id: candId2, title: 'Production API access approval', status: 'accepted', rationale: 'Security-gated subprocess; different team and timebox.', sourceRefs: [], createdAt: now },
   ];
   const processes: ProcessDefinition[] = [
-    { projectId: projId, id: procOnboard, title: 'Developer API onboarding', purpose: 'Enable external developers to discover, test and integrate an API into their product.', levelLabel: 'core', trigger: 'Developer registers for API access.', outcome: 'Developer makes first successful production API call.', inScope: ['Documentation access', 'Sandbox provisioning', 'Credential delivery', 'First-call guidance'], outOfScope: ['Production access security review', 'Billing setup'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysDocs, sysSandbox], evidenceIds: [] },
+    // ── Management layer ──────────────────────────────────────────────────────
     { projectId: projId, id: procSecurity, title: 'Production API access approval', purpose: 'Review and approve production API key requests against security and usage policy.', levelLabel: 'management', trigger: 'Developer submits production access application.', outcome: 'Production key issued or request rejected with explanation.', inScope: ['Application review', 'Security questionnaire', 'Usage policy check', 'Key provisioning'], outOfScope: ['Sandbox access', 'Developer support'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysApproval], evidenceIds: [] },
+    // ── Core group ────────────────────────────────────────────────────────────
+    { projectId: projId, id: procCoreGroup, title: 'Developer API Enablement',
+      purpose: 'Enable external developers to discover, test and integrate APIs from first contact to production.',
+      levelLabel: 'core-group',
+      trigger: 'Developer discovers the API documentation.',
+      outcome: 'Developer makes first successful production API call and handles rate limits.',
+      inScope: ['Documentation', 'Sandbox access', 'Production access', 'First integration support'],
+      outOfScope: ['Billing and commercial terms', 'Custom API development'],
+      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [], evidenceIds: [],
+    },
+    // ── Core sub-processes ────────────────────────────────────────────────────
+    { projectId: projId, id: procOnboard, title: 'Developer API onboarding', purpose: 'Enable external developers to discover, test and integrate an API into their product.', levelLabel: 'core', parentId: procCoreGroup, trigger: 'Developer registers for API access.', outcome: 'Developer makes first successful production API call.', inScope: ['Documentation access', 'Sandbox provisioning', 'Credential delivery', 'First-call guidance'], outOfScope: ['Production access security review', 'Billing setup'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysDocs, sysSandbox], evidenceIds: [] },
   ];
   const personas: Persona[] = [{ projectId: projId, id: personaId, name: 'Ravi Sharma', role: 'Backend Developer', goals: ['Integrate API within sprint', 'Understand rate limits before production', 'Avoid production surprises'], needs: ['Accurate docs with working code examples', 'Transparent production access SLA', 'Sandbox that mirrors production behaviour'], constraints: ['Cannot bypass production approval process', 'Sprint deadline cannot slip more than one day', 'No internal contact at API vendor'], accessibilityNeeds: [], evidenceIds: [] }];
   const systems: ITSystem[] = [
@@ -310,8 +323,13 @@ export function buildIT08Scenario(): ScenarioBundle {
     { id: newId('me'), projectId: projId, mapId: pmId, fromId: maD1,   toId: maEnd, label: '' },
   ];
 
+  const relations: LandscapeRelation[] = [
+    { id: newId('rel'), projectId: projId, fromId: procCoreGroup, toId: procOnboard, type: 'decomposesInto' },
+    { id: newId('rel'), projectId: projId, fromId: procSecurity,  toId: procOnboard, type: 'supportsService' },
+  ];
+
   return {
-    manifest, candidates, processes, personas, systems, channels, touchpoints,
+    manifest, candidates, processes, relations, personas, systems, channels, touchpoints,
     journeys: [journey], stages, steps: journeySteps, rows, cells, cards, painPoints,
     interviews, interviewItems, observations, stormingCards, contradictions,
     sipocDiagrams, sipocRows, processMaps, mapLanes, mapActivities, mapEdges,

@@ -3,7 +3,7 @@
 
 import { newId } from '../../domain/contracts/ids';
 import type {
-  ProjectManifest, ProcessCandidate, ProcessDefinition,
+  ProjectManifest, ProcessCandidate, ProcessDefinition, LandscapeRelation,
   Persona, ITSystem, Channel, Touchpoint,
   Journey, JourneyStage, JourneyStep, JourneyRow, Cell, JourneyCard,
   PainPoint,
@@ -28,9 +28,10 @@ export function buildIT05Scenario(): ScenarioBundle {
   const tpITPortal = newId('tp');
   const tpApproval = newId('tp');
 
-  const procOnboard  = newId('proc');
-  const procAccess   = newId('proc');
-  const procSecurity = newId('proc');
+  const procCoreGroup = newId('proc');  // core-group: Identity & Access Provisioning
+  const procOnboard   = newId('proc');
+  const procAccess    = newId('proc');
+  const procSecurity  = newId('proc');
   const candId1 = newId('cand');
   const candId2 = newId('cand');
   const candId3 = newId('cand');
@@ -179,9 +180,21 @@ export function buildIT05Scenario(): ScenarioBundle {
   ];
 
   const processes: ProcessDefinition[] = [
+    // ── Core group ────────────────────────────────────────────────────────────
+    { projectId: projId, id: procCoreGroup,
+      title: 'Identity & Access Provisioning',
+      purpose: 'Provision and govern all employee system access from day-one onboarding through ongoing self-service requests.',
+      levelLabel: 'core-group',
+      trigger: 'HR confirms a new hire, or an employee submits an access request.',
+      outcome: 'Employee has all required system access; IAM records up to date.',
+      inScope: ['Onboarding access packages', 'Self-service access requests', 'Manager approval routing', 'IAM provisioning'],
+      outOfScope: ['Security group policy definition', 'Emergency break-glass access'],
+      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [], evidenceIds: [],
+    },
+    // ── Core sub-processes ────────────────────────────────────────────────────
     { projectId: projId, id: procOnboard, title: 'Employee onboarding access provisioning',
       purpose: 'Ensure new employees have all required system access on their first working day.',
-      levelLabel: 'core', trigger: 'HR confirms new hire start date in HRIS.',
+      levelLabel: 'core', parentId: procCoreGroup, trigger: 'HR confirms new hire start date in HRIS.',
       outcome: 'Standard access package activated; employee can begin productive work.',
       inScope: ['Account creation', 'Standard access package assignment', 'Activation email delivery', 'IT orientation'],
       outOfScope: ['Role-specific access beyond standard package', 'Hardware provisioning'],
@@ -189,7 +202,7 @@ export function buildIT05Scenario(): ScenarioBundle {
     },
     { projectId: projId, id: procAccess, title: 'Access request and approval workflow',
       purpose: 'Process employee requests for system access beyond the standard onboarding package.',
-      levelLabel: 'core', trigger: 'Employee submits an access request via IT portal.',
+      levelLabel: 'core', parentId: procCoreGroup, trigger: 'Employee submits an access request via IT portal.',
       outcome: 'Access granted or denied with explanation; IAM records updated.',
       inScope: ['Request intake', 'Manager approval routing', 'IT validation', 'IAM provisioning', 'Requester notification'],
       outOfScope: ['Standard onboarding access', 'Emergency break-glass access'],
@@ -414,8 +427,15 @@ export function buildIT05Scenario(): ScenarioBundle {
     { id: newId('me'), projectId: projId, mapId: pmId, fromId: maVerify,   toId: maEnd,       label: '' },
   ];
 
+  const relations: LandscapeRelation[] = [
+    { id: newId('rel'), projectId: projId, fromId: procCoreGroup, toId: procOnboard,  type: 'decomposesInto' },
+    { id: newId('rel'), projectId: projId, fromId: procCoreGroup, toId: procAccess,   type: 'decomposesInto' },
+    { id: newId('rel'), projectId: projId, fromId: procSecurity,  toId: procOnboard,  type: 'supportsService' },
+    { id: newId('rel'), projectId: projId, fromId: procSecurity,  toId: procAccess,   type: 'supportsService' },
+  ];
+
   return {
-    manifest, candidates, processes, personas, systems, channels, touchpoints,
+    manifest, candidates, processes, relations, personas, systems, channels, touchpoints,
     journeys: [journey], stages, steps: journeySteps, rows, cells, cards, painPoints,
     interviews, interviewItems, observations, stormingCards, contradictions,
     sipocDiagrams, sipocRows, processMaps, mapLanes, mapActivities, mapEdges,

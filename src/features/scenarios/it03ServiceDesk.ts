@@ -3,7 +3,7 @@
 
 import { newId } from '../../domain/contracts/ids';
 import type {
-  ProjectManifest, ProcessCandidate, ProcessDefinition,
+  ProjectManifest, ProcessCandidate, ProcessDefinition, LandscapeRelation,
   Persona, ITSystem, Channel, Touchpoint,
   Journey, JourneyStage, JourneyStep, JourneyRow, Cell, JourneyCard,
   PainPoint,
@@ -27,8 +27,10 @@ export function buildIT03Scenario(): ScenarioBundle {
   const tpEmail      = newId('tp');
   const tpAgent      = newId('tp');
 
-  const procIncident  = newId('proc');
-  const procFulfill   = newId('proc');
+  const procMgmt1      = newId('proc');  // management: IT Service Quality & SLA Governance
+  const procCoreGroup  = newId('proc');  // core-group: Incident & Service Fulfillment
+  const procIncident   = newId('proc');
+  const procFulfill    = newId('proc');
   const candId1 = newId('cand');
   const candId2 = newId('cand');
   const candId3 = newId('cand');
@@ -181,14 +183,39 @@ export function buildIT03Scenario(): ScenarioBundle {
   ];
 
   const processes: ProcessDefinition[] = [
+    // ── Management layer ──────────────────────────────────────────────────────
+    { projectId: projId, id: procMgmt1,
+      title: 'IT Service Quality & SLA Governance',
+      purpose: 'Define and monitor service-level targets, ticket quality standards, and continual improvement actions for the service desk.',
+      levelLabel: 'management',
+      trigger: 'Monthly service review or SLA breach detected.',
+      outcome: 'SLA targets reviewed; improvement actions agreed and assigned.',
+      inScope: ['SLA definition and review', 'Ticket quality audits', 'Continual service improvement', 'CSAT trend analysis'],
+      outOfScope: ['Individual ticket handling', 'Hardware procurement'],
+      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysItsm], evidenceIds: [],
+    },
+    // ── Core group ────────────────────────────────────────────────────────────
+    { projectId: projId, id: procCoreGroup,
+      title: 'Incident & Service Fulfillment',
+      purpose: 'Restore service and fulfil hardware requests for end users, from first contact to confirmed resolution.',
+      levelLabel: 'core-group',
+      trigger: 'User reports an incident or submits a service request.',
+      outcome: 'User productive again; ticket closed; CSAT collected.',
+      inScope: ['Incident management', 'Hardware fulfillment', 'Asset management during repair'],
+      outOfScope: ['Problem management', 'Procurement of new hardware'],
+      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [], evidenceIds: [],
+    },
+    // ── Core sub-processes ────────────────────────────────────────────────────
     { projectId: projId, id: procIncident, title: 'Incident management',
       purpose: 'Restore normal service operation as quickly as possible, minimizing impact on the end user.',
-      levelLabel: 'core', trigger: 'User reports a service disruption via portal, chat or phone.',
+      levelLabel: 'core', parentId: procCoreGroup,
+      trigger: 'User reports a service disruption via portal, chat or phone.',
       outcome: 'Incident resolved and user confirmed; ticket closed with CSAT collected.',
       inScope: ['Incident logging', 'Categorization and priority', 'Triage and diagnosis', 'Resolution and closure'],
       outOfScope: ['Root cause analysis (Problem Management)', 'Hardware repair execution'],
       status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysItsm], evidenceIds: [],
     },
+    // ── Support layer ─────────────────────────────────────────────────────────
     { projectId: projId, id: procFulfill, title: 'Loaner device fulfillment',
       purpose: 'Provide a configured replacement device to users whose primary device is unavailable.',
       levelLabel: 'support', trigger: 'Incident ticket escalated to hardware replacement required.',
@@ -407,8 +434,13 @@ export function buildIT03Scenario(): ScenarioBundle {
     { id: newId('me'), projectId: projId, mapId: pmId, fromId: maClose,  toId: maEnd,     label: '' },
   ];
 
+  const relations: LandscapeRelation[] = [
+    { id: newId('rel'), projectId: projId, fromId: procCoreGroup, toId: procIncident,  type: 'decomposesInto' },
+    { id: newId('rel'), projectId: projId, fromId: procFulfill,   toId: procIncident,  type: 'supportsService' },
+  ];
+
   return {
-    manifest, candidates, processes, personas, systems, channels, touchpoints,
+    manifest, candidates, processes, relations, personas, systems, channels, touchpoints,
     journeys: [journey], stages, steps: journeySteps, rows, cells, cards, painPoints,
     interviews, interviewItems, observations, stormingCards, contradictions,
     sipocDiagrams, sipocRows, processMaps, mapLanes, mapActivities, mapEdges,

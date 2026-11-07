@@ -2,7 +2,7 @@
 
 import { newId } from '../../domain/contracts/ids';
 import type {
-  ProjectManifest, ProcessCandidate, ProcessDefinition,
+  ProjectManifest, ProcessCandidate, ProcessDefinition, LandscapeRelation,
   Persona, ITSystem, Channel, Touchpoint,
   Journey, JourneyStage, JourneyStep, JourneyRow, Cell, JourneyCard,
   PainPoint,
@@ -24,8 +24,9 @@ export function buildIT07Scenario(): ScenarioBundle {
   const tpCAB = newId('tp');
   const tpDeploy = newId('tp');
 
-  const procRelease = newId('proc');
-  const procChange = newId('proc');
+  const procCoreGroup = newId('proc');  // core-group: Software Delivery
+  const procRelease   = newId('proc');
+  const procChange    = newId('proc');
   const candId1 = newId('cand');
   const candId2 = newId('cand');
 
@@ -132,8 +133,20 @@ export function buildIT07Scenario(): ScenarioBundle {
     { projectId: projId, id: candId2, title: 'Change advisory board approval', status: 'accepted', rationale: 'Distinct governance gate; different stakeholders and cadence.', sourceRefs: [], createdAt: now },
   ];
   const processes: ProcessDefinition[] = [
-    { projectId: projId, id: procRelease, title: 'Software release management', purpose: 'Deliver tested software changes to production safely and predictably.', levelLabel: 'core', trigger: 'Sprint ends and feature freeze is set.', outcome: 'Release deployed to production; rollback plan executed if regression detected.', inScope: ['Feature freeze', 'Test execution', 'Staging deployment', 'Production deployment', 'Post-deploy monitoring', 'Rollback'], outOfScope: ['CAB governance', 'Bug investigation'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysCICD, sysMonitor], evidenceIds: [] },
+    // ── Management layer ──────────────────────────────────────────────────────
     { projectId: projId, id: procChange, title: 'Change advisory board approval', purpose: 'Review and authorize high-risk changes to production systems.', levelLabel: 'management', trigger: 'Change request submitted by delivery team.', outcome: 'Change approved, conditionally approved or rejected; deployment window defined.', inScope: ['Change request review', 'Risk assessment', 'Approval decision', 'Conditions and window assignment'], outOfScope: ['Technical deployment execution'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysCAB], evidenceIds: [] },
+    // ── Core group ────────────────────────────────────────────────────────────
+    { projectId: projId, id: procCoreGroup, title: 'Software Delivery',
+      purpose: 'Deliver tested software changes to production on a sprint cadence, with safe rollback capability.',
+      levelLabel: 'core-group',
+      trigger: 'Sprint ends and release candidate is ready for CAB submission.',
+      outcome: 'Release deployed and stable in production, or rolled back and rescheduled.',
+      inScope: ['Feature freeze', 'CAB submission', 'Staging deploy', 'Production deploy', 'Post-deploy monitoring', 'Rollback'],
+      outOfScope: ['CAB policy definition', 'Bug triage and prioritisation'],
+      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [], evidenceIds: [],
+    },
+    // ── Core sub-processes ────────────────────────────────────────────────────
+    { projectId: projId, id: procRelease, title: 'Software release management', purpose: 'Deliver tested software changes to production safely and predictably.', levelLabel: 'core', parentId: procCoreGroup, trigger: 'Sprint ends and feature freeze is set.', outcome: 'Release deployed to production; rollback plan executed if regression detected.', inScope: ['Feature freeze', 'Test execution', 'Staging deployment', 'Production deployment', 'Post-deploy monitoring', 'Rollback'], outOfScope: ['CAB governance', 'Bug investigation'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysCICD, sysMonitor], evidenceIds: [] },
   ];
   const personas: Persona[] = [{ projectId: projId, id: personaId, name: 'Priya Kapoor', role: 'Engineering Lead', goals: ['Ship features on sprint cadence', 'Avoid production regressions', 'Navigate change governance without delays'], needs: ['Predictable approval process', 'Staging environment that reflects production', 'Automated rollback trigger'], constraints: ['Cannot bypass CAB for standard changes', 'Production deploys must be in approved window', 'On-call during own release window'], accessibilityNeeds: [], evidenceIds: [] }];
   const systems: ITSystem[] = [
@@ -326,8 +339,13 @@ export function buildIT07Scenario(): ScenarioBundle {
     { id: newId('me'), projectId: projId, mapId: pmId, fromId: maRollback,   toId: maEnd,        label: '' },
   ];
 
+  const relations: LandscapeRelation[] = [
+    { id: newId('rel'), projectId: projId, fromId: procCoreGroup, toId: procRelease, type: 'decomposesInto' },
+    { id: newId('rel'), projectId: projId, fromId: procChange,    toId: procRelease, type: 'supportsService' },
+  ];
+
   return {
-    manifest, candidates, processes, personas, systems, channels, touchpoints,
+    manifest, candidates, processes, relations, personas, systems, channels, touchpoints,
     journeys: [journey], stages, steps: journeySteps, rows, cells, cards, painPoints,
     interviews, interviewItems, observations, stormingCards, contradictions,
     sipocDiagrams, sipocRows, processMaps, mapLanes, mapActivities, mapEdges,

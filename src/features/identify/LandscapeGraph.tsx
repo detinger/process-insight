@@ -90,6 +90,13 @@ export function findDependencyCycles(relations: LandscapeRelation[]): Set<string
 
 // ─── Layout ───
 
+const TIER_ROW: Record<string, number> = {
+  management: 0,
+  'core-group': 1,
+  core: 2,
+  support: 3,
+};
+
 function computeLayout(
   processes: ProcessDefinition[],
 ): Map<string, { x: number; y: number }> {
@@ -97,41 +104,22 @@ function computeLayout(
   const NODE_W = 180;
   const NODE_H = 60;
   const H_GAP = 40;
-  const V_GAP = 80;
+  const V_GAP = 100;
 
-  // BFS by depth (parentId chain)
-  const levels = new Map<string, number>();
-  const roots = processes.filter(p => !p.parentId);
-  roots.forEach(p => levels.set(p.id, 0));
-  let changed = true;
-  while (changed) {
-    changed = false;
-    for (const p of processes) {
-      if (p.parentId && levels.has(p.parentId) && !levels.has(p.id)) {
-        levels.set(p.id, levels.get(p.parentId)! + 1);
-        changed = true;
-      }
-    }
-  }
-  // Processes without a parent chain: depth 0
+  // Group by tier row, sort alphabetically within each row
+  const byTier = new Map<number, ProcessDefinition[]>();
   for (const p of processes) {
-    if (!levels.has(p.id)) levels.set(p.id, 0);
+    const row = TIER_ROW[p.levelLabel] ?? 2;
+    if (!byTier.has(row)) byTier.set(row, []);
+    byTier.get(row)!.push(p);
   }
 
-  // Group by level, sort alphabetically within level
-  const byLevel = new Map<number, ProcessDefinition[]>();
-  for (const p of processes) {
-    const lvl = levels.get(p.id) ?? 0;
-    if (!byLevel.has(lvl)) byLevel.set(lvl, []);
-    byLevel.get(lvl)!.push(p);
-  }
-
-  for (const [lvl, procs] of byLevel) {
+  for (const [row, procs] of byTier) {
     const sorted = [...procs].sort((a, b) => a.title.localeCompare(b.title));
     sorted.forEach((p, i) => {
       positions.set(p.id, {
         x: i * (NODE_W + H_GAP),
-        y: lvl * (NODE_H + V_GAP),
+        y: row * (NODE_H + V_GAP),
       });
     });
   }

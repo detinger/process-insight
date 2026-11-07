@@ -2,7 +2,7 @@
 
 import { newId } from '../../domain/contracts/ids';
 import type {
-  ProjectManifest, ProcessCandidate, ProcessDefinition,
+  ProjectManifest, ProcessCandidate, ProcessDefinition, LandscapeRelation,
   Persona, ITSystem, Channel, Touchpoint,
   Journey, JourneyStage, JourneyStep, JourneyRow, Cell, JourneyCard,
   PainPoint,
@@ -27,10 +27,11 @@ export function buildIT12Scenario(): ScenarioBundle {
   const tpRunbook = newId('tp');
   const tpServiceReview = newId('tp');
 
-  const procDiscover = newId('proc');
-  const procTransition = newId('proc');
+  const procCoreGroup    = newId('proc');  // core-group: Managed Service Delivery
+  const procDiscover     = newId('proc');
+  const procTransition   = newId('proc');
   const procOpsReadiness = newId('proc');
-  const procGovernance = newId('proc');
+  const procGovernance   = newId('proc');
   const candId1 = newId('cand');
   const candId2 = newId('cand');
   const candId3 = newId('cand');
@@ -140,10 +141,23 @@ export function buildIT12Scenario(): ScenarioBundle {
     { projectId: projId, id: candId4, title: 'Service governance and continual improvement', status: 'proposed', rationale: 'Review cadence and SLA management process; often treated as an afterthought.', sourceRefs: [], createdAt: now },
   ];
   const processes: ProcessDefinition[] = [
+    // ── Management layer ──────────────────────────────────────────────────────
+    { projectId: projId, id: procGovernance, title: 'Service governance and continual improvement', purpose: 'Review service performance, resolve scope disputes and agree improvement actions on a regular cadence.', levelLabel: 'management', trigger: 'Monthly governance review meeting.', outcome: 'SLA review complete; improvement items agreed with owners; scope changes scoped for next quarter.', inScope: ['SLA performance review', 'Improvement backlog management', 'Scope change requests', 'Contract alignment'], outOfScope: ['Day-to-day incident management'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysContract], evidenceIds: [] },
+    // ── Core group ────────────────────────────────────────────────────────────
+    { projectId: projId, id: procCoreGroup, title: 'Managed Service Delivery',
+      purpose: 'Deliver ongoing L1/L2 support for in-scope services, from first ticket through escalation and post-incident review.',
+      levelLabel: 'core-group',
+      trigger: 'Support ticket raised or monitoring alert fires.',
+      outcome: 'Incident resolved or escalated within SLA; SLA metrics recorded.',
+      inScope: ['L1/L2 ticket handling', 'Incident triage', 'L3 escalation', 'Post-incident review', 'SLA reporting'],
+      outOfScope: ['Service scope changes', 'Knowledge transfer and onboarding'],
+      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [], evidenceIds: [],
+    },
+    // ── Core sub-processes ────────────────────────────────────────────────────
+    { projectId: projId, id: procOpsReadiness, title: 'Managed service delivery and incident management', purpose: 'Deliver L1/L2 support for in-scope services and escalate incidents within agreed SLA.', levelLabel: 'core', parentId: procCoreGroup, trigger: 'Support ticket raised or monitoring alert fires.', outcome: 'Incident resolved or escalated; SLA metrics recorded; customer notified.', inScope: ['L1/L2 ticket handling', 'Incident triage', 'L3 escalation', 'Post-incident review'], outOfScope: ['Service scope changes', 'Capital projects'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysITSM, sysMonitor], evidenceIds: [] },
+    // ── Support layer ─────────────────────────────────────────────────────────
     { projectId: projId, id: procDiscover, title: 'Service discovery and scope agreement', purpose: 'Establish a shared, accurate picture of services to be managed and those explicitly excluded.', levelLabel: 'support', trigger: 'MSP engagement signed; joint onboarding begins.', outcome: 'Agreed service scope, CMDB baseline and known gaps documented.', inScope: ['Discovery workshops', 'Architecture documentation', 'CMDB verification', 'Scope agreement'], outOfScope: ['Runbook creation', 'Support transition'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysCMDB], evidenceIds: [] },
     { projectId: projId, id: procTransition, title: 'Knowledge transfer and transition', purpose: 'Enable the MSP to operate managed services independently through shadowing, runbook creation and hypercare.', levelLabel: 'support', trigger: 'Service scope agreed and CMDB access granted.', outcome: 'MSP can independently handle L1/L2 for all in-scope services; escalation paths agreed.', inScope: ['Runbook creation', 'Shadow period', 'Hypercare', 'Escalation path sign-off'], outOfScope: ['Steady-state service delivery', 'Service scope changes'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysCMDB, sysITSM], evidenceIds: [] },
-    { projectId: projId, id: procOpsReadiness, title: 'Managed service delivery and incident management', purpose: 'Deliver L1/L2 support for in-scope services and escalate incidents within agreed SLA.', levelLabel: 'core', trigger: 'Support ticket raised or monitoring alert fires.', outcome: 'Incident resolved or escalated; SLA metrics recorded; customer notified.', inScope: ['L1/L2 ticket handling', 'Incident triage', 'L3 escalation', 'Post-incident review'], outOfScope: ['Service scope changes', 'Capital projects'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysITSM, sysMonitor], evidenceIds: [] },
-    { projectId: projId, id: procGovernance, title: 'Service governance and continual improvement', purpose: 'Review service performance, resolve scope disputes and agree improvement actions on a regular cadence.', levelLabel: 'management', trigger: 'Monthly governance review meeting.', outcome: 'SLA review complete; improvement items agreed with owners; scope changes scoped for next quarter.', inScope: ['SLA performance review', 'Improvement backlog management', 'Scope change requests', 'Contract alignment'], outOfScope: ['Day-to-day incident management'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysContract], evidenceIds: [] },
   ];
   const personas: Persona[] = [{ projectId: projId, id: personaId, name: 'Thomas Berg', role: 'Head of IT Operations (Customer)', goals: ['Transfer L1/L2 burden to MSP within 3 months', 'Maintain service quality above pre-MSP baseline', 'Avoid escalation conflicts during hypercare'], needs: ['Accurate CMDB before transition', 'Clear and tested escalation paths', 'Transparent SLA reporting from day one'], constraints: ['Internal L3 team must maintain BAU during transition', 'Cannot extend hypercare beyond 6 weeks', 'Contract SLAs fixed for first 12 months'], accessibilityNeeds: [], evidenceIds: [] }];
   const systems: ITSystem[] = [
@@ -332,8 +346,14 @@ export function buildIT12Scenario(): ScenarioBundle {
     { id: newId('me'), projectId: projId, mapId: pmId, fromId: maD1,   toId: maEnd, label: '' },
   ];
 
+  const relations: LandscapeRelation[] = [
+    { id: newId('rel'), projectId: projId, fromId: procCoreGroup,  toId: procOpsReadiness, type: 'decomposesInto' },
+    { id: newId('rel'), projectId: projId, fromId: procDiscover,   toId: procOpsReadiness, type: 'supportsService' },
+    { id: newId('rel'), projectId: projId, fromId: procTransition, toId: procOpsReadiness, type: 'supportsService' },
+  ];
+
   return {
-    manifest, candidates, processes, personas, systems, channels, touchpoints,
+    manifest, candidates, processes, relations, personas, systems, channels, touchpoints,
     journeys: [journey], stages, steps: journeySteps, rows, cells, cards, painPoints,
     interviews, interviewItems, observations, stormingCards, contradictions,
     sipocDiagrams, sipocRows, processMaps, mapLanes, mapActivities, mapEdges,

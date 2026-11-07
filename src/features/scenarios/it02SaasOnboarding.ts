@@ -11,6 +11,7 @@ import type {
   DiscoveryInterview, DiscoveryInterviewItem, DiscoveryObservation,
   StormingCard, Contradiction,
   SipocDiagram, SipocRow, ProcessMap, MapLane, MapActivity, ProcessMapEdge,
+  LandscapeRelation,
 } from '../../domain/contracts/types';
 
 export interface ScenarioBundle {
@@ -34,6 +35,8 @@ export interface ScenarioBundle {
   observations?: DiscoveryObservation[];
   stormingCards?: StormingCard[];
   contradictions?: Contradiction[];
+  // Landscape relations (graph edges)
+  relations?: LandscapeRelation[];
   // Map workspace
   sipocDiagrams?: SipocDiagram[];
   sipocRows?: SipocRow[];
@@ -59,7 +62,13 @@ export function buildIT02Scenario(): ScenarioBundle {
   const tpProvWiz  = newId('tp');
   const tpSupport  = newId('tp');
 
-  const procOnboard = newId('proc');
+  const procOnboard    = newId('proc');
+  const procMgmt1      = newId('proc');  // management: Customer Success Oversight
+  const procMgmt2      = newId('proc');  // management: Vendor & Partnership Governance
+  const procCoreGroup  = newId('proc');  // core-group: Enterprise Customer Onboarding
+  const procMigration  = newId('proc');  // core: Customer data migration
+  const procIdSupport  = newId('proc');  // support: Identity & Access Management
+  const procTechSupport = newId('proc'); // support: Technical Onboarding Support
   const candId1 = newId('cand');
   const candId2 = newId('cand');
   const candId3 = newId('cand');
@@ -292,10 +301,43 @@ export function buildIT02Scenario(): ScenarioBundle {
   ];
 
   const processes: ProcessDefinition[] = [
+    // ── Management layer ──────────────────────────────────────────────────────
+    { projectId: projId, id: procMgmt1,
+      title: 'Customer Success Oversight',
+      purpose: 'Set and monitor SLA targets, onboarding KPIs, and escalation paths to ensure enterprise customers reach go-live within agreed timelines.',
+      levelLabel: 'management',
+      trigger: 'New contract signed or quarterly business review scheduled.',
+      outcome: 'Published onboarding SLA targets; KPI dashboard updated; escalation paths confirmed.',
+      inScope: ['SLA definition', 'Onboarding KPI monitoring', 'Escalation path management', 'CSM assignment'],
+      outOfScope: ['Day-to-day technical support', 'Billing and renewal'],
+      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [], evidenceIds: [],
+    },
+    { projectId: projId, id: procMgmt2,
+      title: 'Vendor & Partnership Governance',
+      purpose: 'Manage SaaS vendor relationships, monitor contract compliance, and govern third-party IdP integrations.',
+      levelLabel: 'management',
+      trigger: 'Contract renewal due or new vendor integration requested.',
+      outcome: 'Active vendor contracts reviewed; integration standards published; compliance status confirmed.',
+      inScope: ['Vendor contract management', 'Third-party IdP certification', 'SLA compliance review'],
+      outOfScope: ['Individual customer configuration', 'Internal IT procurement'],
+      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [], evidenceIds: [],
+    },
+    // ── Core group ────────────────────────────────────────────────────────────
+    { projectId: projId, id: procCoreGroup,
+      title: 'Enterprise Customer Onboarding',
+      purpose: 'Deliver end-to-end onboarding for enterprise customers from contract signature to full platform adoption.',
+      levelLabel: 'core-group',
+      trigger: 'Signed contract received from CRM.',
+      outcome: 'All users authenticated; workspace live; customer acknowledges go-live.',
+      inScope: ['Tenant provisioning', 'IdP/SSO setup', 'User import', 'Setup wizard', 'Data migration'],
+      outOfScope: ['Ongoing customer support post-go-live', 'Billing management'],
+      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [], evidenceIds: [],
+    },
+    // ── Core sub-processes (children of procCoreGroup) ────────────────────────
     { projectId: projId, id: procOnboard,
       title: 'SaaS platform onboarding',
       purpose: 'Enable enterprise IT admins to configure and launch the platform for their organization within the agreed SLA window.',
-      levelLabel: 'core',
+      levelLabel: 'core', parentId: procCoreGroup,
       trigger: 'Signed contract received; account activation email sent to IT admin contact.',
       outcome: 'All invited users can authenticate via SSO; at least one workspace is active; admin acknowledges completion in portal.',
       inScope: [
@@ -316,6 +358,37 @@ export function buildIT02Scenario(): ScenarioBundle {
       capabilityIds: [],
       systemIds: [sysPortal, sysIdp],
       evidenceIds: [],
+    },
+    { projectId: projId, id: procMigration,
+      title: 'Customer data migration',
+      purpose: 'Transfer customer data from legacy tools into the new platform environment with verified integrity.',
+      levelLabel: 'core', parentId: procCoreGroup,
+      trigger: 'Admin initiates migration from the admin portal after completing IdP setup.',
+      outcome: 'All selected data migrated and verified; migration report delivered to admin.',
+      inScope: ['Data export from source system', 'Format transformation', 'Bulk import', 'Integrity verification'],
+      outOfScope: ['IdP/SSO configuration', 'User permission assignment'],
+      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysPortal], evidenceIds: [],
+    },
+    // ── Support layer ─────────────────────────────────────────────────────────
+    { projectId: projId, id: procIdSupport,
+      title: 'Identity & Access Management',
+      purpose: 'Maintain IdP integration templates, SSO configuration standards, and access policy enforcement across all tenants.',
+      levelLabel: 'support',
+      trigger: 'New IdP integration requested or access policy change required.',
+      outcome: 'IdP integration verified; access policy published; admin notified.',
+      inScope: ['IdP template maintenance', 'SSO configuration standards', 'Access policy enforcement', 'Role definition'],
+      outOfScope: ['Tenant-specific configuration', 'End-user authentication troubleshooting'],
+      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysIdp], evidenceIds: [],
+    },
+    { projectId: projId, id: procTechSupport,
+      title: 'Technical Onboarding Support',
+      purpose: 'Provide live agent and async support for IdP configuration, bulk import and SSO issues during the onboarding window.',
+      levelLabel: 'support',
+      trigger: 'Admin or end user opens a support ticket during the onboarding period.',
+      outcome: 'Issue resolved or escalated; resolution documented in knowledge base.',
+      inScope: ['Live chat support', 'Screenshare-assisted troubleshooting', 'Knowledge base authoring'],
+      outOfScope: ['Post-go-live general support', 'Product bug fixes'],
+      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [], evidenceIds: [],
     },
   ];
 
@@ -590,6 +663,13 @@ export function buildIT02Scenario(): ScenarioBundle {
     { id: newId('me'), projectId: projId, mapId: pmId, fromId: maWizard,    toId: maEnd,       label: '' },
   ];
 
+  const relations: LandscapeRelation[] = [
+    { id: newId('rel'), projectId: projId, fromId: procCoreGroup,  toId: procOnboard,    type: 'decomposesInto' },
+    { id: newId('rel'), projectId: projId, fromId: procCoreGroup,  toId: procMigration,  type: 'decomposesInto' },
+    { id: newId('rel'), projectId: projId, fromId: procIdSupport,  toId: procOnboard,    type: 'supportsService' },
+    { id: newId('rel'), projectId: projId, fromId: procTechSupport, toId: procOnboard,   type: 'supportsService' },
+  ];
+
   return {
     manifest,
     candidates,
@@ -605,6 +685,7 @@ export function buildIT02Scenario(): ScenarioBundle {
     cells,
     cards,
     painPoints,
+    relations,
     interviews, interviewItems, observations, stormingCards, contradictions,
     sipocDiagrams, sipocRows, processMaps, mapLanes, mapActivities, mapEdges,
   };

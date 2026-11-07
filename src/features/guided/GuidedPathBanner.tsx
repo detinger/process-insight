@@ -15,24 +15,24 @@ export interface GuidedStep {
 export const GUIDED_STEPS: GuidedStep[] = [
   {
     id: 1,
-    workspace: 'identify',
-    label: 'Process Landscape',
-    verb: 'Build the big picture',
-    hint: 'Add management, core and support processes to your landscape. Group sub-processes inside a core group. Pick one core process to explore in the next steps.',
+    workspace: 'discover',
+    label: 'Discovery',
+    verb: 'Gather your evidence',
+    hint: 'Log interviews, observations and contradictions. Mark each claim as evidence or assumption. This raw material justifies every decision you make in the next steps.',
   },
   {
     id: 2,
-    workspace: 'discover',
-    label: 'Discovery',
-    verb: 'Research the process',
-    hint: 'Add stakeholders, touchpoints, channels and systems. Mark each piece of information as evidence or assumption. This becomes the factual basis for the journey map.',
+    workspace: 'identify',
+    label: 'Process Landscape',
+    verb: 'Build the big picture',
+    hint: 'Use what you found in Discovery to propose and accept process candidates. Build the landscape — management on top, core in the middle, support at the bottom.',
   },
   {
     id: 3,
     workspace: 'journey',
     label: 'Customer Journey',
     verb: 'Map the experience',
-    hint: 'Create journey stages and steps from the customer\'s or employee\'s perspective. Add sentiment, touchpoints and pain points. Aim for a complete AS-IS map.',
+    hint: 'Create journey stages and steps from the customer\'s or employee\'s perspective. Add sentiment, touchpoints and pain points. Link steps back to the processes you identified.',
   },
   {
     id: 4,

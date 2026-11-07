@@ -43,7 +43,7 @@ export function HomeScreen({ onOpenProject, activeProjectId, onProjectsReset, on
     if (existing) { onOpenProject(existing.id); return; }
     const s = build();
     await db.transaction('rw',
-      [db.projects, db.candidates, db.processes, db.personas, db.systems,
+      [db.projects, db.candidates, db.processes, db.relations, db.personas, db.systems,
        db.channels, db.touchpoints, db.journeys, db.stages, db.steps,
        db.rows, db.cells, db.cards, db.painPoints,
        db.interviews, db.interviewItems, db.observations, db.stormingCards, db.contradictions,
@@ -52,6 +52,7 @@ export function HomeScreen({ onOpenProject, activeProjectId, onProjectsReset, on
         await db.projects.add(s.manifest);
         if (s.candidates.length) await db.candidates.bulkAdd(s.candidates);
         if (s.processes.length) await db.processes.bulkAdd(s.processes);
+        if (s.relations?.length) await db.relations.bulkAdd(s.relations);
         if (s.personas.length) await db.personas.bulkAdd(s.personas);
         if (s.systems.length) await db.systems.bulkAdd(s.systems);
         if (s.channels.length) await db.channels.bulkAdd(s.channels);
@@ -176,13 +177,13 @@ export function HomeScreen({ onOpenProject, activeProjectId, onProjectsReset, on
         {/* ── Hero ── */}
         <div className="home-hero-section">
           <div className="home-hero-left">
-            <div className="eyebrow">Process Identification · User Journey · Mapping</div>
+            <div className="eyebrow">Discovery · Process Identification · User Journey · Mapping</div>
             <h1 className="hero-heading" style={{ marginTop: 8, marginBottom: 12 }}>
-              Understand processes by identifying,<br />mapping, and improving them
+              Understand processes by discovering,<br />identifying, and mapping them
             </h1>
             <p className="hero-desc" style={{ maxWidth: '58ch', marginBottom: 24 }}>
               Process Insight is a learning environment for Business Process Management.
-              Identify your organisation's processes, model user journeys, discover pain points,
+              Discover evidence, identify your organisation's processes, model user journeys,
               and build process maps.
             </p>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
@@ -210,8 +211,8 @@ export function HomeScreen({ onOpenProject, activeProjectId, onProjectsReset, on
         </p>
         <div className="cycle-grid">
           {[
-            { n: 1, ws: 'identify', name: 'Identify', desc: 'Map process candidates, systems, personas and channels from stakeholder evidence.' },
-            { n: 2, ws: 'discover', name: 'Discover', desc: 'Run interviews and observations, then storm events and commands to surface contradictions.' },
+            { n: 1, ws: 'discover', name: 'Discover', desc: 'Run interviews and observations, then storm events and commands to surface contradictions.' },
+            { n: 2, ws: 'identify', name: 'Identify', desc: 'Map process candidates, systems, personas and channels from stakeholder evidence.' },
             { n: 3, ws: 'journey',  name: 'Journey',  desc: 'Build the user journey map with stages, touchpoints, pain points and sentiment.' },
             { n: 4, ws: 'map',      name: 'Map',      desc: 'Create SIPOC diagrams and process maps with swim lanes, activities and edges.' },
           ].map(step => (

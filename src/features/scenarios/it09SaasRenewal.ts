@@ -2,7 +2,7 @@
 
 import { newId } from '../../domain/contracts/ids';
 import type {
-  ProjectManifest, ProcessCandidate, ProcessDefinition,
+  ProjectManifest, ProcessCandidate, ProcessDefinition, LandscapeRelation,
   Persona, ITSystem, Channel, Touchpoint,
   Journey, JourneyStage, JourneyStep, JourneyRow, Cell, JourneyCard,
   PainPoint,
@@ -23,8 +23,10 @@ export function buildIT09Scenario(): ScenarioBundle {
   const tpInvoice = newId('tp');
   const tpExport = newId('tp');
 
-  const procRenewal = newId('proc');
-  const procExport = newId('proc');
+  const procMgmt1     = newId('proc');  // management: Subscription Lifecycle Governance
+  const procCoreGroup = newId('proc');  // core-group: Subscription & Account Lifecycle
+  const procRenewal   = newId('proc');
+  const procExport    = newId('proc');
   const candId1 = newId('cand');
   const candId2 = newId('cand');
 
@@ -126,7 +128,29 @@ export function buildIT09Scenario(): ScenarioBundle {
     { projectId: projId, id: candId2, title: 'Customer data export and portability', status: 'accepted', rationale: 'Distinct data process; regulatory and compliance implications.', sourceRefs: [], createdAt: now },
   ];
   const processes: ProcessDefinition[] = [
-    { projectId: projId, id: procRenewal, title: 'Subscription renewal and cancellation management', purpose: 'Handle subscription lifecycle events including renewal, negotiation, downgrade and cancellation.', levelLabel: 'core', trigger: 'Renewal date approaches or customer initiates cancellation.', outcome: 'Subscription renewed, modified or cancelled; customer notified; billing reconciled.', inScope: ['Renewal notice', 'Negotiation', 'Cancellation processing', 'Final invoicing'], outOfScope: ['Data export', 'Post-cancellation data retention'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysBilling, sysAdmin], evidenceIds: [] },
+    // ── Management layer ──────────────────────────────────────────────────────
+    { projectId: projId, id: procMgmt1, title: 'Subscription Lifecycle Governance',
+      purpose: 'Define renewal policies, cancellation rights, data retention rules and SLA commitments for the subscription lifecycle.',
+      levelLabel: 'management',
+      trigger: 'Policy review cycle or regulatory change affecting data retention or cancellation rights.',
+      outcome: 'Published renewal policy; cancellation rights documented; data retention SLA confirmed.',
+      inScope: ['Renewal policy definition', 'Cancellation rights', 'Data retention policy', 'Customer portability compliance'],
+      outOfScope: ['Individual subscription processing', 'Billing dispute resolution'],
+      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysBilling], evidenceIds: [],
+    },
+    // ── Core group ────────────────────────────────────────────────────────────
+    { projectId: projId, id: procCoreGroup, title: 'Subscription & Account Lifecycle',
+      purpose: 'Manage subscription renewals, cancellations, and data export from renewal notice to account closure.',
+      levelLabel: 'core-group',
+      trigger: 'Renewal notice sent or customer initiates cancellation.',
+      outcome: 'Subscription renewed or account closed; data exported; billing reconciled.',
+      inScope: ['Renewal and cancellation', 'Data export', 'Final invoicing', 'Account closure'],
+      outOfScope: ['Post-closure data deletion', 'Procurement of replacement service'],
+      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [], evidenceIds: [],
+    },
+    // ── Core sub-processes ────────────────────────────────────────────────────
+    { projectId: projId, id: procRenewal, title: 'Subscription renewal and cancellation management', purpose: 'Handle subscription lifecycle events including renewal, negotiation, downgrade and cancellation.', levelLabel: 'core', parentId: procCoreGroup, trigger: 'Renewal date approaches or customer initiates cancellation.', outcome: 'Subscription renewed, modified or cancelled; customer notified; billing reconciled.', inScope: ['Renewal notice', 'Negotiation', 'Cancellation processing', 'Final invoicing'], outOfScope: ['Data export', 'Post-cancellation data retention'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysBilling, sysAdmin], evidenceIds: [] },
+    // ── Support layer ─────────────────────────────────────────────────────────
     { projectId: projId, id: procExport, title: 'Customer data export and portability', purpose: 'Provide customers with a complete, verifiable export of all their data before or after account closure.', levelLabel: 'support', trigger: 'Customer requests data export.', outcome: 'Complete data package delivered; customer confirms receipt.', inScope: ['Export request intake', 'Data package generation', 'Delivery', 'Completeness verification support'], outOfScope: ['Data deletion', 'Account closure'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysAdmin], evidenceIds: [] },
   ];
   const personas: Persona[] = [{ projectId: projId, id: personaId, name: 'Dana Patel', role: 'IT Systems Administrator', goals: ['Manage SaaS costs within budget', 'Ensure data portability before closure', 'Complete cancellation before auto-renewal date'], needs: ['Transparent seat utilization data', 'Self-service cancellation', 'Complete data export with manifest'], constraints: ['Finance must approve spend decisions', 'Cannot extend beyond contract renewal date', 'Must retain audit logs for 3 years per policy'], accessibilityNeeds: [], evidenceIds: [] }];
@@ -311,8 +335,13 @@ export function buildIT09Scenario(): ScenarioBundle {
     { id: newId('me'), projectId: projId, mapId: pmId, fromId: maD2,   toId: maEnd, label: '' },
   ];
 
+  const relations: LandscapeRelation[] = [
+    { id: newId('rel'), projectId: projId, fromId: procCoreGroup, toId: procRenewal, type: 'decomposesInto' },
+    { id: newId('rel'), projectId: projId, fromId: procExport,    toId: procRenewal, type: 'supportsService' },
+  ];
+
   return {
-    manifest, candidates, processes, personas, systems, channels, touchpoints,
+    manifest, candidates, processes, relations, personas, systems, channels, touchpoints,
     journeys: [journey], stages, steps: journeySteps, rows, cells, cards, painPoints,
     interviews, interviewItems, observations, stormingCards, contradictions,
     sipocDiagrams, sipocRows, processMaps, mapLanes, mapActivities, mapEdges,

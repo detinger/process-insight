@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Lightbulb, ChevronRight, ChevronDown, Clock, Target, AlertTriangle, ArrowRight, BookOpen, ExternalLink } from 'lucide-react';
+import { Lightbulb, ChevronRight, ChevronDown, Clock, Target, AlertTriangle, ArrowRight, ExternalLink } from 'lucide-react';
 import { CURRICULUM } from './curriculum';
 import { CHALLENGES, type ChallengeDefinition } from './challenges';
 import { loadScenarioById } from '../scenarios/loadScenarioById';
@@ -33,7 +33,7 @@ interface LearnProps {
 }
 
 export function LearnWorkspace({ projectId: _, onOpenProject, onNavigate }: LearnProps) {
-  const [activeTab, setActiveTab] = useState<'curriculum' | 'challenges' | 'concepts'>('curriculum');
+  const [activeTab, setActiveTab] = useState<'concepts' | 'curriculum' | 'challenges'>('concepts');
   const [expandedUnit, setExpandedUnit] = useState<number | null>(null);
   const [selectedChallenge, setSelectedChallenge] = useState<string | null>(null);
   const [filterScenario, setFilterScenario] = useState<string>('');
@@ -66,7 +66,7 @@ export function LearnWorkspace({ projectId: _, onOpenProject, onNavigate }: Lear
 
         {/* Tab nav */}
         <div style={{ display: 'flex', gap: 2, marginBottom: 24, borderBottom: '1px solid var(--border)' }}>
-          {(['curriculum', 'challenges', 'concepts'] as const).map(tab => (
+          {(['concepts', 'curriculum', 'challenges'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => { setActiveTab(tab); setSelectedChallenge(null); }}
@@ -423,19 +423,6 @@ const CONCEPTS: ConceptDef[] = [
   },
 ];
 
-const SCENARIO_ROWS = [
-  { id: 'IT-02', scenario: 'SaaS customer completing onboarding',              perspective: 'Customer',  level: 'Beginner' },
-  { id: 'IT-03', scenario: 'Employee reporting a hardware incident',            perspective: 'Employee',  level: 'Beginner' },
-  { id: 'IT-04', scenario: 'Developer requesting cloud resources',              perspective: 'Developer', level: 'Intermediate' },
-  { id: 'IT-05', scenario: 'New employee requesting system access',             perspective: 'Employee',  level: 'Intermediate' },
-  { id: 'IT-06', scenario: 'Enterprise customer during a major incident',       perspective: 'Customer',  level: 'Intermediate' },
-  { id: 'IT-07', scenario: 'Product team releasing software',                  perspective: 'Developer', level: 'Advanced' },
-  { id: 'IT-08', scenario: 'Developer integrating a public API',               perspective: 'Developer', level: 'Advanced' },
-  { id: 'IT-09', scenario: 'SaaS administrator handling renewal/cancellation', perspective: 'Customer',  level: 'Intermediate' },
-  { id: 'IT-10', scenario: 'Team procuring an IT service',                     perspective: 'Employee',  level: 'Advanced' },
-  { id: 'IT-11', scenario: 'Customer migrating to cloud hosting',              perspective: 'Customer',  level: 'Advanced' },
-  { id: 'IT-12', scenario: 'Enterprise onboarding a managed-service provider', perspective: 'Employee',  level: 'Capstone' },
-] as const;
 
 function ConceptsTab({ onOpenProject, onNavigate }: { onOpenProject?: (id: string) => void; onNavigate?: (w: Workspace) => void }) {
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
@@ -533,39 +520,6 @@ function ConceptsTab({ onOpenProject, onNavigate }: { onOpenProject?: (id: strin
         })}
       </div>
 
-      {/* Scenario packs */}
-      <h2 className="section-heading">Scenario packs</h2>
-      <div style={{ border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '64px 1fr 90px 110px 80px', padding: '6px 14px', background: 'var(--bg-subtle)', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}>
-          <span>ID</span><span>Scenario</span><span>Perspective</span><span>Level</span><span />
-        </div>
-        {SCENARIO_ROWS.map((row, i) => (
-          <div key={row.id} style={{ display: 'grid', gridTemplateColumns: '64px 1fr 90px 110px 80px', padding: '9px 14px', borderBottom: i < SCENARIO_ROWS.length - 1 ? '1px solid var(--border)' : 'none', fontSize: 13, alignItems: 'center' }}>
-            <span style={{ fontWeight: 700, color: 'var(--primary)', fontSize: 12 }}>{row.id}</span>
-            <span>{row.scenario}</span>
-            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{row.perspective}</span>
-            <span>
-              <span style={{
-                display: 'inline-block', padding: '2px 7px', borderRadius: 4,
-                fontSize: 11, fontWeight: 600,
-                background: `color-mix(in srgb, ${LEVEL_COLORS[row.level.toLowerCase()]} 12%, transparent)`,
-                color: LEVEL_COLORS[row.level.toLowerCase()],
-              }}>
-                {row.level}
-              </span>
-            </span>
-            <span>
-              <button
-                className="btn btn-sm btn-ghost"
-                style={{ fontSize: 11 }}
-                onClick={() => openScenario(row.id, 'journey')}
-              >
-                <BookOpen size={11} /> Load
-              </button>
-            </span>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }

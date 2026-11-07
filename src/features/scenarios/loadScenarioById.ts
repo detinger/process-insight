@@ -39,7 +39,7 @@ export async function loadScenarioById(scenarioId: string): Promise<string | nul
 
   const s = builder();
   await db.transaction('rw',
-    [db.projects, db.candidates, db.processes, db.personas, db.systems,
+    [db.projects, db.candidates, db.processes, db.relations, db.personas, db.systems,
      db.channels, db.touchpoints, db.journeys, db.stages, db.steps,
      db.rows, db.cells, db.cards, db.painPoints,
      db.interviews, db.interviewItems, db.observations, db.stormingCards, db.contradictions,
@@ -48,6 +48,7 @@ export async function loadScenarioById(scenarioId: string): Promise<string | nul
       await db.projects.add(s.manifest);
       if (s.candidates.length) await db.candidates.bulkAdd(s.candidates);
       if (s.processes.length) await db.processes.bulkAdd(s.processes);
+      if (s.relations?.length) await db.relations.bulkAdd(s.relations);
       if (s.personas.length) await db.personas.bulkAdd(s.personas);
       if (s.systems.length) await db.systems.bulkAdd(s.systems);
       if (s.channels.length) await db.channels.bulkAdd(s.channels);

@@ -66,7 +66,7 @@ export default function App() {
     setGuidedStep(1);
     setCompletedSteps(new Set());
     setGuidedMode(true);
-    setWorkspace('identify');
+    setWorkspace('discover');
   }
 
   function handleGuidedGoToStep(step: typeof GUIDED_STEPS[number]) {

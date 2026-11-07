@@ -2,7 +2,7 @@
 
 import { newId } from '../../domain/contracts/ids';
 import type {
-  ProjectManifest, ProcessCandidate, ProcessDefinition,
+  ProjectManifest, ProcessCandidate, ProcessDefinition, LandscapeRelation,
   Persona, ITSystem, Channel, Touchpoint,
   Journey, JourneyStage, JourneyStep, JourneyRow, Cell, JourneyCard,
   PainPoint,
@@ -23,8 +23,9 @@ export function buildIT10Scenario(): ScenarioBundle {
   const tpRFP = newId('tp');
   const tpApproval = newId('tp');
 
-  const procProcure = newId('proc');
-  const procSecurity = newId('proc');
+  const procCoreGroup = newId('proc');  // core-group: IT Service Procurement
+  const procProcure   = newId('proc');
+  const procSecurity  = newId('proc');
   const candId1 = newId('cand');
   const candId2 = newId('cand');
 
@@ -124,8 +125,20 @@ export function buildIT10Scenario(): ScenarioBundle {
     { projectId: projId, id: candId2, title: 'Vendor security and data protection review', status: 'accepted', rationale: 'Distinct compliance gate; involves security and DPO teams.', sourceRefs: [], createdAt: now },
   ];
   const processes: ProcessDefinition[] = [
-    { projectId: projId, id: procProcure, title: 'IT service procurement and vendor selection', purpose: 'Identify, evaluate and contract a suitable IT service vendor within budget and policy.', levelLabel: 'core', trigger: 'Business unit raises a procurement requirement.', outcome: 'Contract signed; PO raised; vendor onboarded; ops team briefed.', inScope: ['Requirements definition', 'RFP process', 'Vendor evaluation', 'Finance and legal approval', 'Contract execution', 'Handover'], outOfScope: ['Security and DPA review', 'Ongoing vendor management'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysProcure], evidenceIds: [] },
+    // ── Management layer ──────────────────────────────────────────────────────
     { projectId: projId, id: procSecurity, title: 'Vendor security and data protection review', purpose: 'Assess vendor security posture and data processing practices against policy before procurement commitment.', levelLabel: 'management', trigger: 'Vendor shortlisted in procurement process.', outcome: 'Vendor approved, conditionally approved or rejected; DPA signed if data processing confirmed.', inScope: ['Security questionnaire', 'Risk assessment', 'DPA review and signing'], outOfScope: ['Procurement decision', 'Contract negotiation'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysProcure, sysVendor], evidenceIds: [] },
+    // ── Core group ────────────────────────────────────────────────────────────
+    { projectId: projId, id: procCoreGroup, title: 'IT Service Procurement',
+      purpose: 'Identify, evaluate, approve and contract IT services from initial requirement through internal handover.',
+      levelLabel: 'core-group',
+      trigger: 'Business unit raises a procurement requirement with finance pre-approval.',
+      outcome: 'Contract signed; vendor onboarded; ops team briefed and operational.',
+      inScope: ['Requirements definition', 'RFP and vendor evaluation', 'Finance, legal and DPO approval', 'Contract execution', 'Vendor onboarding', 'Internal handover'],
+      outOfScope: ['Ongoing vendor management', 'Security policy definition'],
+      status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [], evidenceIds: [],
+    },
+    // ── Core sub-processes ────────────────────────────────────────────────────
+    { projectId: projId, id: procProcure, title: 'IT service procurement and vendor selection', purpose: 'Identify, evaluate and contract a suitable IT service vendor within budget and policy.', levelLabel: 'core', parentId: procCoreGroup, trigger: 'Business unit raises a procurement requirement.', outcome: 'Contract signed; PO raised; vendor onboarded; ops team briefed.', inScope: ['Requirements definition', 'RFP process', 'Vendor evaluation', 'Finance and legal approval', 'Contract execution', 'Handover'], outOfScope: ['Security and DPA review', 'Ongoing vendor management'], status: 'draft', serviceIds: [], capabilityIds: [], systemIds: [sysProcure], evidenceIds: [] },
   ];
   const personas: Persona[] = [{ projectId: projId, id: personaId, name: 'Marcus Lee', role: 'Product Manager (Procurement Lead)', goals: ['Contract a monitoring tool within Q2', 'Stay within budget while meeting security requirements', 'Avoid delays in internal ops handover'], needs: ['Procurement timeline visibility', 'DPO queue transparency', 'Standard requirements template'], constraints: ['Cannot commit spend without finance approval', 'All vendors processing data require DPA', 'Legal capacity shared with other teams'], accessibilityNeeds: [], evidenceIds: [] }];
   const systems: ITSystem[] = [
@@ -308,8 +321,13 @@ export function buildIT10Scenario(): ScenarioBundle {
     { id: newId('me'), projectId: projId, mapId: pmId, fromId: maD1,   toId: maEnd, label: '' },
   ];
 
+  const relations: LandscapeRelation[] = [
+    { id: newId('rel'), projectId: projId, fromId: procCoreGroup, toId: procProcure, type: 'decomposesInto' },
+    { id: newId('rel'), projectId: projId, fromId: procSecurity,  toId: procProcure, type: 'supportsService' },
+  ];
+
   return {
-    manifest, candidates, processes, personas, systems, channels, touchpoints,
+    manifest, candidates, processes, relations, personas, systems, channels, touchpoints,
     journeys: [journey], stages, steps: journeySteps, rows, cells, cards, painPoints,
     interviews, interviewItems, observations, stormingCards, contradictions,
     sipocDiagrams, sipocRows, processMaps, mapLanes, mapActivities, mapEdges,
