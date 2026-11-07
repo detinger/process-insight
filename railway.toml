@@ -1,0 +1,15 @@
+# Railway static-site deployment
+# In the Railway dashboard: New Project → Deploy from GitHub → Static Site
+#   Build command : npm run build
+#   Publish dir   : dist
+#
+# Alternatively, deploy as a web service using the start script below
+# (npm start serves the dist/ folder with the `serve` package).
+
+[build]
+  builder     = "NIXPACKS"
+  buildCommand = "npm run build"
+
+[deploy]
+  startCommand = "npm start"
+  restartPolicyType = "ON_FAILURE"
