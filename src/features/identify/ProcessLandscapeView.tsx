@@ -105,14 +105,14 @@ export function ProcessLandscapeView({
 
             {/* Left rail */}
             <div style={{
-              width: 96, flexShrink: 0, background: ZONE_OUTER, borderRadius: '8px 0 0 8px',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '12px 8px',
+              width: 36, flexShrink: 0, background: ZONE_OUTER, borderRadius: '8px 0 0 8px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '12px 0',
             }}>
               <span style={{
-                textAlign: 'center', lineHeight: 1.3,
+                writingMode: 'vertical-rl', transform: 'rotate(180deg)',
                 fontSize: 11, fontWeight: 700, letterSpacing: '0.08em',
                 textTransform: 'uppercase', color: '#fff',
-                whiteSpace: 'normal', wordBreak: 'break-word',
+                whiteSpace: 'nowrap',
               }}>{leftLabel}</span>
             </div>
 
@@ -200,14 +200,14 @@ export function ProcessLandscapeView({
 
             {/* Right rail */}
             <div style={{
-              width: 96, flexShrink: 0, background: ZONE_OUTER, borderRadius: '0 8px 8px 0',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '12px 8px',
+              width: 36, flexShrink: 0, background: ZONE_OUTER, borderRadius: '0 8px 8px 0',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '12px 0',
             }}>
               <span style={{
-                textAlign: 'center', lineHeight: 1.3,
+                writingMode: 'vertical-rl',
                 fontSize: 11, fontWeight: 700, letterSpacing: '0.08em',
                 textTransform: 'uppercase', color: '#fff',
-                whiteSpace: 'normal', wordBreak: 'break-word',
+                whiteSpace: 'nowrap',
               }}>{rightLabel}</span>
             </div>
           </div>
