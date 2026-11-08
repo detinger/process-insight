@@ -8,7 +8,6 @@ import { IdentifyWorkspace } from './features/identify/IdentifyWorkspace';
 import { DiscoverWorkspace } from './features/discover/DiscoverWorkspace';
 import { JourneyWorkspace } from './features/journey/JourneyWorkspace';
 import { MapWorkspace } from './features/map/MapWorkspace';
-import { DictionaryPanel } from './features/dictionary/DictionaryPanel';
 import { db, setDatabaseWriteAccess } from './storage/db';
 import { exportProject } from './storage/projectIO';
 import { getTabOwnership, type OwnershipState } from './app/tabOwnership';
@@ -17,7 +16,6 @@ export default function App() {
   const [workspace, setWorkspace] = useState<Workspace>('home');
   const [projectId, setProjectId] = useState<string | null>(null);
   const [projectTitle, setProjectTitle] = useState<string | undefined>();
-  const [dictOpen, setDictOpen] = useState(false);
   const [tabState, setTabState] = useState<OwnershipState>('pending');
   const [storageError, setStorageError] = useState<string | null>(null);
   const [guidedMode, setGuidedMode] = useState(false);
@@ -102,7 +100,6 @@ export default function App() {
   function resetOpenProject() {
     setProjectId(null);
     setProjectTitle(undefined);
-    setDictOpen(false);
     setWorkspace('home');
   }
 
@@ -164,7 +161,6 @@ export default function App() {
           onNavigate={handleNavigate}
           projectTitle={projectTitle}
           projectId={projectId}
-          onDictionary={() => setDictOpen(true)}
           onExport={handleExport}
           readOnly={isObserver}
           onStartGuidedMode={projectId && !guidedMode ? startGuidedMode : undefined}
@@ -182,9 +178,6 @@ export default function App() {
         </AppShell>
       </div>
 
-      {dictOpen && (
-        <DictionaryPanel projectId={projectId ?? '__default__'} onClose={() => setDictOpen(false)} />
-      )}
 
     </ThemeProvider>
   );

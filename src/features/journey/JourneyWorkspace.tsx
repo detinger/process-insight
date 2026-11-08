@@ -3,10 +3,11 @@ import {
   Plus, ChevronRight, Smile, Frown, Meh, AlertCircle, Zap,
   ClipboardList, Info, X, Edit3, User, Settings, Undo2, Redo2,
   Copy, Search, Trash2, ArrowLeft, ArrowRight, ArrowUp, ArrowDown,
-  LayoutTemplate, Table2, BookOpen, Target, Clock,
+  LayoutTemplate, Table2, BookOpen, Target, Clock, BookMarked,
 } from 'lucide-react';
 import { db } from '../../storage/db';
 import { newId } from '../../domain/contracts/ids';
+import { DictionaryPanel } from '../dictionary/DictionaryPanel';
 import { WorkspacePath } from '../../components/WorkspacePath';
 import type { Workspace } from '../../app/AppShell';
 import type {
@@ -68,6 +69,7 @@ export function JourneyWorkspace({ projectId, onNavigate }: Props) {
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [touchpoints, setTouchpoints] = useState<Touchpoint[]>([]);
   const [channels, setChannels] = useState<Channel[]>([]);
+  const [dictOpen, setDictOpen] = useState(false);
   const [selectedPersonaId, setSelectedPersonaId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [addingStage, setAddingStage] = useState(false);
@@ -711,6 +713,9 @@ export function JourneyWorkspace({ projectId, onNavigate }: Props) {
           disabled={saving || redoStack.current.length === 0} title="Redo change">
           <Redo2 size={14} /> Redo
         </button>
+        <button className="btn btn-sm btn-ghost" onClick={() => setDictOpen(true)} title="Manage personas, systems, channels and touchpoints">
+          <BookMarked size={14} /> Dictionary
+        </button>
         <button className="btn btn-sm btn-ghost" onClick={createToBeCopy} disabled={saving} title="Create independent TO-BE copy">
           <Copy size={14} /> TO-BE copy
         </button>
@@ -935,6 +940,20 @@ export function JourneyWorkspace({ projectId, onNavigate }: Props) {
         )}
       </div>
       {onNavigate && <WorkspacePath current="journey" onNavigate={onNavigate} />}
+      {dictOpen && (
+        <DictionaryPanel
+          projectId={projectId}
+          onClose={() => {
+            setDictOpen(false);
+            // Reload dictionary entries so edits show up immediately
+            Promise.all([
+              db.personas.where('projectId').equals(projectId).toArray(),
+              db.touchpoints.where('projectId').equals(projectId).toArray(),
+              db.channels.where('projectId').equals(projectId).toArray(),
+            ]).then(([pers, tps, chs]) => { setPersonas(pers); setTouchpoints(tps); setChannels(chs); });
+          }}
+        />
+      )}
     </div>
   );
 }

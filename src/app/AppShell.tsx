@@ -3,7 +3,7 @@ import {
   BookOpen, Search, Compass, Map, LayoutGrid,
   PanelLeftClose, PanelLeftOpen,
   Sun, Moon, Monitor, FolderOpen,
-  BookMarked, Download, GraduationCap,
+  Download, GraduationCap,
 } from 'lucide-react';
 import { BrandMark } from '../components/BrandMark';
 import { useTheme } from './theme';
@@ -35,14 +35,13 @@ interface Props {
   toolbarContent?: React.ReactNode;
   projectTitle?: string;
   projectId?: string | null;
-  onDictionary?: () => void;
   onExport?: (id: string) => void;
   readOnly?: boolean;
   onStartGuidedMode?: () => void;
   guidedBanner?: React.ReactNode;
 }
 
-export function AppShell({ active, onNavigate, children, toolbarContent, projectTitle, projectId, onDictionary, onExport, readOnly, onStartGuidedMode, guidedBanner }: Props) {
+export function AppShell({ active, onNavigate, children, toolbarContent, projectTitle, projectId, onExport, readOnly, onStartGuidedMode, guidedBanner }: Props) {
   const [collapsed, setCollapsed] = useState(false);
   const { setTheme, theme } = useTheme();
 
@@ -148,11 +147,6 @@ export function AppShell({ active, onNavigate, children, toolbarContent, project
           </span>
           <div className="toolbar-spacer" />
           {toolbarContent}
-          {onDictionary && active !== 'home' && (
-            <button className="btn btn-ghost btn-sm" onClick={onDictionary} title="Dictionary">
-              <BookMarked size={15} /> Dictionary
-            </button>
-          )}
           {onExport && projectId && active !== 'home' && (
             <button className="btn btn-ghost btn-sm" onClick={() => onExport(projectId)} title="Export project"
               disabled={readOnly}>

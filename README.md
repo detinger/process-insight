@@ -7,8 +7,8 @@ An educational React application for university Business Process Management (BPM
 | Workspace | What students do |
 |-----------|-----------------|
 | **Learn** | 12-unit BPM curriculum, concept explorer, 36 practice challenges, 12 IT scenario packs |
-| **Identify** | Build a process landscape: candidates, hierarchy tree, charters, typed relationships, service/capability coverage, prioritisation |
 | **Discover** | Interview synthesis, observation timelines, event storming board, contradiction log |
+| **Identify** | Build a process landscape: candidates, hierarchy tree, charters, typed relationships, service/capability coverage, prioritisation |
 | **Journey** | Author multi-stage journey matrices with stages, steps, typed rows, sentiments, touchpoints, pain points and evidence |
 | **Map** | SIPOC, role-swimlane process maps, BPMN 2.0 export wizard with traceability sidecar |
 
@@ -103,7 +103,7 @@ src/
 │   ├── journey/            Journey matrix — stages, steps, typed rows, sentiment, pain points
 │   ├── map/                SIPOC, process map, BPMN export hub
 │   ├── derivation/         BpmnExportWizard, bpmnGenerator, BpmnViewer
-│   ├── dictionary/         Shared dictionary panel (personas, systems, channels, touchpoints)
+│   ├── dictionary/         Dictionary panel (personas, systems, channels, touchpoints), opened from Journey
 │   ├── guided/             GuidedPathBanner
 │   └── scenarios/          IT scenario fixture builders (IT-02 … IT-12) + large fixture
 ├── data/

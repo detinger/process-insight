@@ -71,7 +71,7 @@ export function CoverageMatrix({ processes, services, capabilities }: Props) {
           processes={filtered}
           columns={services.map(s => ({ id: s.id, label: s.name }))}
           getLinked={p => p.serviceIds}
-          emptyMsg="No services defined. Add services in the Dictionary panel."
+          emptyMsg="No services defined for this project."
           columnLabel="Service"
         />
       )}
@@ -80,7 +80,7 @@ export function CoverageMatrix({ processes, services, capabilities }: Props) {
           processes={filtered}
           columns={capabilities.map(c => ({ id: c.id, label: c.name }))}
           getLinked={p => p.capabilityIds}
-          emptyMsg="No capabilities defined. Add capabilities in the Dictionary panel."
+          emptyMsg="No capabilities defined for this project."
           columnLabel="Capability"
         />
       )}
