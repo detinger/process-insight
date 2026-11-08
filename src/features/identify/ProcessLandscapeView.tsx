@@ -83,7 +83,7 @@ export function ProcessLandscapeView({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       {/* Toolbar */}
-      <div style={{
+      <div data-export-skip style={{
         padding: '6px 16px', borderBottom: '1px solid var(--border)',
         background: 'var(--bg-elevated)', flexShrink: 0,
         display: 'flex', alignItems: 'center', gap: 8,

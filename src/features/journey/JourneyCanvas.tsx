@@ -32,9 +32,11 @@ interface Props {
   painPoints: PainPoint[];
   personas: Persona[];
   touchpoints: Touchpoint[];
+  /** Render at full natural size without an internal scroll area (used for PDF export). */
+  fullSize?: boolean;
 }
 
-export function JourneyCanvas({ stages, steps, rows, cells, cards, painPoints, personas: _personas, touchpoints }: Props) {
+export function JourneyCanvas({ stages, steps, rows, cells, cards, painPoints, personas: _personas, touchpoints, fullSize }: Props) {
   if (stages.length === 0) {
     return (
       <div className="empty-state" style={{ marginTop: 48 }}>
@@ -82,7 +84,9 @@ export function JourneyCanvas({ stages, steps, rows, cells, cards, painPoints, p
   }
 
   return (
-    <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: 'calc(100vh - 180px)', borderRadius: 8, border: '1px solid var(--border)' }}>
+    <div style={fullSize
+      ? { borderRadius: 8, border: '1px solid var(--border)', width: 'max-content' }
+      : { overflowX: 'auto', overflowY: 'auto', maxHeight: 'calc(100vh - 180px)', borderRadius: 8, border: '1px solid var(--border)' }}>
       <div style={{ minWidth: totalW, position: 'relative' }}>
 
         {/* Stage header row */}

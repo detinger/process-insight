@@ -10,9 +10,11 @@ import { JourneyWorkspace } from './features/journey/JourneyWorkspace';
 import { MapWorkspace } from './features/map/MapWorkspace';
 import { db, setDatabaseWriteAccess } from './storage/db';
 import { exportProject } from './storage/projectIO';
+import { ExportDialog } from './features/export/ExportDialog';
 import { getTabOwnership, type OwnershipState } from './app/tabOwnership';
 
 export default function App() {
+  const [exportOpen, setExportOpen] = useState(false);
   const [workspace, setWorkspace] = useState<Workspace>('home');
   const [projectId, setProjectId] = useState<string | null>(null);
   const [projectTitle, setProjectTitle] = useState<string | undefined>();
@@ -161,7 +163,7 @@ export default function App() {
           onNavigate={handleNavigate}
           projectTitle={projectTitle}
           projectId={projectId}
-          onExport={handleExport}
+          onExport={() => setExportOpen(true)}
           readOnly={isObserver}
           onStartGuidedMode={projectId && !guidedMode ? startGuidedMode : undefined}
           guidedBanner={guidedMode && projectId ? (
@@ -178,7 +180,9 @@ export default function App() {
         </AppShell>
       </div>
 
-
+      {exportOpen && projectId && (
+        <ExportDialog projectId={projectId} projectTitle={projectTitle} onClose={() => setExportOpen(false)} />
+      )}
     </ThemeProvider>
   );
 }
