@@ -11,7 +11,6 @@ import { PriorityScoringPanel } from './PriorityScoringPanel';
 import { wouldCreateCycle } from './hierarchy';
 import { ImpactPanel } from './ImpactPanel';
 import { ProcessLandscapeView, type LandscapeZone } from './ProcessLandscapeView';
-import { WorkspaceGuide } from '../../components/WorkspaceGuide';
 import { WorkspacePath } from '../../components/WorkspacePath';
 import type { Workspace } from '../../app/AppShell';
 import type {
@@ -204,24 +203,13 @@ export function IdentifyWorkspace({ projectId, onNavigate }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       {/* Workspace header: the page title comes first, tabs below it */}
-      <div style={{ padding: '18px 24px 0', flexShrink: 0, maxHeight: '45vh', overflowY: 'auto', background: 'var(--bg)' }}>
+      <div style={{ padding: '18px 24px 0', flexShrink: 0, background: 'var(--bg)' }}>
         <div className="eyebrow">Identification</div>
         <h1 className="page-title" style={{ marginBottom: 6 }}>Process landscape</h1>
-        <p className="page-description" style={{ marginBottom: 12 }}>
+        <p className="page-description" style={{ marginBottom: 14 }}>
           Identify candidate processes from evidence, classify them, define boundaries
           and organize into a coherent architecture.
         </p>
-        <WorkspaceGuide
-          storageKey="guide-identify"
-          title="What to do in this workspace"
-          description="Before mapping what customers experience, you need to understand which processes are involved and how they relate to each other."
-          steps={[
-            { label: 'Identify: add process candidates', hint: 'Use the sidebar → "Add". Write down every process you think might be relevant, even if you\'re unsure. You can filter them later.' },
-            { label: 'Identify: review and accept', hint: 'Work through each candidate: check the boundary checklist, change status to "Accepted" for the ones worth modeling, then complete the charter (purpose, trigger, outcome, scope).' },
-            { label: 'Landscape: build the big picture', hint: 'Assign each accepted process a role — management, core, or support — and arrange them into one overview.' },
-            { label: 'Coverage and Scoring: check and prioritise', hint: 'Find gaps (no owner, no service) and decide which processes to analyse first. Each tab explains what it is for.' },
-          ]}
-        />
       </div>
 
       {/* Top-level workspace tabs */}

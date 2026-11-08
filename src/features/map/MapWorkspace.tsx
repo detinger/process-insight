@@ -4,7 +4,6 @@ import { db } from '../../storage/db';
 import { BpmnExportWizard } from '../derivation/BpmnExportWizard';
 import { SipocPanel } from './SipocPanel';
 import { ProcessMapPanel } from './ProcessMapPanel';
-import { WorkspaceGuide } from '../../components/WorkspaceGuide';
 import { WorkspacePath } from '../../components/WorkspacePath';
 import type { Workspace } from '../../app/AppShell';
 import type { BpmnExport } from '../../domain/contracts/types';
@@ -50,16 +49,6 @@ export function MapWorkspace({ projectId, onNavigate }: { projectId: string; onN
           </div>
         </div>
 
-        <WorkspaceGuide
-          storageKey="guide-map"
-          title="What to do in this workspace"
-          description="Once you understand the experience and the processes involved, it's time to model and document. Each tool here serves a different level of detail."
-          steps={[
-            { label: 'Start with SIPOC', hint: 'Open the SIPOC tab and scope the process: who supplies inputs, what the inputs are, the main process steps, outputs, and who receives them. This takes 10 minutes and forces clear thinking before you draw anything.' },
-            { label: 'Build a swimlane Process Map', hint: 'Open Process Map and add lanes — one per role or team. Add activities to each lane and connect them with edges. If this is a scenario, the map is pre-built — explore the lanes and read the activity notes.' },
-            { label: 'Export BPMN when ready', hint: 'The BPMN Export tab converts your journey steps into a standards-compliant BPMN 2.0 file for use in a modeling tool. Run it after the journey is fully mapped.' },
-          ]}
-        />
 
         {/* Tab nav */}
         <div style={{ display: 'flex', gap: 2, marginBottom: 24, borderBottom: '1px solid var(--border)' }}>

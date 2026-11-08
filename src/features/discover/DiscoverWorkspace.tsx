@@ -7,7 +7,6 @@ import {
 } from 'lucide-react';
 import { db } from '../../storage/db';
 import { newId } from '../../domain/contracts/ids';
-import { WorkspaceGuide } from '../../components/WorkspaceGuide';
 import { WorkspacePath } from '../../components/WorkspacePath';
 import type { Workspace } from '../../app/AppShell';
 import type {
@@ -50,17 +49,6 @@ export function DiscoverWorkspace({ projectId, onNavigate }: { projectId: string
           </div>
         </div>
 
-        <WorkspaceGuide
-          storageKey="guide-discover"
-          title="What to do in this workspace"
-          description="Research the current reality before designing improvements. Use the four tools below to capture what people say, what you observe, and where sources disagree."
-          steps={[
-            { label: 'Interview synthesis', hint: 'Record each interviewee and add their direct quotes, claims and open questions. If this is a scenario, read the pre-loaded interviews to understand the key themes.' },
-            { label: 'Observation timeline', hint: 'Log what you saw happen in sequence: work steps, delays, exceptions and interactions. Delays and exceptions are the most valuable findings.' },
-            { label: 'Event storming', hint: 'Map the domain events (things that happened), the commands that triggered them, the actors who gave the commands, and the policies that govern the flow.' },
-            { label: 'Contradiction log', hint: 'When two sources disagree on the same fact, record both sides here — without picking a winner yet. Contradictions often point to the root of a problem.' },
-          ]}
-        />
 
         {/* Tab nav */}
         <div style={{ display: 'flex', gap: 2, marginBottom: 24, borderBottom: '1px solid var(--border)', flexWrap: 'wrap' }}>

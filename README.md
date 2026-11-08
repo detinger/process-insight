@@ -86,7 +86,7 @@ The included `railway.toml` configures the build and start command for this mode
 ```
 src/
 ├── app/                    AppShell — shell, navigation, tab ownership
-├── components/             Shared UI primitives (WorkspaceGuide, WorkspacePath, …)
+├── components/             Shared UI primitives (WorkspacePath, BrandMark, …)
 ├── domain/
 │   ├── contracts/
 │   │   ├── types.ts        All entity interfaces

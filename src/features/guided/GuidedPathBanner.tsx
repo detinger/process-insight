@@ -10,6 +10,8 @@ export interface GuidedStep {
   label: string;
   verb: string;
   hint: string;
+  /** Detailed, tool-by-tool guidance for this workspace (shown under "Show tips"). */
+  tips: { label: string; hint: string }[];
 }
 
 export const GUIDED_STEPS: GuidedStep[] = [
@@ -19,6 +21,12 @@ export const GUIDED_STEPS: GuidedStep[] = [
     label: 'Discovery',
     verb: 'Gather your evidence',
     hint: 'Log interviews, observations and contradictions. Mark each claim as evidence or assumption. This raw material justifies every decision you make in the next steps.',
+    tips: [
+      { label: 'Interview synthesis', hint: 'Record each interviewee and add their direct quotes, claims and open questions. If this is a scenario, read the pre-loaded interviews to understand the key themes.' },
+      { label: 'Observation timeline', hint: 'Log what you saw happen in sequence: work steps, delays, exceptions and interactions. Delays and exceptions are the most valuable findings.' },
+      { label: 'Event storming', hint: 'Map the domain events (things that happened), the commands that triggered them, the actors who gave the commands, and the policies that govern the flow.' },
+      { label: 'Contradiction log', hint: 'When two sources disagree on the same fact, record both sides here — without picking a winner yet. Contradictions often point to the root of a problem.' },
+    ],
   },
   {
     id: 2,
@@ -26,6 +34,12 @@ export const GUIDED_STEPS: GuidedStep[] = [
     label: 'Process Landscape',
     verb: 'Build the big picture',
     hint: 'Use what you found in Discovery to propose and accept process candidates. Build the landscape — management on top, core in the middle, support at the bottom.',
+    tips: [
+      { label: 'Identify: add process candidates', hint: 'Use the sidebar → "Add". Write down every process you think might be relevant, even if you\'re unsure. You can filter them later.' },
+      { label: 'Identify: review and accept', hint: 'Work through each candidate: check the boundary checklist, change status to "Accepted" for the ones worth modeling, then complete the charter (purpose, trigger, outcome, scope).' },
+      { label: 'Landscape: build the big picture', hint: 'Assign each accepted process a role — management, core, or support — and arrange them into one overview.' },
+      { label: 'Coverage and Scoring: check and prioritise', hint: 'Find gaps (no owner, no service) and decide which processes to analyse first. Each tab explains what it is for.' },
+    ],
   },
   {
     id: 3,
@@ -33,6 +47,11 @@ export const GUIDED_STEPS: GuidedStep[] = [
     label: 'Customer Journey',
     verb: 'Map the experience',
     hint: 'Create journey stages and steps from the customer\'s or employee\'s perspective. Add sentiment, touchpoints and pain points. Link steps back to the processes you identified.',
+    tips: [
+      { label: 'Stages and steps', hint: 'Split the journey into stages, then add the steps a person goes through in each stage.' },
+      { label: 'Rows', hint: 'Add rows for actions, sentiment, touchpoints, pain points and systems. Use the Dictionary button to manage personas, channels and touchpoints.' },
+      { label: 'Link to processes', hint: 'Connect steps back to the processes you identified so the journey and the landscape stay traceable.' },
+    ],
   },
   {
     id: 4,
@@ -40,6 +59,11 @@ export const GUIDED_STEPS: GuidedStep[] = [
     label: 'Process Map',
     verb: 'Build the blueprint',
     hint: 'Translate the journey into an operational process blueprint. Define actors in swimlanes, handoffs between teams, decision points and supporting systems.',
+    tips: [
+      { label: 'Start with SIPOC', hint: 'Open the SIPOC tab and scope the process: who supplies inputs, what the inputs are, the main process steps, outputs, and who receives them. This takes 10 minutes and forces clear thinking before you draw anything.' },
+      { label: 'Build a swimlane Process Map', hint: 'Open Process Map and add lanes — one per role or team. Add activities to each lane and connect them with edges. If this is a scenario, the map is pre-built — explore the lanes and read the activity notes.' },
+      { label: 'Export BPMN when ready', hint: 'The BPMN Export tab converts your journey steps into a standards-compliant BPMN 2.0 file for use in a modeling tool. Run it after the journey is fully mapped.' },
+    ],
   },
 ];
 
@@ -57,6 +81,7 @@ interface Props {
 
 export function GuidedPathBanner({ currentStep, completedSteps, onGoToStep, onComplete, onExit }: Props) {
   const [expanded, setExpanded] = useState(true);
+  const [showTips, setShowTips] = useState(false);
 
   const step = GUIDED_STEPS.find(s => s.id === currentStep) ?? GUIDED_STEPS[0];
   const nextStep = GUIDED_STEPS.find(s => s.id === currentStep + 1);
@@ -178,6 +203,24 @@ export function GuidedPathBanner({ currentStep, completedSteps, onGoToStep, onCo
               <p style={{ margin: '3px 0 0', fontSize: 12, color: 'rgba(255,255,255,0.75)', lineHeight: 1.55, maxWidth: '70ch' }}>
                 {step.hint}
               </p>
+              {step.tips.length > 0 && (
+                <>
+                  <button
+                    onClick={() => setShowTips(v => !v)}
+                    style={{ marginTop: 6, background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 12, padding: 0, textDecoration: 'underline', display: 'flex', alignItems: 'center', gap: 4 }}
+                  >
+                    {showTips ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                    {showTips ? 'Hide tips' : 'Show tips for this step'}
+                  </button>
+                  {showTips && (
+                    <ul style={{ margin: '6px 0 0', paddingLeft: 18, fontSize: 12, lineHeight: 1.5, color: 'rgba(255,255,255,0.85)', maxWidth: '80ch', maxHeight: '30vh', overflowY: 'auto' }}>
+                      {step.tips.map(t => (
+                        <li key={t.label} style={{ marginBottom: 4 }}><strong>{t.label}.</strong> {t.hint}</li>
+                      ))}
+                    </ul>
+                  )}
+                </>
+              )}
             </div>
             <div style={{ display: 'flex', gap: 8, flexShrink: 0, alignItems: 'center' }}>
               {!completedSteps.has(step.id) && (
