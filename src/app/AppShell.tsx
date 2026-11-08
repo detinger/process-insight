@@ -3,7 +3,7 @@ import {
   BookOpen, Search, Compass, Map, LayoutGrid,
   PanelLeftClose, PanelLeftOpen,
   Sun, Moon, Monitor, FolderOpen,
-  Download, GraduationCap, Lightbulb, ListChecks, Trophy,
+  Download, GraduationCap, Lightbulb, Trophy,
 } from 'lucide-react';
 import { BrandMark } from '../components/BrandMark';
 import { WorkspacePath } from '../components/WorkspacePath';
