@@ -1,4 +1,4 @@
-// IT-10: Team procuring an IT service — procurement, security, vendor and finance boundaries.
+// IT-09: Team procuring an IT service — procurement, security, vendor and finance boundaries.
 
 import { newId } from '../../domain/contracts/ids';
 import type {
@@ -12,9 +12,9 @@ import type {
   Service, Capability,
 } from '../../domain/contracts/types';
 import type { ProcessRating } from '../../domain/scoring';
-import type { ScenarioBundle } from './it02SaasOnboarding';
+import type { ScenarioBundle } from './it01SaasOnboarding';
 
-export function buildIT10Scenario(): ScenarioBundle {
+export function buildIT09Scenario(): ScenarioBundle {
   const now = new Date().toISOString();
   const projId = newId('proj');
   const personaId = newId('persona');
@@ -129,7 +129,7 @@ export function buildIT10Scenario(): ScenarioBundle {
     },
   ];
 
-  const manifest: ProjectManifest = { id: projId, title: 'IT-10 · IT Service Procurement Journey', description: 'Product team procurement of an IT service from RFP through contract signing, vendor onboarding and internal handover.', createdAt: now, updatedAt: now, schemaVersion: 2 };
+  const manifest: ProjectManifest = { id: projId, title: 'IT-09 · IT Service Procurement Journey', description: 'Product team procurement of an IT service from RFP through contract signing, vendor onboarding and internal handover.', createdAt: now, updatedAt: now, schemaVersion: 2 };
   const candidates: ProcessCandidate[] = [
     { projectId: projId, id: candId1, title: 'IT service procurement and vendor selection', status: 'accepted', rationale: 'Primary procurement lifecycle from need to contract.', sourceRefs: [], createdAt: now },
     { projectId: projId, id: candId2, title: 'Vendor security and data protection review', status: 'accepted', rationale: 'Distinct compliance gate; involves security and DPO teams.', sourceRefs: [], createdAt: now },

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ChevronRight, ChevronLeft, Download, AlertCircle, CheckCircle, Info, X, Plus, Trash2, History } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Download, AlertCircle, CheckCircle, Info, X, Plus, Trash2, History, Pencil, RotateCcw } from 'lucide-react';
 import { db } from '../../storage/db';
 import { newId } from '../../domain/contracts/ids';
 import {
@@ -7,7 +7,12 @@ import {
   type BpmnActivity, type BpmnLane, type BpmnGeneratorInput, type NonLinearWarning,
 } from './bpmnGenerator';
 import { BpmnViewer } from './BpmnViewer';
-import type { Journey, JourneyStage, JourneyStep, ProcessDefinition, BpmnExport } from '../../domain/contracts/types';
+import { BpmnModeler } from '../modeler/BpmnModeler';
+import '../modeler/modeler.css';
+import { validateBpmnXml } from '../../domain/validation/validate';
+import { IssueList } from '../validation/IssueList';
+import type { ValidationReport } from '../../domain/validation/types';
+import type { Journey, JourneyStage, JourneyStep, ProcessDefinition, BpmnExport, ProcessMap, MapLane } from '../../domain/contracts/types';
 
 interface Props {
   projectId: string;
@@ -34,14 +39,15 @@ interface WizardState {
   mappings: StepMapping[];
   unresolved: string[];
   generatedXml: string;
+  editedXml: string;
   warnings: string[];
   nonLinearWarnings: NonLinearWarning[];
 }
 
 const STEP_LABELS: Record<WizardStep, string> = {
   1: 'Select scope',
-  2: 'Map activities',
-  3: 'Participant & lanes',
+  2: 'Participant & lanes',
+  3: 'Map activities',
   4: 'Review coverage',
   5: 'Preview',
   6: 'Export',
@@ -63,14 +69,26 @@ export function BpmnExportWizard({ projectId, onClose }: Props) {
     mappings: [],
     unresolved: [],
     generatedXml: '',
+    editedXml: '',
     warnings: [],
     nonLinearWarnings: [],
   });
+  const [showModeler, setShowModeler] = useState(false);
+  const [validationReport, setValidationReport] = useState<ValidationReport | null>(null);
   const [priorExports, setPriorExports] = useState<BpmnExport[]>([]);
+  const [processMaps, setProcessMaps] = useState<ProcessMap[]>([]);
+  const [mapLanes, setMapLanes] = useState<MapLane[]>([]);
 
   useEffect(() => {
     db.journeys.where('projectId').equals(projectId).toArray().then(setJourneys);
     db.processes.where('projectId').equals(projectId).toArray().then(setProcesses);
+    Promise.all([
+      db.processMaps.where('projectId').equals(projectId).toArray(),
+      db.mapLanes.where('projectId').equals(projectId).toArray(),
+    ]).then(([maps, lanes]) => {
+      setProcessMaps(maps);
+      setMapLanes(lanes.sort((a, b) => a.order - b.order));
+    });
   }, [projectId]);
 
   useEffect(() => {
@@ -188,7 +206,7 @@ export function BpmnExportWizard({ projectId, onClose }: Props) {
     };
 
     const result = generateBpmnXml(input);
-    update({ generatedXml: result.xml, warnings: result.warnings, nonLinearWarnings });
+    update({ generatedXml: result.xml, editedXml: '', warnings: result.warnings, nonLinearWarnings });
   }
 
   async function saveExportRecord(filename: string): Promise<void> {
@@ -211,7 +229,7 @@ export function BpmnExportWizard({ projectId, onClose }: Props) {
   }
 
   function downloadBpmn() {
-    const blob = new Blob([state.generatedXml], { type: 'application/xml' });
+    const blob = new Blob([state.editedXml || state.generatedXml], { type: 'application/xml' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -262,8 +280,8 @@ export function BpmnExportWizard({ projectId, onClose }: Props) {
   function canAdvance(): boolean {
     switch (step) {
       case 1: return !!state.journeyId && state.selectedStepIds.length > 0 && !!state.targetProcessName;
-      case 2: return state.mappings.some(m => m.disposition !== 'excluded' && m.activityName.trim());
-      case 3: return state.lanes.length > 0 && !!state.participantName;
+      case 2: return state.lanes.length > 0 && !!state.participantName;
+      case 3: return state.mappings.some(m => m.disposition !== 'excluded' && m.activityName.trim());
       case 4: return true;
       case 5: return !!state.generatedXml;
       case 6: return false;
@@ -271,9 +289,12 @@ export function BpmnExportWizard({ projectId, onClose }: Props) {
   }
 
   function advance() {
-    if (step === 2 && state.mappings.length === 0) initMappings();
-    if (step === 2) { /* mappings already set */ }
+    if (step === 3 && state.mappings.length === 0) initMappings();
     if (step === 4) generate();
+    if (step === 5) {
+      const xmlToCheck = state.editedXml || state.generatedXml;
+      if (xmlToCheck) setValidationReport(validateBpmnXml(xmlToCheck));
+    }
     if (step < 6) setStep((step + 1) as WizardStep);
   }
 
@@ -286,6 +307,7 @@ export function BpmnExportWizard({ projectId, onClose }: Props) {
   );
 
   return (
+    <>
     <div className="dialog-backdrop">
       <div className="dialog" style={{ width: 'min(800px, 100%)', maxHeight: 'calc(100vh - 48px)' }}>
         {/* Header */}
@@ -336,20 +358,22 @@ export function BpmnExportWizard({ projectId, onClose }: Props) {
             />
           )}
           {step === 2 && (
-            <Step2
-              orderedSteps={orderedSteps}
-              state={state}
-              onUpdateMapping={updateMapping}
-              onInitMappings={initMappings}
-            />
-          )}
-          {step === 3 && (
             <Step3
               state={state}
               onUpdate={update}
               onAddLane={addLane}
               onUpdateLane={updateLane}
               onRemoveLane={removeLane}
+              processMaps={processMaps}
+              mapLanes={mapLanes}
+            />
+          )}
+          {step === 3 && (
+            <Step2
+              orderedSteps={orderedSteps}
+              state={state}
+              onUpdateMapping={updateMapping}
+              onInitMappings={initMappings}
             />
           )}
           {step === 4 && (
@@ -362,11 +386,16 @@ export function BpmnExportWizard({ projectId, onClose }: Props) {
             />
           )}
           {step === 5 && (
-            <Step5 state={state} />
+            <Step5
+              state={state}
+              onEdit={() => setShowModeler(true)}
+              onReset={() => update({ editedXml: '' })}
+            />
           )}
           {step === 6 && (
             <Step6
               state={state}
+              validationReport={validationReport}
               onDownloadBpmn={downloadBpmn}
               onDownloadTrace={downloadTrace}
             />
@@ -390,6 +419,21 @@ export function BpmnExportWizard({ projectId, onClose }: Props) {
         </div>
       </div>
     </div>
+
+    {showModeler && (
+      <div className="modeler-fullscreen">
+        <BpmnModeler
+          xml={state.editedXml || state.generatedXml}
+          title={state.targetProcessName || 'Draft'}
+          onChange={(xml) => update({ editedXml: xml })}
+          onClose={(finalXml) => {
+            update({ editedXml: finalXml });
+            setShowModeler(false);
+          }}
+        />
+      </div>
+    )}
+    </>
   );
 }
 
@@ -559,8 +603,8 @@ function Step2({
       <div className="callout callout-recommendation" style={{ marginBottom: 20 }}>
         <Info size={16} className="callout-icon" />
         <div style={{ fontSize: 13 }}>
-          Map each journey step to an activity name in the provider process. A step can be excluded
-          with a rationale (e.g. pre-service awareness is outside the provider's scope).
+          Map each journey step to an activity name in the provider process, and assign it to a lane.
+          A step can be excluded with a rationale (e.g. pre-service awareness is outside the provider's scope).
           The activity name describes provider work, not the customer's experience.
         </div>
       </div>
@@ -645,23 +689,69 @@ function Step2({
 }
 
 function Step3({
-  state, onUpdate, onAddLane, onUpdateLane, onRemoveLane,
+  state, onUpdate, onAddLane, onUpdateLane, onRemoveLane, processMaps, mapLanes,
 }: {
   state: WizardState;
   onUpdate: (patch: Partial<WizardState>) => void;
   onAddLane: () => void;
   onUpdateLane: (id: string, name: string) => void;
   onRemoveLane: (id: string) => void;
+  processMaps: ProcessMap[];
+  mapLanes: MapLane[];
 }) {
+  const [selectedMapId, setSelectedMapId] = useState('');
+
+  function importFromMap() {
+    const map = processMaps.find(m => m.id === selectedMapId);
+    if (!map) return;
+    const lanes = mapLanes
+      .filter(l => l.mapId === selectedMapId)
+      .map(l => ({ id: newId('lane'), name: l.label }));
+    if (lanes.length === 0) return;
+    onUpdate({
+      lanes,
+      participantName: state.participantName || map.title,
+    });
+  }
+
   return (
     <div>
       <div className="callout callout-recommendation" style={{ marginBottom: 20 }}>
         <Info size={16} className="callout-icon" />
         <div style={{ fontSize: 13 }}>
           Name the participant (the organization or system performing the process) and define
-          the internal role lanes. External interactions belong in handoff notes, not additional pools.
+          the internal role lanes. Import lanes from a process map, or add them manually.
         </div>
       </div>
+
+      {processMaps.length > 0 && (
+        <div className="field" style={{ marginBottom: 20, padding: '12px 14px', background: 'var(--bg-subtle)', borderRadius: 8, border: '1px solid var(--border)' }}>
+          <label className="field-label" style={{ marginBottom: 6 }}>Import lanes from process map</label>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <select
+              className="input input-sm"
+              style={{ flex: 1 }}
+              value={selectedMapId}
+              onChange={e => setSelectedMapId(e.target.value)}
+            >
+              <option value="">Select a process map…</option>
+              {processMaps.map(m => (
+                <option key={m.id} value={m.id}>{m.title}</option>
+              ))}
+            </select>
+            <button
+              className="btn btn-sm"
+              disabled={!selectedMapId}
+              onClick={importFromMap}
+            >
+              Import lanes
+            </button>
+          </div>
+          <div className="field-hint">
+            Replaces current lanes with the swimlanes from the selected process map.
+          </div>
+        </div>
+      )}
 
       <div className="field" style={{ marginBottom: 20 }}>
         <label className="field-label">Participant name</label>
@@ -765,7 +855,7 @@ function Step4({
           <AlertCircle size={16} className="callout-icon" />
           <div style={{ fontSize: 13 }}>
             {unaccounted.length} step(s) have no activity name and will be skipped in the export.
-            Go back to step 2 to add names or mark them as excluded.
+            Go back to step 3 to add names or mark them as excluded.
           </div>
         </div>
       )}
@@ -860,7 +950,7 @@ function Step4({
   );
 }
 
-function Step5({ state }: { state: WizardState }) {
+function Step5({ state, onEdit, onReset }: { state: WizardState; onEdit: () => void; onReset: () => void }) {
   if (!state.generatedXml) {
     return (
       <div className="empty-state">
@@ -870,17 +960,28 @@ function Step5({ state }: { state: WizardState }) {
     );
   }
 
+  const isEdited = !!state.editedXml;
+  const displayXml = isEdited ? state.editedXml : state.generatedXml;
+
   return (
     <div>
-      <div className="callout callout-info" style={{ marginBottom: 16 }}>
-        <Info size={16} className="callout-icon" />
-        <div style={{ fontSize: 13 }}>
-          Read-only preview. Click an activity to see its source journey step.
-          Download the files in step 6, then open the .bpmn file in BPMN Studio to continue editing.
+      {isEdited ? (
+        <div className="callout callout-warning" style={{ marginBottom: 16 }}>
+          <AlertCircle size={16} className="callout-icon" />
+          <div style={{ fontSize: 13 }}>
+            This is your <strong>edited</strong> draft. The original generated XML is preserved — reset to undo all edits.
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="callout callout-info" style={{ marginBottom: 16 }}>
+          <Info size={16} className="callout-icon" />
+          <div style={{ fontSize: 13 }}>
+            Read-only preview. Use <strong>Edit draft</strong> to open the BPMN editor and adjust the diagram before exporting.
+          </div>
+        </div>
+      )}
 
-      {state.warnings.length > 0 && (
+      {state.warnings.length > 0 && !isEdited && (
         <div style={{ marginBottom: 16 }}>
           {state.warnings.map((w, i) => (
             <div key={i} className="callout callout-warning" style={{ marginBottom: 8 }}>
@@ -891,7 +992,18 @@ function Step5({ state }: { state: WizardState }) {
         </div>
       )}
 
-      <BpmnViewer xml={state.generatedXml} height={400} />
+      <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+        <button className="btn btn-primary btn-sm" onClick={onEdit}>
+          <Pencil size={14} /> {isEdited ? 'Continue editing' : 'Edit draft'}
+        </button>
+        {isEdited && (
+          <button className="btn btn-sm btn-ghost" onClick={onReset}>
+            <RotateCcw size={14} /> Reset to generated
+          </button>
+        )}
+      </div>
+
+      <BpmnViewer xml={displayXml} height={400} />
 
       <details style={{ marginTop: 16 }}>
         <summary style={{ fontSize: 12, color: 'var(--text-muted)', cursor: 'pointer' }}>View raw BPMN XML</summary>
@@ -905,7 +1017,7 @@ function Step5({ state }: { state: WizardState }) {
           maxHeight: 300,
           fontFamily: 'var(--font-mono)',
         }}>
-          {state.generatedXml}
+          {displayXml}
         </pre>
       </details>
     </div>
@@ -913,27 +1025,48 @@ function Step5({ state }: { state: WizardState }) {
 }
 
 function Step6({
-  state: _state, onDownloadBpmn, onDownloadTrace,
+  state: _state, validationReport, onDownloadBpmn, onDownloadTrace,
 }: {
   state: WizardState;
+  validationReport: ValidationReport | null;
   onDownloadBpmn: () => void;
   onDownloadTrace: () => void;
 }) {
   const [bpmnDownloaded, setBpmn] = useState(false);
   const [traceDownloaded, setTrace] = useState(false);
 
+  const hasErrors = validationReport?.hasErrors ?? false;
+
   return (
     <div>
-      <div className="callout callout-success" style={{ marginBottom: 24 }}>
-        <CheckCircle size={18} className="callout-icon" />
-        <div>
-          <div style={{ fontWeight: 600, marginBottom: 4 }}>Export ready</div>
-          <div style={{ fontSize: 13 }}>
-            Download the BPMN draft and the traceability manifest, then open the .bpmn file in
-            BPMN Studio to edit, validate, add advanced behavior and simulate.
+      {hasErrors ? (
+        <div className="callout callout-error" style={{ marginBottom: 16 }}>
+          <AlertCircle size={18} className="callout-icon" />
+          <div>
+            <div style={{ fontWeight: 600, marginBottom: 4 }}>Validation errors</div>
+            <div style={{ fontSize: 13 }}>
+              The diagram has errors. Go back to step 5 and use "Edit draft" to fix them before exporting.
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="callout callout-success" style={{ marginBottom: validationReport ? 8 : 24 }}>
+          <CheckCircle size={18} className="callout-icon" />
+          <div>
+            <div style={{ fontWeight: 600, marginBottom: 4 }}>Export ready</div>
+            <div style={{ fontSize: 13 }}>
+              Download the BPMN draft and the traceability manifest, then open the .bpmn file in
+              BPMN Studio to edit, validate, add advanced behavior and simulate.
+            </div>
+          </div>
+        </div>
+      )}
+
+      {validationReport && (
+        <div style={{ marginBottom: 20, border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden' }}>
+          <IssueList report={validationReport} />
+        </div>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
         <div className="card">
@@ -948,7 +1081,9 @@ function Step6({
           <button
             className={`btn ${bpmnDownloaded ? '' : 'btn-primary'}`}
             style={{ width: '100%' }}
+            disabled={hasErrors}
             onClick={() => { onDownloadBpmn(); setBpmn(true); }}
+            title={hasErrors ? 'Fix validation errors before downloading' : undefined}
           >
             <Download size={15} />
             {bpmnDownloaded ? 'Downloaded ✓' : 'Download .bpmn'}

@@ -1,0 +1,259 @@
+/* ─── Modeler layout ─── */
+.bpmn-modeler {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--bg);
+}
+
+.modeler-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-elevated);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.modeler-toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.modeler-zoom-label {
+  min-width: 52px;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+
+.modeler-spacer { flex: 1; }
+
+.modeler-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  min-height: 0;
+}
+
+.bpmn-modeler.panel-closed .modeler-body {
+  grid-template-columns: minmax(0, 1fr) 0;
+}
+
+.bpmn-modeler.panel-closed .modeler-side-panel {
+  display: none;
+}
+
+.modeler-canvas-area {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+
+.modeler-panel-toggle {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  z-index: 15;
+}
+
+.modeler-side-panel {
+  border-left: 1px solid var(--border);
+  background: var(--bg-elevated);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.modeler-side-panel-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.modeler-side-panel-tab {
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  margin-bottom: -1px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.modeler-side-panel-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  font-weight: 600;
+}
+
+.modeler-side-panel-content {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.modeler-properties-host {
+  height: 100%;
+  overflow: auto;
+}
+
+.modeler-properties-host .bio-properties-panel-container {
+  --font-family: var(--font-sans);
+}
+
+.modeler-properties-host .bio-properties-panel {
+  background: transparent;
+}
+
+.modeler-explain-pad {
+  padding: 14px 16px;
+}
+
+/* ─── BPMN canvas theming ─── */
+/*
+ * Sentinel colors set in bpmnConfig.ts map to CSS vars here so the theme
+ * switches without re-importing the diagram.
+ *   default fill   #fffffe  -> rgb(255, 255, 254)
+ *   default stroke #010101  -> rgb(1, 1, 1)
+ *   default label  #010102  -> rgb(1, 1, 2)
+ */
+.bpmn-canvas svg [style*='fill: rgb(255, 255, 254)'] {
+  fill: var(--bpmn-fill, #ffffff) !important;
+}
+.bpmn-canvas svg [style*='stroke: rgb(1, 1, 1)'] {
+  stroke: var(--bpmn-stroke, #333333) !important;
+}
+.bpmn-canvas svg [style*='fill: rgb(1, 1, 1)'] {
+  fill: var(--bpmn-stroke, #333333) !important;
+}
+.bpmn-canvas svg [style*='fill: rgb(1, 1, 2)'] {
+  fill: var(--bpmn-label, #333333) !important;
+}
+.bpmn-canvas svg [style*='stroke: rgb(255, 255, 254)'] {
+  stroke: var(--bpmn-fill, #ffffff) !important;
+}
+
+.bpmn-canvas {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--canvas-bg, #f8f9fa);
+}
+
+.bpmn-canvas .djs-container {
+  background: var(--canvas-bg, #f8f9fa);
+}
+
+/* keep the bpmn.io watermark visible (license requirement) */
+.bjs-powered-by {
+  z-index: 10 !important;
+  opacity: 0.85;
+}
+
+/* dark mode bio-theme tokens */
+:root[data-theme='dark'] .bio-theme-parent,
+:root[data-theme='dark'] .djs-parent {
+  --bio-surface: #171e27;
+  --bio-surface-overlay: #1c2430;
+  --bio-surface-subtle: #1c2430;
+  --bio-surface-medium: #233042;
+  --bio-surface-strong: #2b3a4f;
+  --bio-surface-inverted: #dfe6ee;
+  --bio-surface-inverted-subtle: #b8c3d0;
+  --bio-text: #e6ebf1;
+  --bio-text-subtle: #b2bdcb;
+  --bio-text-subtlest: #8a97a8;
+  --bio-text-on-primary: #0b1520;
+  --bio-text-on-inverted: #0f141b;
+  --bio-border: #3b4a5e;
+  --bio-border-subtle: #2b3645;
+  --bio-border-disabled: #2b3645;
+  --bio-border-input: #3b4a5e;
+  --bio-primary: #5aa7d8;
+  --bio-primary-hover: #7ab9e3;
+  --bio-primary-surface: #16314a;
+  --bio-primary-surface-strong: #1f4566;
+  --bio-danger: #f2776a;
+  --bio-danger-surface-subtle: #3b1d1a;
+  --bio-selected-surface: #233042;
+  --bio-selected-text: #e6ebf1;
+  --bio-focus: #5aa7d8;
+  --bio-focus-surface: #16314a;
+  --bio-canvas-accent: #5aa7d8;
+  --bio-canvas-accent-subtle: #2f5f82;
+  --bio-shadow: rgba(0, 0, 0, 0.6);
+  --bio-shadow-subtle: rgba(0, 0, 0, 0.35);
+  --canvas-fill-color: var(--canvas-bg);
+  --bpmn-fill: #1b232d;
+  --bpmn-stroke: #d7dee8;
+  --bpmn-label: #d7dee8;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .bio-theme-parent,
+  :root:not([data-theme='light']) .djs-parent {
+    --bio-surface: #171e27;
+    --bio-surface-overlay: #1c2430;
+    --bio-surface-subtle: #1c2430;
+    --bio-surface-medium: #233042;
+    --bio-surface-strong: #2b3a4f;
+    --bio-text: #e6ebf1;
+    --bio-text-subtle: #b2bdcb;
+    --bio-text-subtlest: #8a97a8;
+    --bio-border: #3b4a5e;
+    --bio-border-subtle: #2b3645;
+    --bio-primary: #5aa7d8;
+    --bio-primary-surface: #16314a;
+    --canvas-fill-color: var(--canvas-bg);
+    --bpmn-fill: #1b232d;
+    --bpmn-stroke: #d7dee8;
+    --bpmn-label: #d7dee8;
+  }
+}
+
+/* token simulation: hide built-in log & toggle (we use our own panel) */
+.bts-log {
+  display: none !important;
+}
+.bts-toggle-mode {
+  display: none !important;
+}
+
+/* Full-screen modeler dialog */
+.modeler-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+@media (max-width: 820px) {
+  .modeler-body {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(300px, 1fr) minmax(240px, 42vh);
+  }
+
+  .bpmn-modeler.panel-closed .modeler-body {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+  }
+
+  .modeler-side-panel {
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+}

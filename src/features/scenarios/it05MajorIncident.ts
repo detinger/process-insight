@@ -1,4 +1,4 @@
-// IT-06: Enterprise customer during a major incident — detection, response, communications and review.
+// IT-05: Enterprise customer during a major incident — detection, response, communications and review.
 
 import { newId } from '../../domain/contracts/ids';
 import type {
@@ -12,9 +12,9 @@ import type {
   Service, Capability,
 } from '../../domain/contracts/types';
 import type { ProcessRating } from '../../domain/scoring';
-import type { ScenarioBundle } from './it02SaasOnboarding';
+import type { ScenarioBundle } from './it01SaasOnboarding';
 
-export function buildIT06Scenario(): ScenarioBundle {
+export function buildIT05Scenario(): ScenarioBundle {
   const now = new Date().toISOString();
   const projId = newId('proj');
   const personaId = newId('persona');
@@ -134,7 +134,7 @@ export function buildIT06Scenario(): ScenarioBundle {
     },
   ];
 
-  const manifest: ProjectManifest = { id: projId, title: 'IT-06 · Major Incident Customer Journey', description: 'Enterprise customer experience during a 4-hour service outage: detection, workaround, escalation and PIR review.', createdAt: now, updatedAt: now, schemaVersion: 2 };
+  const manifest: ProjectManifest = { id: projId, title: 'IT-05 · Major Incident Customer Journey', description: 'Enterprise customer experience during a 4-hour service outage: detection, workaround, escalation and PIR review.', createdAt: now, updatedAt: now, schemaVersion: 2 };
   const candidates: ProcessCandidate[] = [
     { projectId: projId, id: candId1, title: 'Major incident detection and response', status: 'accepted', rationale: 'Core operational process; directly impacts customer trust and SLA.', sourceRefs: [], createdAt: now },
     { projectId: projId, id: candId2, title: 'Customer incident communication', status: 'accepted', rationale: 'Distinct comms subprocess; involves different roles and tools than technical response.', sourceRefs: [], createdAt: now },

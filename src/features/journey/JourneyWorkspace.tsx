@@ -51,7 +51,7 @@ const ALL_ROWS: { type: RowType; label: string }[] = [
 
 type RightPanel = 'none' | 'properties' | 'painpoints' | 'evidence' | 'challenges';
 
-const SCENARIO_PREFIXES = ['IT-02','IT-03','IT-04','IT-05','IT-06','IT-07','IT-08','IT-09','IT-10','IT-11','IT-12'];
+const SCENARIO_PREFIXES = ['IT-01','IT-02','IT-03','IT-04','IT-05','IT-06','IT-07','IT-08','IT-09','IT-10','IT-11'];
 
 export function JourneyWorkspace({ projectId }: Props) {
   const [journeys, setJourneys] = useState<Journey[]>([]);
@@ -559,6 +559,24 @@ export function JourneyWorkspace({ projectId }: Props) {
     setCards(prev => [...prev, card]);
   }
 
+  async function addTouchpointCard(cellId: string, touchpointId: string) {
+    const cell = cells.find(c => c.id === cellId);
+    if (!cell) return;
+    const card: JourneyCard = {
+      id: newId('card'), projectId, cellId,
+      payload: { kind: 'touchpoint', touchpointId },
+      sourceStatus: 'assumption', evidenceIds: [], note: '',
+    };
+    await runEdit(async () => {
+      await db.transaction('rw', [db.cards, db.cells], async () => {
+        await db.cards.add(card);
+        await db.cells.update(cellId, { cardOrder: [...(cell.cardOrder ?? []), card.id] });
+      });
+    });
+    setCells(prev => prev.map(c => c.id === cellId ? { ...c, cardOrder: [...(c.cardOrder ?? []), card.id] } : c));
+    setCards(prev => [...prev, card]);
+  }
+
   async function updateStepTitle(stepId: string, title: string) {
     if (!title.trim()) return;
     await runEdit(() => db.steps.update(stepId, { title: title.trim() }).then(() => undefined));
@@ -761,9 +779,6 @@ export function JourneyWorkspace({ projectId }: Props) {
             <BookOpen size={14} /> Challenges
           </button>
         )}
-        <button className="btn btn-sm" onClick={() => setCreating(true)}>
-          <Plus size={14} /> New
-        </button>
       </div>
 
       {(saving || saveError) && (
@@ -795,7 +810,7 @@ export function JourneyWorkspace({ projectId }: Props) {
               </div>
             </div>
           ) : viewMode === 'canvas' ? (
-            <div style={{ flex: 1, overflow: 'auto', padding: 16 }}>
+            <div style={{ flex: 1, overflow: 'hidden', padding: 16 }}>
               <JourneyCanvas
                 stages={stages}
                 steps={steps}
@@ -839,6 +854,7 @@ export function JourneyWorkspace({ projectId }: Props) {
                 onCancelEdit={() => { setEditingCard(null); setCardText(''); }}
                 onAddSentiment={addSentimentCard}
                 onAddPainPoint={addPainPoint}
+                onAddTouchpoint={addTouchpointCard}
                 onSelectCard={setSelectedCardId}
                 onEditCard={editCard}
                 onMoveCard={moveCard}
@@ -987,6 +1003,7 @@ interface MatrixProps {
   onCancelEdit: () => void;
   onAddSentiment: (cellId: string, value: number | null) => void;
   onAddPainPoint: (cellId: string, title: string, severity: PainSeverity) => void;
+  onAddTouchpoint: (cellId: string, touchpointId: string) => void;
   onSelectCard: (cardId: string | null) => void;
   onEditCard: (cardId: string) => void;
   onMoveCard: (cardId: string, direction: -1 | 1) => void;
@@ -1000,13 +1017,13 @@ function JourneyMatrix({
   onAddStep, onUpdateStageTitle, onMoveStage, onDeleteStage,
   onUpdateStepTitle, onMoveStep, onDeleteStep, onMoveRow, onDeleteRow,
   onStartEditCard, onCardTextChange, onSaveCard, onCancelEdit,
-  onAddSentiment, onAddPainPoint, onSelectCard, onEditCard, onMoveCard, onDeleteCard, selectedCardId,
+  onAddSentiment, onAddPainPoint, onAddTouchpoint, onSelectCard, onEditCard, onMoveCard, onDeleteCard, selectedCardId,
 }: MatrixProps) {
   const ROW_HEADER_W = 164;
   const COL_W = 184;
   const STAGE_H = 34;
   const STEP_H = 44;
-  const ROW_H = 100;
+  const ROW_H = 130;
 
   function getCell(stepId: string, rowId: string) {
     return cells.find(c => c.stepId === stepId && c.rowId === rowId);
@@ -1041,7 +1058,7 @@ function JourneyMatrix({
             {stages.map(stage => {
               const ss = steps.filter(s => s.stageId === stage.id);
               return (
-                <th key={stage.id} colSpan={ss.length}
+                <th key={stage.id} colSpan={ss.length + 1}
                   style={{
                     height: STAGE_H, background: 'var(--primary-soft)',
                     borderRight: '2px solid var(--border-strong)',
@@ -1180,6 +1197,7 @@ function JourneyMatrix({
                             onCancel={onCancelEdit}
                             onAddSentiment={v => onAddSentiment(cell.id, v)}
                             onAddPainPoint={(t, s) => onAddPainPoint(cell.id, t, s)}
+                            onAddTouchpoint={tpId => onAddTouchpoint(cell.id, tpId)}
                             onSelectCard={onSelectCard}
                             onEditCard={onEditCard}
                             onMoveCard={onMoveCard}
@@ -1224,6 +1242,7 @@ interface CellProps {
   onCancel: () => void;
   onAddSentiment: (v: number | null) => void;
   onAddPainPoint: (title: string, severity: PainSeverity) => void;
+  onAddTouchpoint: (touchpointId: string) => void;
   onSelectCard: (id: string | null) => void;
   onEditCard: (id: string) => void;
   onMoveCard: (id: string, direction: -1 | 1) => void;
@@ -1234,12 +1253,13 @@ function MatrixCell({
   cell: _cell, cards, rowType, isEditing, cardText, processes, painPoints,
   touchpoints, channels, selectedPersonaId,
   selectedCardId, onStartEdit, onTextChange, onSave, onCancel,
-  onAddSentiment, onAddPainPoint, onSelectCard, onEditCard, onMoveCard, onDeleteCard,
+  onAddSentiment, onAddPainPoint, onAddTouchpoint, onSelectCard, onEditCard, onMoveCard, onDeleteCard,
 }: CellProps) {
   const [showPainForm, setShowPainForm] = useState(false);
   const [painTitle, setPainTitle] = useState('');
   const [painSeverity, setPainSeverity] = useState<PainSeverity>('moderate');
   const [showSentimentPicker, setShowSentimentPicker] = useState(false);
+  const [showTpPicker, setShowTpPicker] = useState(false);
 
   if (rowType === 'sentiment') {
     // AT-04: When a persona lens is active, show only that persona's observation.
@@ -1279,12 +1299,12 @@ function MatrixCell({
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
             <button
               className="btn btn-ghost"
-              style={{ gap: 6, color: sentCard ? sentimentColor(val) : 'var(--text-subtle)', opacity: sentCard ? 1 : 0.4 }}
+              style={{ flexDirection: 'column', gap: 2, color: sentCard ? sentimentColor(val) : 'var(--text-subtle)', opacity: sentCard ? 1 : 0.4 }}
               onClick={() => setShowSentimentPicker(true)}
               title={sentCard ? 'Change sentiment' : 'Set sentiment'}
             >
-              {sentimentIcon(val, 18)}
-              <span style={{ fontSize: 12 }}>{sentCard ? sentimentLabel(val) : '—'}</span>
+              {sentimentIcon(val, 22)}
+              <span style={{ fontSize: 11, lineHeight: 1 }}>{sentCard ? sentimentLabel(val) : '—'}</span>
             </button>
             {hasOtherPersonas && (
               <span style={{ fontSize: 10, color: 'var(--text-subtle)' }}>+other personas</span>
@@ -1295,58 +1315,70 @@ function MatrixCell({
     );
   }
 
-  // AT-15: Touchpoints row — show channel type with frontstage/backstage distinction.
+  // AT-15: Touchpoints row — pick from dictionary touchpoints.
   if (rowType === 'touchpoints') {
-    const tpCards = cards.filter(c => c.payload.kind === 'touchpoint' || c.payload.kind === 'text');
     const frontstageTypes = new Set(['portal', 'email', 'chat', 'phone', 'mobile-app', 'in-person']);
+    const tpCards = cards.filter(c => c.payload.kind === 'touchpoint');
+    const usedIds = new Set(tpCards.map(c => (c.payload as { kind: 'touchpoint'; touchpointId: string }).touchpointId));
+    const available = touchpoints.filter(t => !usedIds.has(t.id));
     return (
-      <div style={{ height: '100%', overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 4, padding: 2 }}>
+      <div style={{ height: '100%', overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 3, padding: 2 }}>
         {tpCards.map(card => {
-          if (card.payload.kind === 'touchpoint') {
-            const tp = touchpoints.find(t => t.id === (card.payload as { kind: 'touchpoint'; touchpointId: string }).touchpointId);
-            const ch = tp ? channels.find(c => c.id === tp.channelId) : null;
-            const isFront = ch ? frontstageTypes.has(ch.type) : true;
-            return (
-              <div key={card.id} style={{
-                background: isFront ? 'var(--primary-soft)' : 'var(--bg-subtle)',
-                border: `1px solid ${isFront ? 'var(--primary)' : 'var(--border)'}`,
-                borderRadius: 4, padding: '2px 6px', fontSize: 11,
-                display: 'flex', alignItems: 'center', gap: 4,
-              }}>
-                <span style={{
-                  fontSize: 9, fontWeight: 700, color: isFront ? 'var(--primary)' : 'var(--text-subtle)',
-                  textTransform: 'uppercase', letterSpacing: '0.05em',
-                }}>
-                  {isFront ? 'Front' : 'Back'}
-                </span>
-                <span style={{ color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {tp?.name ?? 'Touchpoint'}
-                </span>
-              </div>
-            );
-          }
-          if (card.payload.kind === 'text') {
-            return (
-              <div key={card.id} style={{
-                background: 'var(--bg-elevated)', border: '1px solid var(--border)',
-                borderRadius: 4, padding: '2px 6px', fontSize: 11, color: 'var(--text)',
-              }}>
-                {(card.payload as { kind: 'text'; text: string }).text}
-              </div>
-            );
-          }
-          return null;
+          const tp = touchpoints.find(t => t.id === (card.payload as { kind: 'touchpoint'; touchpointId: string }).touchpointId);
+          const ch = tp ? channels.find(c => c.id === tp.channelId) : null;
+          const isFront = ch ? frontstageTypes.has(ch.type) : true;
+          return (
+            <div key={card.id} style={{
+              background: isFront ? 'var(--primary-soft)' : 'var(--bg-subtle)',
+              border: `1px solid ${isFront ? 'var(--primary)' : 'var(--border)'}`,
+              borderRadius: 4, padding: '2px 6px', fontSize: 11,
+              display: 'flex', alignItems: 'center', gap: 4,
+            }}>
+              <span style={{
+                fontSize: 9, fontWeight: 700, color: isFront ? 'var(--primary)' : 'var(--text-subtle)',
+                textTransform: 'uppercase', letterSpacing: '0.05em', flexShrink: 0,
+              }}>{isFront ? 'Front' : 'Back'}</span>
+              <span style={{ flex: 1, color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {tp?.name ?? 'Touchpoint'}
+              </span>
+              <button className="btn btn-ghost btn-icon btn-sm" style={{ padding: 0, flexShrink: 0 }}
+                onClick={() => onDeleteCard(card.id)} title="Remove">
+                <X size={10} />
+              </button>
+            </div>
+          );
         })}
-        {tpCards.length === 0 && (
+        {showTpPicker ? (
+          <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: 6, overflow: 'hidden' }}>
+            {available.length === 0 ? (
+              <div style={{ padding: '6px 8px', fontSize: 11, color: 'var(--text-subtle)' }}>
+                {touchpoints.length === 0 ? 'No touchpoints in dictionary' : 'All touchpoints already added'}
+              </div>
+            ) : (
+              available.map(tp => {
+                const ch = channels.find(c => c.id === tp.channelId);
+                const isFront = ch ? frontstageTypes.has(ch.type) : true;
+                return (
+                  <button key={tp.id}
+                    className="btn btn-ghost"
+                    style={{ width: '100%', justifyContent: 'flex-start', fontSize: 11, padding: '4px 8px', borderRadius: 0, gap: 6 }}
+                    onClick={() => { onAddTouchpoint(tp.id); setShowTpPicker(false); }}
+                  >
+                    <span style={{ fontSize: 9, fontWeight: 700, color: isFront ? 'var(--primary)' : 'var(--text-subtle)', textTransform: 'uppercase' }}>
+                      {isFront ? 'F' : 'B'}
+                    </span>
+                    {tp.name}
+                  </button>
+                );
+              })
+            )}
+            <button className="btn btn-ghost btn-sm" style={{ width: '100%', fontSize: 10, borderTop: '1px solid var(--border)', borderRadius: 0 }}
+              onClick={() => setShowTpPicker(false)}>Cancel</button>
+          </div>
+        ) : (
           <button className="btn btn-ghost btn-sm" style={{ width: '100%', fontSize: 11 }}
-            onClick={onStartEdit}>
+            onClick={() => setShowTpPicker(true)}>
             <Plus size={11} /> Add touchpoint
-          </button>
-        )}
-        {tpCards.length > 0 && (
-          <button className="btn btn-ghost btn-sm" style={{ width: '100%', fontSize: 10 }}
-            onClick={onStartEdit}>
-            <Plus size={10} />
           </button>
         )}
       </div>

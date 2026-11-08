@@ -1,4 +1,4 @@
-// IT-02: SaaS onboarding scenario — pre-populated project data for lab use.
+// IT-01: SaaS onboarding scenario — pre-populated project data for lab use.
 // Scenario: a mid-sized IT company onboarding enterprise customers to a cloud collaboration platform.
 // Perspective: customer journey (new IT admin setting up the platform for their organization).
 
@@ -52,7 +52,7 @@ export interface ScenarioBundle {
   mapEdges?: ProcessMapEdge[];
 }
 
-export function buildIT02Scenario(): ScenarioBundle {
+export function buildIT01Scenario(): ScenarioBundle {
   const now = new Date().toISOString();
 
   // ─── IDs ───
@@ -286,7 +286,7 @@ export function buildIT02Scenario(): ScenarioBundle {
 
   const manifest: ProjectManifest = {
     id: projId,
-    title: 'IT-02 · SaaS Onboarding Journey',
+    title: 'IT-01 · SaaS Onboarding Journey',
     description: 'Enterprise customer onboarding for a cloud collaboration platform. IT admin perspective.',
     createdAt: now,
     updatedAt: now,

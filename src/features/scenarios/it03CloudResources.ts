@@ -1,4 +1,4 @@
-// IT-04: Developer requesting cloud resources — platform service catalog and cost ownership.
+// IT-03: Developer requesting cloud resources — platform service catalog and cost ownership.
 // A platform engineer requests a Kubernetes namespace and storage quota for a new microservice.
 
 import { newId } from '../../domain/contracts/ids';
@@ -13,9 +13,9 @@ import type {
   Service, Capability,
 } from '../../domain/contracts/types';
 import type { ProcessRating } from '../../domain/scoring';
-import type { ScenarioBundle } from './it02SaasOnboarding';
+import type { ScenarioBundle } from './it01SaasOnboarding';
 
-export function buildIT04Scenario(): ScenarioBundle {
+export function buildIT03Scenario(): ScenarioBundle {
   const now = new Date().toISOString();
 
   const projId    = newId('proj');
@@ -175,7 +175,7 @@ export function buildIT04Scenario(): ScenarioBundle {
 
   const manifest: ProjectManifest = {
     id: projId,
-    title: 'IT-04 · Cloud Resource Request Journey',
+    title: 'IT-03 · Cloud Resource Request Journey',
     description: 'Developer experience requesting a Kubernetes namespace and storage through a self-service cloud catalog.',
     createdAt: now, updatedAt: now, schemaVersion: 2,
   };

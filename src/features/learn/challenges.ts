@@ -23,7 +23,7 @@ export interface ChallengeDefinition {
 export const CHALLENGES: ChallengeDefinition[] = [
   // ── IT-01 (service desk support — use IT-03 fixture) ──
   {
-    id: 'IT-01-A', scenarioId: 'IT-03', level: 'beginner',
+    id: 'IT-01-A', scenarioId: 'IT-02', level: 'beginner',
     title: 'Separate service requests, incidents and organisational units',
     task: 'Using the IT-03 scenario, identify at least 2 process candidates. For each, write a one-sentence trigger and outcome. Mark which is a service request process and which is an incident process. Explain the boundary between them in a note.',
     expectedEvidence: ['Correctly typed candidates with explained boundaries', 'Trigger and outcome per candidate', 'Note explaining service request vs incident distinction'],
@@ -36,7 +36,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
     estimatedTime: '20 min',
   },
   {
-    id: 'IT-01-B', scenarioId: 'IT-03', level: 'beginner',
+    id: 'IT-01-B', scenarioId: 'IT-02', level: 'beginner',
     title: 'Build an employee support journey from six evidence cards',
     task: 'Open the IT-03 scenario. Using only the action cards as evidence, create a journey with: a named persona, at least 4 stages, at least one touchpoint per stage, and at least one pain point linked to a step.',
     expectedEvidence: ['Persona with goal and situation', 'Stages with descriptive names', 'Touchpoints with channel type', 'Pain point linked to a specific step'],
@@ -50,7 +50,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
     estimatedTime: '30 min',
   },
   {
-    id: 'IT-01-C', scenarioId: 'IT-03', level: 'beginner',
+    id: 'IT-01-C', scenarioId: 'IT-02', level: 'beginner',
     title: 'Explain a reopening problem and propose a TO-BE response',
     task: 'In IT-03, the ticket status goes from "In progress" to "Waiting parts" with no customer notification. Identify this as a pain point. Write a symptom (what the customer observes), a hypothesised cause, and a TO-BE intervention. Then create a second journey step showing what the TO-BE experience would look like.',
     expectedEvidence: ['Pain point with distinct symptom, cause and intervention', 'TO-BE journey step with improved touchpoint', 'Explanation of what changes between AS-IS and TO-BE'],
@@ -65,7 +65,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
 
   // ── IT-02 ──
   {
-    id: 'IT-02-A', scenarioId: 'IT-02', level: 'beginner',
+    id: 'IT-02-A', scenarioId: 'IT-01', level: 'beginner',
     title: 'Create a SaaS onboarding journey from a blank project',
     task: 'Using the IT-02 scenario as reference, create a new project from scratch. Build a customer journey with at least 4 stages, 8 steps, and sentiment for every step. Do not copy the fixture directly — rephrase at least 3 steps in your own words.',
     expectedEvidence: ['Journey with persona, goal and situation', 'At least 4 named stages', 'Sentiment on every step', 'At least 3 rephrased steps in customer-perspective language'],
@@ -78,7 +78,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
     estimatedTime: '45 min',
   },
   {
-    id: 'IT-02-B', scenarioId: 'IT-02', level: 'beginner',
+    id: 'IT-02-B', scenarioId: 'IT-01', level: 'beginner',
     title: 'Identify supporting processes and accountable owners',
     task: 'From the IT-02 journey, identify at least 3 supporting processes. For each process, name an accountable owner role (not a department). Create process links in the journey matrix. Add an ownership gap note where you cannot identify a clear owner.',
     expectedEvidence: ['3 process candidates with charters', 'Owner role (not department) for each', 'Journey-to-process links in the matrix', 'At least one documented ownership gap'],
@@ -91,7 +91,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
     estimatedTime: '35 min',
   },
   {
-    id: 'IT-02-C', scenarioId: 'IT-02', level: 'beginner',
+    id: 'IT-02-C', scenarioId: 'IT-01', level: 'beginner',
     title: 'Derive the onboarding provider\'s sequential BPMN draft',
     task: 'Using the Map workspace on IT-02, generate a BPMN draft for the onboarding provider process. Select only steps where the provider does work. Name all activities from the provider\'s perspective. Add at least one handoff note. Download both the .bpmn and .trace.json files.',
     expectedEvidence: ['Scope limited to provider-side steps (at least one exclusion with rationale)', 'Activity names in provider perspective (no customer-language names)', 'At least one handoff note for a decision or external interaction', 'Both files downloaded'],
@@ -106,7 +106,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
 
   // ── IT-03 ──
   {
-    id: 'IT-03-A', scenarioId: 'IT-03', level: 'beginner',
+    id: 'IT-03-A', scenarioId: 'IT-02', level: 'beginner',
     title: 'Distinguish channel, touchpoint and identity system',
     task: 'In the IT-03 scenario, identify all touchpoints. For each, specify the channel type (portal/email/chat/phone). Then list at least one IT system that supports each touchpoint. Explain in one sentence how the channel, touchpoint and system are related but distinct.',
     expectedEvidence: ['List of touchpoints with channel types', 'System linked to each touchpoint', 'One-sentence explanation of channel/touchpoint/system distinction'],
@@ -119,7 +119,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
     estimatedTime: '20 min',
   },
   {
-    id: 'IT-03-B', scenarioId: 'IT-03', level: 'beginner',
+    id: 'IT-03-B', scenarioId: 'IT-02', level: 'beginner',
     title: 'Repair an inaccessible hardware incident journey',
     task: 'The IT-03 "IT desk reception" touchpoint requires physical presence. Identify this as an accessibility barrier. Write a pain point for a user who cannot physically visit reception (e.g. remote employee). Propose an alternative touchpoint that serves the same purpose.',
     expectedEvidence: ['Pain point with accessibility impact identified', 'Alternative touchpoint with channel type', 'Explanation of why the original touchpoint excludes some users'],
@@ -132,7 +132,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
     estimatedTime: '25 min',
   },
   {
-    id: 'IT-03-C', scenarioId: 'IT-03', level: 'beginner',
+    id: 'IT-03-C', scenarioId: 'IT-02', level: 'beginner',
     title: 'Explain expired-link recovery in the journey and process map',
     task: 'The IT-03 scenario has a step "Provide more information" triggered by an email request. What would happen if the response email link expired? Create an exception path in the journey (a step for the expired-link case). Then describe which provider role is responsible and what information they need to recover.',
     expectedEvidence: ['Exception step added to the journey', 'Responsible role identified (not department)', 'Information required for recovery described', 'Note on how the exception path rejoins the main flow'],
@@ -147,7 +147,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
 
   // ── IT-04 ──
   {
-    id: 'IT-04-A', scenarioId: 'IT-04', level: 'intermediate',
+    id: 'IT-04-A', scenarioId: 'IT-03', level: 'intermediate',
     title: 'Identify processes from a cloud service catalog',
     task: 'From the IT-04 scenario, write process charters for "Cloud resource request and approval" and "Automated resource provisioning". For each, write: trigger, outcome, in-scope steps, out-of-scope steps. Then explain where the boundary between the two processes lies and why.',
     expectedEvidence: ['Two process charters with trigger and outcome', 'In-scope and out-of-scope for each', 'Boundary explanation with rationale'],
@@ -160,7 +160,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
     estimatedTime: '35 min',
   },
   {
-    id: 'IT-04-B', scenarioId: 'IT-04', level: 'intermediate',
+    id: 'IT-04-B', scenarioId: 'IT-03', level: 'intermediate',
     title: 'Investigate contradictory cost centre evidence',
     task: 'The IT-04 scenario shows the developer does not know their cost centre. Suppose you receive two contradictory interviews: Interview A says "Cost centre is mandatory to prevent overspend"; Interview B says "We added cost centre after a complaint — most devs just use department default". Create both as evidence records. Mark the contradiction. What follow-up question would you ask?',
     expectedEvidence: ['Two evidence records with source type, confidence and date', 'Contradiction flag on at least one record', 'Follow-up question that would resolve the contradiction', 'Note on which claim is currently treated as assumption'],
@@ -173,7 +173,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
     estimatedTime: '30 min',
   },
   {
-    id: 'IT-04-C', scenarioId: 'IT-04', level: 'intermediate',
+    id: 'IT-04-C', scenarioId: 'IT-03', level: 'intermediate',
     title: 'Prioritize provisioning improvements under two weight sets',
     task: 'Using the Identify workspace on IT-04, rate the three process candidates on: customer impact (1–5) and improvement effort (1–5, lower = less effort). Apply weight set A (impact 70%, effort 30%) and weight set B (impact 40%, effort 60%). Record the rankings under both sets. Which process changes rank? Write a one-paragraph explanation of the tradeoff.',
     expectedEvidence: ['Ratings for all three candidates on both criteria', 'Rankings under both weight sets', 'Identification of which process changes rank', 'Written tradeoff explanation'],
@@ -188,7 +188,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
 
   // ── IT-05 ──
   {
-    id: 'IT-05-A', scenarioId: 'IT-05', level: 'intermediate',
+    id: 'IT-05-A', scenarioId: 'IT-04', level: 'intermediate',
     title: 'Scope the employee access-request process',
     task: 'From the IT-05 scenario, write a process charter for "Access request and approval workflow". Identify at least two interfaces with other processes (HR onboarding, security review). For each interface, describe what is handed off and what would happen if the handoff failed.',
     expectedEvidence: ['Process charter with trigger and outcome', 'Two interface descriptions with named handoff objects', 'Failure consequence for each interface'],
@@ -201,7 +201,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
     estimatedTime: '35 min',
   },
   {
-    id: 'IT-05-B', scenarioId: 'IT-05', level: 'intermediate',
+    id: 'IT-05-B', scenarioId: 'IT-04', level: 'intermediate',
     title: 'Map missing-information handoffs in a blueprint',
     task: 'The IT-05 access request is rejected because the wrong form was used. Create a simple blueprint row for the access request process showing: (1) the user action, (2) the IT portal interaction (frontstage), and (3) the validation step (backstage). Show the information-incomplete exception path.',
     expectedEvidence: ['Three-row blueprint structure', 'Information-incomplete exception path shown', 'Sender and receiver named for each handoff', 'Transferred object identified (form, approval, rejection reason)'],
@@ -214,7 +214,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
     estimatedTime: '40 min',
   },
   {
-    id: 'IT-05-C', scenarioId: 'IT-05', level: 'intermediate',
+    id: 'IT-05-C', scenarioId: 'IT-04', level: 'intermediate',
     title: 'Complete an access-request blueprint and handoff checklist',
     task: 'Build on IT-05-B to create a complete access-request blueprint with all five stages of the journey. For each handoff between stages, create a handoff record with: sender role, receiver role, transferred object, channel and what happens if the transfer fails. Add at least one unresolved question to the BPMN handoff notes.',
     expectedEvidence: ['Five-stage blueprint', 'Handoff record for each stage transition', 'At least one unresolved question in BPMN handoff notes', 'BPMN draft downloaded from Map workspace'],
@@ -229,7 +229,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
 
   // ── IT-06 ──
   {
-    id: 'IT-06-A', scenarioId: 'IT-06', level: 'intermediate',
+    id: 'IT-06-A', scenarioId: 'IT-05', level: 'intermediate',
     title: 'Identify incident-response and customer-communication processes',
     task: 'From IT-06, identify two distinct process candidates: one for technical incident response and one for customer communication. Write charters for both. Explain the dependency between them: which must start first? Can they run in parallel?',
     expectedEvidence: ['Two process charters', 'Dependency description with direction', 'Explanation of parallel vs sequential relationship'],
@@ -242,7 +242,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
     estimatedTime: '35 min',
   },
   {
-    id: 'IT-06-B', scenarioId: 'IT-06', level: 'intermediate',
+    id: 'IT-06-B', scenarioId: 'IT-05', level: 'intermediate',
     title: 'Create a major-incident customer journey with uncertainty',
     task: 'Create a journey for the IT-06 scenario. Mark at least two steps where the customer is operating on incomplete or potentially incorrect information. Use evidence cards to show what the customer believes vs what is actually happening. Set sentiment for every step.',
     expectedEvidence: ['Journey with persona, goal and situation', 'Two steps marked with uncertainty/incomplete info', 'Evidence cards distinguishing customer belief from actual state', 'Sentiment on every step'],
@@ -255,7 +255,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
     estimatedTime: '40 min',
   },
   {
-    id: 'IT-06-C', scenarioId: 'IT-06', level: 'intermediate',
+    id: 'IT-06-C', scenarioId: 'IT-05', level: 'intermediate',
     title: 'Propose status updates without claiming proven satisfaction gains',
     task: 'The IT-06 scenario shows late and vague status updates. Propose a TO-BE intervention: more frequent and specific updates. Write: (1) the proposed change, (2) the expected benefit (as a hypothesis, not a proven fact), (3) a KPI target that would indicate success, and (4) how you would measure whether the target was achieved without confusing it with the target itself.',
     expectedEvidence: ['TO-BE change description', 'Benefit framed as hypothesis (not proven fact)', 'KPI target as a separate record from any observation', 'Measurement plan that distinguishes observation from target'],
@@ -270,7 +270,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
 
   // ── IT-07 ──
   {
-    id: 'IT-07-A', scenarioId: 'IT-07', level: 'advanced',
+    id: 'IT-07-A', scenarioId: 'IT-06', level: 'advanced',
     title: 'Build the release-management process landscape',
     task: 'From IT-07, build a process landscape with at least 4 candidates organised across two levels (L1 value stream, L2 processes). Add at least one dependency relationship. Explain the granularity rationale: why are these at L2 and not L1 or L3?',
     expectedEvidence: ['At least 4 candidates at correct levels', 'At least one dependency relationship', 'Granularity rationale written as a note'],
@@ -283,7 +283,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
     estimatedTime: '45 min',
   },
   {
-    id: 'IT-07-B', scenarioId: 'IT-07', level: 'advanced',
+    id: 'IT-07-B', scenarioId: 'IT-06', level: 'advanced',
     title: 'Identify independent reviews and a failed-release alternative',
     task: 'The IT-07 scenario involves CAB approval (a sequential gate). Suppose security review and performance testing could run in parallel with CAB. Create an evidence record arguing for parallel execution. Then model the failed-release alternative path: what happens after a rollback? Who is responsible at each step?',
     expectedEvidence: ['Evidence record for parallel execution argument', 'Alternative path steps from rollback to reschedule', 'Named responsible role for each alternative path step'],
@@ -296,7 +296,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
     estimatedTime: '45 min',
   },
   {
-    id: 'IT-07-C', scenarioId: 'IT-07', level: 'advanced',
+    id: 'IT-07-C', scenarioId: 'IT-06', level: 'advanced',
     title: 'Compare customer communication in two release journeys',
     task: 'Create a TO-BE journey for IT-07 that includes proactive customer communication during the deployment window. Compare it with the AS-IS journey. Identify at least 2 steps where the customer communication changes. Write an evidence-backed rationale for why the TO-BE communication approach is better.',
     expectedEvidence: ['TO-BE journey with proactive communication steps', 'Comparison note identifying 2 changed steps', 'Evidence-backed rationale for the change'],
@@ -311,7 +311,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
 
   // ── IT-08 ──
   {
-    id: 'IT-08-A', scenarioId: 'IT-08', level: 'advanced',
+    id: 'IT-08-A', scenarioId: 'IT-07', level: 'advanced',
     title: 'Create a developer API integration journey',
     task: 'Build the IT-08 journey from scratch (do not use the fixture directly). Include at least 4 stages, all required touchpoints (documentation, sandbox, production access, first call), and sentiment for each step. Mark at least two steps where the developer is operating on incorrect information.',
     expectedEvidence: ['Journey with persona and goal', 'All 4 required touchpoints', 'Sentiment on every step', 'Two steps with incorrect information noted'],
@@ -324,7 +324,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
     estimatedTime: '45 min',
   },
   {
-    id: 'IT-08-B', scenarioId: 'IT-08', level: 'advanced',
+    id: 'IT-08-B', scenarioId: 'IT-07', level: 'advanced',
     title: 'Prepare the production-access BPMN handoff',
     task: 'Using the Map workspace on IT-08, generate a BPMN draft for the "Production API access approval" process. Include: at least 3 mapped activities, at least 1 excluded step with rationale, and at least 2 handoff notes (one for the security questionnaire decision, one for the SLA breach scenario). Download both files.',
     expectedEvidence: ['At least 3 mapped activities in provider perspective', 'At least 1 excluded step with written rationale', '2 handoff notes addressing decision and SLA scenarios', 'Both .bpmn and .trace.json files downloaded'],
@@ -337,7 +337,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
     estimatedTime: '40 min',
   },
   {
-    id: 'IT-08-C', scenarioId: 'IT-08', level: 'advanced',
+    id: 'IT-08-C', scenarioId: 'IT-07', level: 'advanced',
     title: 'Revise the developer journey after usability evidence',
     task: 'Suppose you receive new evidence: an interview with a developer who failed to integrate the API because the sandbox differed from production. Create this as an evidence record (interview, low confidence, synthetic). Link it to the relevant step and pain point. Then create a TO-BE journey step that addresses the sandbox discrepancy. Export a new BPMN draft revision.',
     expectedEvidence: ['Evidence record with type, confidence and synthetic label', 'Evidence linked to relevant step or pain point', 'TO-BE step addressing sandbox/production discrepancy', 'Second BPMN export created (new revision, different filename)'],
@@ -352,7 +352,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
 
   // ── IT-09 ──
   {
-    id: 'IT-09-A', scenarioId: 'IT-09', level: 'intermediate',
+    id: 'IT-09-A', scenarioId: 'IT-08', level: 'intermediate',
     title: 'Model renewal, cancellation and data-export experiences',
     task: 'From IT-09, create three separate journey segments: (1) the renewal consideration, (2) the cancellation attempt, and (3) the data export request. For each segment, identify the stakeholder goal and at least one moment of friction. Explain which segment has the most significant business impact and why.',
     expectedEvidence: ['Three journey segments with distinct goals', 'Friction identified per segment', 'Business impact argument for one segment'],
@@ -365,7 +365,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
     estimatedTime: '40 min',
   },
   {
-    id: 'IT-09-B', scenarioId: 'IT-09', level: 'intermediate',
+    id: 'IT-09-B', scenarioId: 'IT-08', level: 'intermediate',
     title: 'Identify billing/support/account-management ownership gaps',
     task: 'From IT-09, identify the processes that span billing, support and account management. For each process, write the accountable owner role. Identify at least one ownership gap (where no clear owner exists). Create a coverage matrix showing which services each process supports.',
     expectedEvidence: ['Processes identified with owner roles', 'At least one ownership gap documented', 'Coverage matrix or note linking processes to services'],
@@ -378,7 +378,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
     estimatedTime: '40 min',
   },
   {
-    id: 'IT-09-C', scenarioId: 'IT-09', level: 'intermediate',
+    id: 'IT-09-C', scenarioId: 'IT-08', level: 'intermediate',
     title: 'Interpret cancellation KPIs and redesign targets',
     task: 'The IT-09 scenario implies a low cancellation rate is desirable. Create a KPI definition for "Monthly churn rate". Add two observation records (synthetic): one for the current state and one as a target. Explain why the target is not an observation. What would happen to the metric if cancelled accounts were re-activated — and how would you handle that in the formula?',
     expectedEvidence: ['KPI definition with population, unit and time window', 'Two records: one observation, one target', 'Explanation of why target ≠ observation', 'Formula note addressing re-activation edge case'],
@@ -393,7 +393,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
 
   // ── IT-10 ──
   {
-    id: 'IT-10-A', scenarioId: 'IT-10', level: 'advanced',
+    id: 'IT-10-A', scenarioId: 'IT-09', level: 'advanced',
     title: 'Identify procurement processes without naming departments as processes',
     task: 'From IT-10, identify all process candidates. For each one, verify it passes the "trigger and outcome test": it must have an event-based trigger and a measurable outcome — not a department or team as the name. Write at least one example of a common mislabeling and explain why it fails the test.',
     expectedEvidence: ['All process candidates pass trigger/outcome test', 'At least one mislabeling example with explanation'],
@@ -405,7 +405,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
     estimatedTime: '35 min',
   },
   {
-    id: 'IT-10-B', scenarioId: 'IT-10', level: 'advanced',
+    id: 'IT-10-B', scenarioId: 'IT-09', level: 'advanced',
     title: 'Build the service-procurement SIPOC and supplier handoffs',
     task: 'Create a SIPOC for the "IT service procurement and vendor selection" process from IT-10. Include: suppliers (who provides inputs), inputs (what is received), process name and high-level steps, outputs (what is produced), and customers (who receives the output). Then identify the two most critical supplier handoffs and define what would happen if each failed.',
     expectedEvidence: ['Complete SIPOC with all five columns', 'At least 3 high-level process steps', 'Two critical handoffs with failure consequences'],
@@ -418,7 +418,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
     estimatedTime: '45 min',
   },
   {
-    id: 'IT-10-C', scenarioId: 'IT-10', level: 'advanced',
+    id: 'IT-10-C', scenarioId: 'IT-09', level: 'advanced',
     title: 'Clarify buyer/provider interfaces in a process map',
     task: 'The IT-10 scenario has three approval interfaces (finance, legal, DPO). For each interface, describe: the information transferred, who owns the approval decision, and what the buyer team can do if the approval is delayed. Create a process link in the journey matrix for each approval step.',
     expectedEvidence: ['Three interface descriptions with transferred information', 'Owner role for each approval (not department)', 'Buyer action option for each delay scenario', 'Process links in journey matrix'],
@@ -433,7 +433,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
 
   // ── IT-11 ──
   {
-    id: 'IT-11-A', scenarioId: 'IT-11', level: 'advanced',
+    id: 'IT-11-A', scenarioId: 'IT-10', level: 'advanced',
     title: 'Build a cloud-migration value chain and process hierarchy',
     task: 'From IT-11, build a process landscape with at least 3 L2 processes and one L1 value stream. Add at least 2 dependency relationships. Write a note explaining the customer outcome each L1 value stream delivers.',
     expectedEvidence: ['L1 value stream with customer outcome', 'At least 3 L2 processes', 'At least 2 dependency relationships', 'Customer outcome note per L1'],
@@ -446,7 +446,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
     estimatedTime: '45 min',
   },
   {
-    id: 'IT-11-B', scenarioId: 'IT-11', level: 'advanced',
+    id: 'IT-11-B', scenarioId: 'IT-10', level: 'advanced',
     title: 'Analyze migration cutover impact and customer pain',
     task: 'The IT-11 cutover failed due to a schema issue discovered late. Create three evidence records: (1) the schema issue itself (observed), (2) the customer impact (downtime, observed), and (3) the CMDB gap that enabled it (assumption). Link each to the relevant journey step or pain point. What would you have needed to know before the cutover started?',
     expectedEvidence: ['Three evidence records with correct types and confidence', 'Links to relevant steps or pain points', 'Pre-cutover knowledge gap described'],
@@ -459,7 +459,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
     estimatedTime: '40 min',
   },
   {
-    id: 'IT-11-C', scenarioId: 'IT-11', level: 'advanced',
+    id: 'IT-11-C', scenarioId: 'IT-10', level: 'advanced',
     title: 'Compare migration journeys and defend communication choices',
     task: 'Create a TO-BE version of the IT-11 journey that includes proactive communication for the cutover overrun scenario. Compare 3 steps between AS-IS and TO-BE. For each changed step, write evidence from the AS-IS pain points that justifies the change. Identify one remaining risk in the TO-BE.',
     expectedEvidence: ['TO-BE journey with proactive communication steps', 'Comparison of 3 steps', 'Evidence-backed rationale for each change', 'One remaining risk in TO-BE'],
@@ -474,7 +474,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
 
   // ── IT-12 (Capstone) ──
   {
-    id: 'IT-12-A', scenarioId: 'IT-12', level: 'capstone',
+    id: 'IT-12-A', scenarioId: 'IT-11', level: 'capstone',
     title: 'Identify and prioritize a managed-service process portfolio',
     task: 'From IT-12, identify at least 4 process candidates with full charters. Rate them on: (1) customer impact, (2) operational risk. Apply two weight sets and produce ranked lists. Write a recommendation memo (3–5 sentences) explaining which process to improve first and why, acknowledging the weight-set sensitivity.',
     expectedEvidence: ['At least 4 process candidates with charters', 'Ratings under two weight sets', 'Two ranked lists', 'Recommendation memo acknowledging weight-set sensitivity'],
@@ -487,7 +487,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
     estimatedTime: '60 min',
   },
   {
-    id: 'IT-12-B', scenarioId: 'IT-12', level: 'capstone',
+    id: 'IT-12-B', scenarioId: 'IT-11', level: 'capstone',
     title: 'Build an onboarding journey, blueprint and BPMN handoff',
     task: 'Build the full IT-12 Transition stage as: (1) a journey map with persona, all steps and sentiment; (2) a simple blueprint showing customer, MSP and customer-internal layers; (3) a BPMN draft for "Knowledge transfer and transition" with at least 3 activities and 2 handoff notes. All three artefacts must have consistent source links.',
     expectedEvidence: ['Journey for Transition stage with sentiment', 'Blueprint with 3 layers', 'BPMN draft with 3 activities and 2 handoff notes', 'Consistent source references across all three artefacts'],
@@ -500,7 +500,7 @@ export const CHALLENGES: ChallengeDefinition[] = [
     estimatedTime: '90 min',
   },
   {
-    id: 'IT-12-C', scenarioId: 'IT-12', level: 'capstone',
+    id: 'IT-12-C', scenarioId: 'IT-11', level: 'capstone',
     title: 'Full capstone: landscape, journey, blueprint, BPMN',
     task: 'Complete the full IT-12 capstone: (1) build a 4-process landscape with hierarchy, services and prioritization; (2) model the complete IT-12 journey with all stages, evidence-linked pain points and sentiment; (3) create a blueprint for the operational stage; (4) generate a BPMN draft with at least 4 activities, 3 handoff notes and an exclusion. All artefacts must be coherent and defensible.',
     expectedEvidence: ['4-process landscape with hierarchy and prioritization', 'Full journey with evidence-linked pain points', 'Blueprint for operational stage', 'BPMN draft downloaded with trace manifest', 'Coherence: same pain points appear across journey, blueprint and BPMN notes'],

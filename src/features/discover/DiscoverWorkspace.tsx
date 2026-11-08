@@ -3,7 +3,7 @@ import {
   Plus, Trash2, ChevronDown, ChevronRight, MessageSquare,
   Lightbulb, HelpCircle, Clock, AlertTriangle, Users,
   Zap, Terminal, User, FileText, CheckCircle, Pause,
-  ArrowUp, ArrowDown,
+  ArrowUp, ArrowDown, Eye, GitFork,
 } from 'lucide-react';
 import { db } from '../../storage/db';
 import { newId } from '../../domain/contracts/ids';
@@ -24,44 +24,41 @@ function now() { return new Date().toISOString(); }
 
 // ─── Main workspace ──────────────────────────────────────────
 
+const DISCOVER_TABS: { id: DiscoverTab; label: string; icon: React.ReactNode; why: string }[] = [
+  { id: 'interviews',     label: 'Interview synthesis', icon: <MessageSquare size={13} />,
+    why: 'Capture and organise field interview notes into themes, needs and evidence items.' },
+  { id: 'observations',   label: 'Observation timeline', icon: <Eye size={13} />,
+    why: 'Record work observations, delays and exceptions on a chronological timeline.' },
+  { id: 'storming',       label: 'Event storming', icon: <Zap size={13} />,
+    why: 'Map domain events, commands, actors and policies to surface process boundaries.' },
+  { id: 'contradictions', label: 'Contradiction log', icon: <GitFork size={13} />,
+    why: 'Track conflicting evidence or stakeholder statements for resolution.' },
+];
+
 export function DiscoverWorkspace({ projectId }: { projectId: string }) {
   const [tab, setTab] = useState<DiscoverTab>('interviews');
-
-  const TABS: { id: DiscoverTab; label: string }[] = [
-    { id: 'interviews',     label: 'Interview synthesis' },
-    { id: 'observations',   label: 'Observation timeline' },
-    { id: 'storming',       label: 'Event storming' },
-    { id: 'contradictions', label: 'Contradiction log' },
-  ];
+  const active = DISCOVER_TABS.find(t => t.id === tab)!;
 
   return (
-    <div className="workspace">
-      <div className="workspace-narrow">
-        {/* Tab nav */}
-        <div style={{ display: 'flex', gap: 2, marginBottom: 24, borderBottom: '1px solid var(--border)', flexWrap: 'wrap' }}>
-          {TABS.map(t => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              style={{
-                padding: '8px 14px', fontSize: 13,
-                fontWeight: tab === t.id ? 600 : 400,
-                color: tab === t.id ? 'var(--primary)' : 'var(--text-muted)',
-                background: 'none', border: 'none',
-                borderBottom: tab === t.id ? '2px solid var(--primary)' : '2px solid transparent',
-                cursor: 'pointer', marginBottom: -1, whiteSpace: 'nowrap',
-              }}
-            >
-              {t.label}
-            </button>
-          ))}
+    <div className="workspace" style={{ padding: 0, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ borderBottom: '1px solid var(--border)', padding: '0 20px', background: 'var(--bg-elevated)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4 }}>
+        {DISCOVER_TABS.map(t => (
+          <button key={t.id} className={`tab${tab === t.id ? ' active' : ''}`} onClick={() => setTab(t.id)} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            {t.icon} {t.label}
+          </button>
+        ))}
+      </div>
+      <div style={{ padding: '7px 24px', fontSize: 12, color: 'var(--text-muted)', flexShrink: 0, background: 'var(--bg-subtle)', borderBottom: '1px solid var(--border)' }}>
+        {active.why}
+      </div>
+
+      <div style={{ flex: 1, overflow: 'auto', padding: '28px 32px 48px' }}>
+        <div className="workspace-narrow">
+          {tab === 'interviews'     && <InterviewPanel     projectId={projectId} />}
+          {tab === 'observations'   && <ObservationPanel   projectId={projectId} />}
+          {tab === 'storming'       && <StormingPanel      projectId={projectId} />}
+          {tab === 'contradictions' && <ContradictionPanel projectId={projectId} />}
         </div>
-
-        {tab === 'interviews'     && <InterviewPanel     projectId={projectId} />}
-        {tab === 'observations'   && <ObservationPanel   projectId={projectId} />}
-        {tab === 'storming'       && <StormingPanel      projectId={projectId} />}
-        {tab === 'contradictions' && <ContradictionPanel projectId={projectId} />}
-
       </div>
     </div>
   );

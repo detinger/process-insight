@@ -1,4 +1,4 @@
-// IT-07: Product team releasing software — engineering, quality, change and operations dependencies.
+// IT-06: Product team releasing software — engineering, quality, change and operations dependencies.
 
 import { newId } from '../../domain/contracts/ids';
 import type {
@@ -12,9 +12,9 @@ import type {
   Service, Capability,
 } from '../../domain/contracts/types';
 import type { ProcessRating } from '../../domain/scoring';
-import type { ScenarioBundle } from './it02SaasOnboarding';
+import type { ScenarioBundle } from './it01SaasOnboarding';
 
-export function buildIT07Scenario(): ScenarioBundle {
+export function buildIT06Scenario(): ScenarioBundle {
   const now = new Date().toISOString();
   const projId = newId('proj');
   const personaId = newId('persona');
@@ -136,7 +136,7 @@ export function buildIT07Scenario(): ScenarioBundle {
     },
   ];
 
-  const manifest: ProjectManifest = { id: projId, title: 'IT-07 · Software Release Journey', description: 'Product team experience releasing a backend service: CAB approval, staging deploy, production regression and rollback.', createdAt: now, updatedAt: now, schemaVersion: 2 };
+  const manifest: ProjectManifest = { id: projId, title: 'IT-06 · Software Release Journey', description: 'Product team experience releasing a backend service: CAB approval, staging deploy, production regression and rollback.', createdAt: now, updatedAt: now, schemaVersion: 2 };
   const candidates: ProcessCandidate[] = [
     { projectId: projId, id: candId1, title: 'Software release management', status: 'accepted', rationale: 'End-to-end release pipeline from freeze to production closure.', sourceRefs: [], createdAt: now },
     { projectId: projId, id: candId2, title: 'Change advisory board approval', status: 'accepted', rationale: 'Distinct governance gate; different stakeholders and cadence.', sourceRefs: [], createdAt: now },

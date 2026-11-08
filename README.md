@@ -6,7 +6,7 @@ An educational React application for university Business Process Management (BPM
 
 | Workspace | What students do |
 |-----------|-----------------|
-| **Learn** | 12-unit BPM curriculum, concept explorer, 36 practice challenges, 12 IT scenario packs |
+| **Learn** | 12-unit BPM curriculum, concept explorer, 36 practice challenges, 11 IT scenario packs |
 | **Discover** | Interview synthesis, observation timelines, event storming board, contradiction log |
 | **Identify** | Build a process landscape: candidates, hierarchy tree, charters, typed relationships, service/capability coverage, prioritisation |
 | **Journey** | Author multi-stage journey matrices with stages, steps, typed rows, sentiments, touchpoints, pain points and evidence |
@@ -105,7 +105,7 @@ src/
 │   ├── derivation/         BpmnExportWizard, bpmnGenerator, BpmnViewer
 │   ├── dictionary/         Dictionary panel (personas, systems, channels, touchpoints), opened from Journey
 │   ├── guided/             GuidedPathBanner
-│   └── scenarios/          IT scenario fixture builders (IT-02 … IT-12) + large fixture
+│   └── scenarios/          IT scenario fixture builders (IT-01 … IT-11) + registry
 ├── data/
 │   ├── glossary/           English/Croatian term glossary
 │   └── scenarios/          Scenario JSON data
@@ -116,17 +116,17 @@ src/
 
 | ID | Scenario | Level |
 |----|----------|-------|
-| IT-02 | SaaS customer completing onboarding | Beginner |
-| IT-03 | Employee reporting a hardware incident | Beginner |
-| IT-04 | Developer requesting cloud resources | Intermediate |
-| IT-05 | New employee requesting system access | Intermediate |
-| IT-06 | Enterprise customer during a major incident | Intermediate |
-| IT-07 | Product team releasing software | Advanced |
-| IT-08 | Developer integrating a public API | Advanced |
-| IT-09 | SaaS administrator handling renewal/cancellation | Intermediate |
-| IT-10 | Team procuring an IT service | Advanced |
-| IT-11 | Customer migrating to cloud hosting | Advanced |
-| IT-12 | Enterprise onboarding a managed-service provider | Capstone |
+| IT-01 | SaaS customer completing onboarding | Beginner |
+| IT-02 | Employee reporting a hardware incident | Beginner |
+| IT-03 | Developer requesting cloud resources | Intermediate |
+| IT-04 | New employee requesting system access | Intermediate |
+| IT-05 | Enterprise customer during a major incident | Intermediate |
+| IT-06 | Product team releasing software | Advanced |
+| IT-07 | Developer integrating a public API | Advanced |
+| IT-08 | SaaS administrator handling renewal/cancellation | Intermediate |
+| IT-09 | Team procuring an IT service | Advanced |
+| IT-10 | Customer migrating to cloud hosting | Advanced |
+| IT-11 | Enterprise onboarding a managed-service provider | Capstone |
 
 ## BPMN export
 

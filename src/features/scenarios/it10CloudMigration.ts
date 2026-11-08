@@ -1,4 +1,4 @@
-// IT-11: Customer migrating to cloud hosting — assessment, migration, validation and support value chain.
+// IT-10: Customer migrating to cloud hosting — assessment, migration, validation and support value chain.
 
 import { newId } from '../../domain/contracts/ids';
 import type {
@@ -12,9 +12,9 @@ import type {
   Service, Capability,
 } from '../../domain/contracts/types';
 import type { ProcessRating } from '../../domain/scoring';
-import type { ScenarioBundle } from './it02SaasOnboarding';
+import type { ScenarioBundle } from './it01SaasOnboarding';
 
-export function buildIT11Scenario(): ScenarioBundle {
+export function buildIT10Scenario(): ScenarioBundle {
   const now = new Date().toISOString();
   const projId = newId('proj');
   const personaId = newId('persona');
@@ -138,7 +138,7 @@ export function buildIT11Scenario(): ScenarioBundle {
     },
   ];
 
-  const manifest: ProjectManifest = { id: projId, title: 'IT-11 · Cloud Migration Journey', description: 'Customer experience migrating on-premise workloads to cloud: readiness assessment, batch migration, failed cutover, rollback and second attempt.', createdAt: now, updatedAt: now, schemaVersion: 2 };
+  const manifest: ProjectManifest = { id: projId, title: 'IT-10 · Cloud Migration Journey', description: 'Customer experience migrating on-premise workloads to cloud: readiness assessment, batch migration, failed cutover, rollback and second attempt.', createdAt: now, updatedAt: now, schemaVersion: 2 };
   const candidates: ProcessCandidate[] = [
     { projectId: projId, id: candId1, title: 'Migration readiness assessment', status: 'accepted', rationale: 'Discovery phase before any migration work begins.', sourceRefs: [], createdAt: now },
     { projectId: projId, id: candId2, title: 'Data migration and validation', status: 'accepted', rationale: 'Core technical migration process; distinct from planning and cutover.', sourceRefs: [], createdAt: now },
