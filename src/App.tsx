@@ -61,10 +61,13 @@ export default function App() {
   }
 
   function startGuidedMode() {
-    setGuidedStep(1);
+    // Stay where the user is: start at the step matching the current workspace.
+    // Home and Learn are not part of the path, so those begin at step 1 (Discover).
+    const here = GUIDED_STEPS.find(s => s.workspace === workspace);
+    setGuidedStep(here ? here.id : 1);
     setCompletedSteps(new Set());
     setGuidedMode(true);
-    setWorkspace('discover');
+    if (!here) setWorkspace(GUIDED_STEPS[0].workspace);
   }
 
   function handleGuidedGoToStep(step: typeof GUIDED_STEPS[number]) {

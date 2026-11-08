@@ -86,39 +86,11 @@ interface Props {
 // ─── Component ────────────────────────────────────────────────
 
 export function GuidedPathBanner({ currentStep, completedSteps, onGoToStep, onComplete, onExit }: Props) {
-  const [expanded, setExpanded] = useState(true);
   const [showTips, setShowTips] = useState(false);
 
   const step = GUIDED_STEPS.find(s => s.id === currentStep) ?? GUIDED_STEPS[0];
   const nextStep = GUIDED_STEPS.find(s => s.id === currentStep + 1);
   const allDone = currentStep > GUIDED_STEPS.length;
-
-  if (!expanded) {
-    return (
-      <div style={{
-        background: 'var(--primary)',
-        color: '#fff',
-        padding: '5px 16px',
-        display: 'flex', alignItems: 'center', gap: 10,
-        fontSize: 12, flexShrink: 0,
-        borderBottom: '1px solid var(--border)',
-      }}>
-        <span style={{ fontWeight: 600 }}>Guided Path</span>
-        <span style={{ opacity: 0.7 }}>·</span>
-        <span>Step {Math.min(currentStep, 4)} / 4 — {allDone ? 'Complete!' : step.label}</span>
-        <div style={{ flex: 1 }} />
-        <button
-          onClick={() => setExpanded(true)}
-          style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 4, color: '#fff', padding: '2px 8px', cursor: 'pointer', fontSize: 11, display: 'flex', alignItems: 'center', gap: 4 }}
-        >
-          <ChevronDown size={12} /> Show
-        </button>
-        <button onClick={onExit} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', padding: 2 }} title="Exit guided mode">
-          <X size={14} />
-        </button>
-      </div>
-    );
-  }
 
   return (
     <div style={{
@@ -133,12 +105,6 @@ export function GuidedPathBanner({ currentStep, completedSteps, onGoToStep, onCo
           Guided Learning Path
         </span>
         <div style={{ flex: 1 }} />
-        <button
-          onClick={() => setExpanded(false)}
-          style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 4, color: '#fff', padding: '2px 8px', cursor: 'pointer', fontSize: 11, display: 'flex', alignItems: 'center', gap: 4 }}
-        >
-          <ChevronUp size={12} /> Hide
-        </button>
         <button onClick={onExit} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', padding: '2px 4px', fontSize: 11 }} title="Exit guided mode">
           <X size={13} /> Exit
         </button>
