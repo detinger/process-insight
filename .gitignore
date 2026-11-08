@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build output (Netlify/Railway run `npm run build` themselves)
+dist/
+*.tsbuildinfo
+
+# Vite / tooling caches
+.vite/
+.tmp/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+.idea/
+*.swp
+.vscode/*
+!.vscode/extensions.json
+
+# Claude Code local settings
+.claude/settings.local.json
