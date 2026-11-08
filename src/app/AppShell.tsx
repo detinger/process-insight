@@ -70,7 +70,7 @@ export function AppShell({ active, onNavigate, children, toolbarContent, project
           title="Go to home"
         >
           <div className="brand-mark">
-            <BrandMark size={20} />
+            <BrandMark size={22} />
           </div>
           {!collapsed && (
             <div className="brand-text">

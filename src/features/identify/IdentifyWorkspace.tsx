@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import {
   Plus, CheckCircle, Circle, XCircle, AlertTriangle, ChevronRight,
-  ChevronDown, Layers, ArrowRight, GitMerge, BarChart2, Grid, Share2, Map as MapIcon,
+  ChevronDown, Layers, ArrowRight, GitMerge, BarChart2, Grid, Map as MapIcon,
 } from 'lucide-react';
 import { db } from '../../storage/db';
 import { newId } from '../../domain/contracts/ids';
 import { MergeDialog } from './MergeDialog';
 import { CoverageMatrix } from './CoverageMatrix';
 import { PriorityScoringPanel } from './PriorityScoringPanel';
-import { LandscapeGraph, wouldCreateCycle } from './LandscapeGraph';
+import { wouldCreateCycle } from './hierarchy';
 import { ImpactPanel } from './ImpactPanel';
 import { ProcessLandscapeView, type LandscapeZone } from './ProcessLandscapeView';
 import { WorkspaceGuide } from '../../components/WorkspaceGuide';
@@ -25,7 +25,7 @@ interface Props {
 }
 
 type LeftTab = 'candidates' | 'processes';
-type MainTab = 'landscape' | 'identify' | 'graph' | 'coverage' | 'scoring';
+type MainTab = 'landscape' | 'identify' | 'coverage' | 'scoring';
 
 const STATUS_CFG: Record<CandidateStatus, { label: string; color: string; icon: React.ReactNode }> = {
   proposed:       { label: 'Proposed',    color: 'var(--info)',        icon: <Circle size={13} /> },
@@ -44,8 +44,19 @@ const BOUNDARY_CHECKS = [
   'Is there an accountable owner for this process?',
 ];
 
+const MAIN_TABS: { id: MainTab; label: string; icon: React.ReactNode; why: string }[] = [
+  { id: 'identify', label: 'Identify', icon: <Circle size={13} />,
+    why: 'Collect candidate processes from interviews and evidence, check their boundaries, then accept them as process definitions with a charter (purpose, trigger, outcome, scope).' },
+  { id: 'landscape', label: 'Landscape', icon: <MapIcon size={13} />,
+    why: 'The big picture on one page: arrange the accepted processes into management, core and support zones.' },
+  { id: 'coverage', label: 'Coverage', icon: <Grid size={13} />,
+    why: 'A completeness check: which processes are linked to services, capabilities and an owner. Empty cells reveal processes nobody owns or services no process supports — fix these before you trust the landscape.' },
+  { id: 'scoring', label: 'Scoring', icon: <BarChart2 size={13} />,
+    why: 'Rates processes on strategic impact, pain severity, feasibility and volume, then ranks them, so you know which to analyse or improve first instead of tackling everything at once.' },
+];
+
 export function IdentifyWorkspace({ projectId, onNavigate }: Props) {
-  const [mainTab, setMainTab] = useState<MainTab>('landscape');
+  const [mainTab, setMainTab] = useState<MainTab>('identify');
   const [tab, setTab] = useState<LeftTab>('candidates');
   const [candidates, setCandidates] = useState<ProcessCandidate[]>([]);
   const [processes, setProcesses] = useState<ProcessDefinition[]>([]);
@@ -192,19 +203,34 @@ export function IdentifyWorkspace({ projectId, onNavigate }: Props) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+      {/* Workspace header: the page title comes first, tabs below it */}
+      <div style={{ padding: '18px 24px 0', flexShrink: 0, maxHeight: '45vh', overflowY: 'auto', background: 'var(--bg)' }}>
+        <div className="eyebrow">Identification</div>
+        <h1 className="page-title" style={{ marginBottom: 6 }}>Process landscape</h1>
+        <p className="page-description" style={{ marginBottom: 12 }}>
+          Identify candidate processes from evidence, classify them, define boundaries
+          and organize into a coherent architecture.
+        </p>
+        <WorkspaceGuide
+          storageKey="guide-identify"
+          title="What to do in this workspace"
+          description="Before mapping what customers experience, you need to understand which processes are involved and how they relate to each other."
+          steps={[
+            { label: 'Identify: add process candidates', hint: 'Use the sidebar → "Add". Write down every process you think might be relevant, even if you\'re unsure. You can filter them later.' },
+            { label: 'Identify: review and accept', hint: 'Work through each candidate: check the boundary checklist, change status to "Accepted" for the ones worth modeling, then complete the charter (purpose, trigger, outcome, scope).' },
+            { label: 'Landscape: build the big picture', hint: 'Assign each accepted process a role — management, core, or support — and arrange them into one overview.' },
+            { label: 'Coverage and Scoring: check and prioritise', hint: 'Find gaps (no owner, no service) and decide which processes to analyse first. Each tab explains what it is for.' },
+          ]}
+        />
+      </div>
+
       {/* Top-level workspace tabs */}
       <div style={{
         borderBottom: '1px solid var(--border)', padding: '0 20px',
         background: 'var(--bg-elevated)', flexShrink: 0,
         display: 'flex', alignItems: 'center', gap: 4,
       }}>
-        {([
-          { id: 'landscape', label: 'Landscape', icon: <MapIcon size={13} /> },
-          { id: 'identify',  label: 'Identify',  icon: <Circle size={13} /> },
-          { id: 'graph',     label: 'Graph',      icon: <Share2 size={13} /> },
-          { id: 'coverage',  label: 'Coverage',   icon: <Grid size={13} /> },
-          { id: 'scoring',   label: 'Scoring',    icon: <BarChart2 size={13} /> },
-        ] as { id: MainTab; label: string; icon: React.ReactNode }[]).map(t => (
+        {MAIN_TABS.map(t => (
           <button
             key={t.id}
             className={`tab${mainTab === t.id ? ' active' : ''}`}
@@ -214,6 +240,12 @@ export function IdentifyWorkspace({ projectId, onNavigate }: Props) {
             {t.icon} {t.label}
           </button>
         ))}
+      </div>
+      <div style={{
+        padding: '7px 24px', fontSize: 12, color: 'var(--text-muted)', flexShrink: 0,
+        background: 'var(--bg-subtle)', borderBottom: '1px solid var(--border)',
+      }}>
+        {MAIN_TABS.find(t => t.id === mainTab)?.why}
       </div>
 
       {/* Cycle warning banner */}
@@ -419,27 +451,6 @@ export function IdentifyWorkspace({ projectId, onNavigate }: Props) {
               )}
             </div>
           </>
-        )}
-
-        {mainTab === 'graph' && (
-          <div style={{ flex: 1, overflow: 'hidden' }}>
-            <LandscapeGraph
-              processes={processes}
-              relations={relations}
-              selectedId={selectedProc?.id ?? null}
-              onSelectProcess={id => {
-                const p = processes.find(p => p.id === id);
-                if (p) {
-                  setSelectedProc(p);
-                  setSelectedCand(null);
-                  setMainTab('identify');
-                  setTab('processes');
-                }
-              }}
-              onAddRelation={addRelation}
-              onCycleWarning={setCycleWarning}
-            />
-          </div>
         )}
 
         {mainTab === 'coverage' && (
@@ -863,24 +874,6 @@ function LandscapeOverview({
 
   return (
     <div style={{ maxWidth: 680 }}>
-      <div className="eyebrow">Identification</div>
-      <h1 className="page-title" style={{ marginBottom: 8 }}>Process landscape</h1>
-      <p className="page-description">
-        Identify candidate processes from evidence, classify them, define boundaries
-        and organize into a coherent architecture.
-      </p>
-
-      <WorkspaceGuide
-        storageKey="guide-identify"
-        title="What to do in this workspace"
-        description="Before mapping what customers experience, you need to understand which processes are involved and how they relate to each other."
-        steps={[
-          { label: 'Add process candidates', hint: 'Open the sidebar → click "Add". Write down every process you think might be relevant, even if you\'re unsure. You can filter them later.' },
-          { label: 'Review and accept key candidates', hint: 'Work through each candidate: check the boundary checklist, change status to "Accepted" for the ones worth modeling.' },
-          { label: 'Build the landscape', hint: 'Switch to the Landscape tab. Assign each accepted process a role — management, core, or support — and add purpose, trigger and outcome.' },
-        ]}
-      />
-
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 24 }}>
         {[
           { label: 'Candidates', value: candidates.length, sub: `${accepted} accepted` },
@@ -903,8 +896,7 @@ function LandscapeOverview({
           <strong>Getting started:</strong> Add candidate processes from the sidebar,
           check their boundaries, accept them to create process definitions, then complete
           each charter with trigger, outcome and scope.
-          Use <strong>Graph</strong> to view the dependency network,
-          <strong> Coverage</strong> to check service/capability linkage, and
+          Use <strong>Coverage</strong> to check service/capability linkage, and
           <strong> Scoring</strong> to rank processes by priority.
         </div>
       </div>

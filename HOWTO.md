@@ -20,7 +20,7 @@ Home  →  Discover  →  Identify  →  Journey  →  Map
 
 ### 1. Home — Load or Create
 
-Load one of the IT scenario packs (pre-filled with realistic data) or start a blank project. Each scenario comes with candidates, processes, journey, evidence, and graph relations already seeded.
+Load one of the IT scenario packs (pre-filled with realistic data) or start a blank project. Each scenario comes with candidates, processes, journey, evidence, and process relations already seeded.
 
 ---
 
@@ -37,19 +37,16 @@ Where you record the raw inputs that justify your process model:
 
 ### 3. Identify — Build the Process Landscape
 
-The analytical core. Five sub-tabs:
+The analytical core. Four sub-tabs, starting with Identify:
 
 | Tab | What it does |
 |-----|-------------|
-| **Landscape** | Swimlane view — 3 tiers: management (top), core (middle), support (bottom). Processes placed by tier label. |
 | **Identify** | Left: candidates (accept / reject). Right: process charter — trigger, outcome, purpose, scope, parent. |
-| **Graph** | Network view of processes as nodes and typed relations as edges. Display-only — clicking a node opens its charter. |
+| **Landscape** | Swimlane view — 3 tiers: management (top), core (middle), support (bottom). Processes placed by tier label. |
 | **Coverage** | Matrix showing which processes support which services and capabilities. |
 | **Scoring** | Priority scoring of process candidates by weighted criteria. |
 
 **Deleting a process:** hover over any tile on the Landscape tab — a red × button appears in the top-right corner.
-
-**How relations get created:** seeded by scenario data. The Graph tab is currently display-only — there is no drag-to-connect UI yet.
 
 ---
 

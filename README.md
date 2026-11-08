@@ -19,7 +19,7 @@ All data lives in the browser (IndexedDB via Dexie). No backend or authenticatio
 - **React 19** + TypeScript strict mode
 - **Vite 8** (ES modules, fast HMR)
 - **Dexie v4** over IndexedDB — versioned schema, 38 tables, tab-ownership write guard
-- **@xyflow/react** — process landscape graph
+- **@xyflow/react** — swimlane process map editor
 - **bpmn-js** (read-only viewer) + **bpmn-moddle** — BPMN 2.0 generation and preview
 - **recharts** — KPI charts
 - **lucide-react** — icons
