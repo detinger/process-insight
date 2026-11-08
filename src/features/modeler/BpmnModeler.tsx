@@ -9,6 +9,10 @@ import { IssueList } from '../validation/IssueList';
 import { validateBpmnXml } from '../../domain/validation/validate';
 import type { ValidationReport } from '../../domain/validation/types';
 import './modeler.css';
+import 'bpmn-js/dist/assets/diagram-js.css';
+import 'bpmn-js/dist/assets/bpmn-js.css';
+import 'bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css';
+import 'bpmn-js-token-simulation/assets/css/bpmn-js-token-simulation.css';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type BpmnModelerInstance = any;
@@ -17,8 +21,8 @@ interface Props {
   xml: string;
   title?: string;
   onChange: (xml: string) => void;
-  /** Called with the final XML after a last flush, so callers always get the latest edit. */
-  onClose: (finalXml: string) => void;
+  /** When provided, shows a close button that flushes final XML before calling back. */
+  onClose?: (finalXml: string) => void;
 }
 
 type SidePanelTab = 'properties' | 'explain' | 'issues';
@@ -29,7 +33,7 @@ export function BpmnModeler({ xml, title, onChange, onClose }: Props) {
   const modelerRef = useRef<BpmnModelerInstance>(null);
   const [undoRedo, setUndoRedo] = useState({ canUndo: false, canRedo: false });
   const [zoom, setZoom] = useState(1);
-  const [panelOpen, setPanelOpen] = useState(true);
+  const [panelOpen, setPanelOpen] = useState(false);
   const [tab, setTab] = useState<SidePanelTab>('properties');
   const [shortcuts, setShortcuts] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -185,7 +189,7 @@ export function BpmnModeler({ xml, title, onChange, onClose }: Props) {
     a.click();
   };
 
-  const handleClose = async () => {
+  const handleClose = onClose ? async () => {
     window.clearTimeout(changeTimer.current);
     const modeler = modelerRef.current;
     if (modeler) {
@@ -198,7 +202,7 @@ export function BpmnModeler({ xml, title, onChange, onClose }: Props) {
     } else {
       onClose(xml);
     }
-  };
+  } : undefined;
 
   return (
     <div className={`bpmn-modeler${panelOpen ? '' : ' panel-closed'}`}>

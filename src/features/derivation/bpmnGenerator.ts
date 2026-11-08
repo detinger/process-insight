@@ -205,13 +205,16 @@ ${(laneRefs[l.id] ?? []).map(ref => `        <bpmn:flowNodeRef>${ref}</bpmn:flow
     if (!src || !tgt) return '';
     const midSrcY = taskMidY(src);
     const midTgtY = taskMidY(tgt);
-    // Straight horizontal when same lane; dog-leg when different
+    // Straight horizontal when same lane; dog-leg when different lanes.
+    // Intermediate x is the midpoint between source right edge and target left edge
+    // so the final segment always enters the target from the left (never backwards).
+    const midX = Math.round(src.x + src.w + (tgt.x - src.x - src.w) / 2);
     const waypoints = midSrcY === midTgtY
       ? `<di:waypoint x="${src.x + src.w}" y="${midSrcY}"/>
             <di:waypoint x="${tgt.x}" y="${midTgtY}"/>`
       : `<di:waypoint x="${src.x + src.w}" y="${midSrcY}"/>
-            <di:waypoint x="${tgt.x + tgt.w / 2}" y="${midSrcY}"/>
-            <di:waypoint x="${tgt.x + tgt.w / 2}" y="${midTgtY}"/>
+            <di:waypoint x="${midX}" y="${midSrcY}"/>
+            <di:waypoint x="${midX}" y="${midTgtY}"/>
             <di:waypoint x="${tgt.x}" y="${midTgtY}"/>`;
     return `      <bpmndi:BPMNEdge id="${f.id}_di" bpmnElement="${f.id}">
             ${waypoints}

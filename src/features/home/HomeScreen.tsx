@@ -3,17 +3,9 @@ import { Plus, FolderOpen, BookOpen, Upload, AlertCircle, CheckCircle, Trash2, R
 import { db } from '../../storage/db';
 import { newId } from '../../domain/contracts/ids';
 import { commitProjectImport, prepareProjectImportFile } from '../../storage/projectIO';
-import { buildIT02Scenario } from '../scenarios/it02SaasOnboarding';
-import { buildIT03Scenario } from '../scenarios/it03ServiceDesk';
-import { buildIT04Scenario } from '../scenarios/it04CloudResources';
-import { buildIT05Scenario } from '../scenarios/it05EmployeeAccess';
-import { buildIT06Scenario } from '../scenarios/it06MajorIncident';
-import { buildIT07Scenario } from '../scenarios/it07SoftwareRelease';
-import { buildIT08Scenario } from '../scenarios/it08ApiIntegration';
-import { buildIT09Scenario } from '../scenarios/it09SaasRenewal';
-import { buildIT10Scenario } from '../scenarios/it10ITProcurement';
-import { buildIT11Scenario } from '../scenarios/it11CloudMigration';
-import { buildIT12Scenario } from '../scenarios/it12ManagedServiceOnboarding';
+import { SCENARIO_REGISTRY } from '../scenarios/registry';
+import type { ScenarioPack } from '../scenarios/registry';
+import { ScenarioCard } from '../scenarios/ScenarioCard';
 import type { ProjectManifest } from '../../domain/contracts/types';
 import type { ImportPreview, ImportResult } from '../../storage/projectIO';
 import { clearApplicationData, deleteProject } from '../../storage/projectLifecycle';
@@ -38,11 +30,15 @@ export function HomeScreen({ onOpenProject, activeProjectId, onProjectsReset, on
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  async function loadScenario(titlePrefix: string, build: () => ReturnType<typeof buildIT02Scenario>) {
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+
+  async function loadScenario(pack: ScenarioPack) {
+    setLoadingId(pack.id);
+    const { id: titlePrefix, build } = pack;
     const s = build();
     const existing = await db.projects.where('title').startsWith(titlePrefix).first();
     if (existing) {
-      if (existing.schemaVersion >= s.manifest.schemaVersion) { onOpenProject(existing.id); return; }
+      if (existing.schemaVersion >= s.manifest.schemaVersion) { setLoadingId(null); onOpenProject(existing.id); return; }
       await deleteProject(existing.id);
     }
     await db.transaction('rw',
@@ -86,23 +82,9 @@ export function HomeScreen({ onOpenProject, activeProjectId, onProjectsReset, on
     );
     const updated = await db.projects.orderBy('updatedAt').reverse().toArray();
     setProjects(updated);
+    setLoadingId(null);
     onOpenProject(s.manifest.id);
   }
-
-  const SCENARIO_PACKS = [
-    { id: 'IT-01', label: 'Employee hardware incident (beginner challenges)',  level: 'Beginner',     build: buildIT03Scenario },
-    { id: 'IT-02', label: 'SaaS customer onboarding',              level: 'Beginner',     build: buildIT02Scenario },
-    { id: 'IT-03', label: 'Employee hardware incident',             level: 'Beginner',     build: buildIT03Scenario },
-    { id: 'IT-04', label: 'Developer cloud resource request',       level: 'Intermediate', build: buildIT04Scenario },
-    { id: 'IT-05', label: 'New employee access request',            level: 'Intermediate', build: buildIT05Scenario },
-    { id: 'IT-06', label: 'Enterprise major incident',              level: 'Intermediate', build: buildIT06Scenario },
-    { id: 'IT-07', label: 'Product team software release',          level: 'Advanced',     build: buildIT07Scenario },
-    { id: 'IT-08', label: 'Developer API integration',              level: 'Advanced',     build: buildIT08Scenario },
-    { id: 'IT-09', label: 'SaaS renewal and cancellation',          level: 'Intermediate', build: buildIT09Scenario },
-    { id: 'IT-10', label: 'IT service procurement',                 level: 'Advanced',     build: buildIT10Scenario },
-    { id: 'IT-11', label: 'Cloud migration',                        level: 'Advanced',     build: buildIT11Scenario },
-    { id: 'IT-12', label: 'Managed service onboarding (capstone)',  level: 'Capstone',     build: buildIT12Scenario },
-  ] as const;
 
   async function handleImportFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -195,7 +177,7 @@ export function HomeScreen({ onOpenProject, activeProjectId, onProjectsReset, on
             </p>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <button className="btn btn-primary" style={{ height: 40, fontSize: 14, padding: '0 20px' }}
-                onClick={() => onNavigate?.('learn')}>
+                onClick={() => onNavigate?.('concepts')}>
                 <BookOpen size={16} /> Start learning
               </button>
               <button className="btn" style={{ height: 40, fontSize: 14, padding: '0 20px' }}
@@ -308,41 +290,18 @@ export function HomeScreen({ onOpenProject, activeProjectId, onProjectsReset, on
         {/* ── Scenario packs ── */}
         <h2 className="section-heading" id="scenario-packs" style={{ marginTop: 48, marginBottom: 8 }}>IT scenario packs</h2>
         <p style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 20 }}>
-          Real-world IT scenarios with pre-loaded data across all five workspaces. Load any scenario and explore it immediately.
+          Real-world IT scenarios with pre-loaded data across all five workspaces. Each card shows previews of the Landscape, Journey, and Map views.
         </p>
-        <div style={{ border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden', marginBottom: 40 }}>
-          {SCENARIO_PACKS.map((sp, i) => {
-            const levelColor = sp.level === 'Beginner' ? 'var(--success)' : sp.level === 'Intermediate' ? 'var(--info)' : sp.level === 'Advanced' ? 'var(--warning)' : 'var(--accent)';
-            return (
-              <div key={sp.id} style={{
-                display: 'flex', alignItems: 'center', gap: 14, padding: '10px 14px',
-                borderBottom: i < SCENARIO_PACKS.length - 1 ? '1px solid var(--border)' : 'none',
-              }}>
-                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--primary)', width: 46, flexShrink: 0 }}>{sp.id}</span>
-                <span style={{ flex: 1, fontSize: 13 }}>{sp.label}</span>
-                <span style={{
-                  fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 4,
-                  background: `color-mix(in srgb, ${levelColor} 12%, transparent)`, color: levelColor,
-                }}>{sp.level}</span>
-                <button
-                  className="btn btn-sm btn-ghost"
-                  onClick={() => loadScenario(sp.id, sp.build)}
-                  style={{ fontSize: 12 }}
-                >
-                  <BookOpen size={12} /> Load
-                </button>
-                {onStartGuidedMode && (
-                  <button
-                    className="btn btn-sm"
-                    style={{ fontSize: 12, background: 'var(--primary)', color: '#fff', border: 'none' }}
-                    onClick={async () => { await loadScenario(sp.id, sp.build); onStartGuidedMode(); }}
-                  >
-                    ▶ Guided
-                  </button>
-                )}
-              </div>
-            );
-          })}
+        <div className="scenario-grid">
+          {SCENARIO_REGISTRY.map(pack => (
+            <ScenarioCard
+              key={pack.id}
+              pack={pack}
+              onLoad={() => loadScenario(pack)}
+              onGuided={onStartGuidedMode ? () => loadScenario(pack).then(() => onStartGuidedMode?.()) : undefined}
+              loading={loadingId === pack.id}
+            />
+          ))}
         </div>
 
         {/* ── Import / Create ── */}

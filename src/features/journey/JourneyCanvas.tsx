@@ -5,7 +5,7 @@ import type {
 
 const COL_W = 180;
 const LABEL_W = 156;
-const SENTIMENT_H = 90;
+const SENTIMENT_H = 180;
 const ROW_MIN_H = 72;
 
 const ROW_COLORS: Partial<Record<string, string>> = {
@@ -86,7 +86,7 @@ export function JourneyCanvas({ stages, steps, rows, cells, cards, painPoints, p
   return (
     <div style={fullSize
       ? { borderRadius: 8, border: '1px solid var(--border)', width: 'max-content' }
-      : { overflowX: 'auto', overflowY: 'auto', maxHeight: 'calc(100vh - 180px)', borderRadius: 8, border: '1px solid var(--border)' }}>
+      : { overflowX: 'auto', overflowY: 'auto', height: '100%', borderRadius: 8, border: '1px solid var(--border)' }}>
       <div style={{ minWidth: totalW, position: 'relative' }}>
 
         {/* Stage header row */}

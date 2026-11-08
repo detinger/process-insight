@@ -24,7 +24,7 @@ const CONCEPTS: ConceptDef[] = [
       '"Handle password reset" — that is a process (trigger: password reset requested; outcome: access restored).',
     ],
     watchOut: 'Avoid writing journey steps that describe system actions ("System sends email"). That is the process view intruding into the journey. The journey step should be "Receives confirmation email."',
-    tryIt: { label: 'Open IT-02 and name both sides', scenarioId: 'IT-02', workspace: 'journey' },
+    tryIt: { label: 'Open IT-01 and name both sides', scenarioId: 'IT-01', workspace: 'journey' },
   },
   {
     title: 'Process vs Department',
@@ -36,7 +36,7 @@ const CONCEPTS: ConceptDef[] = [
       '"Resolve service request" — a process (trigger: ticket received; outcome: issue resolved; stakeholder: employee).',
     ],
     watchOut: 'When someone says "our process is IT Support" they mean their team handles that area. Push back with: what starts it? what ends it? who cares about the outcome? If they cannot answer, it is not yet a process.',
-    tryIt: { label: 'Find candidates in IT-03', scenarioId: 'IT-03', workspace: 'identify' },
+    tryIt: { label: 'Find candidates in IT-02', scenarioId: 'IT-01', workspace: 'identify' },
   },
   {
     title: 'Process vs Capability',
@@ -48,7 +48,7 @@ const CONCEPTS: ConceptDef[] = [
       '"Provision user access for a new hire" — a process (a specific execution of that capability).',
     ],
     watchOut: 'Do not list capabilities in a process landscape as if they were processes. A landscape node should always answer: "what starts this, and what does completing it produce?" A capability has no trigger and no single outcome.',
-    tryIt: { label: 'Open IT-05 and map candidates', scenarioId: 'IT-05', workspace: 'identify' },
+    tryIt: { label: 'Open IT-04 and map candidates', scenarioId: 'IT-03', workspace: 'identify' },
   },
   {
     title: 'Evidence vs Assumption',
@@ -60,7 +60,7 @@ const CONCEPTS: ConceptDef[] = [
       '"Average form completion: 22 min (observed, service desk walk-through, 2024-10, n=4)" — evidence with confidence: medium.',
     ],
     watchOut: 'Silently upgrading an assumption to evidence by repeating it in multiple documents. The source is still one person\'s opinion. If two people independently observed the same thing, that raises confidence — but only if collected independently.',
-    tryIt: { label: 'Open IT-03, go to Interview synthesis — mark each quote as evidence or assumption', scenarioId: 'IT-03', workspace: 'discover' },
+    tryIt: { label: 'Open IT-02, go to Interview synthesis — mark each quote as evidence or assumption', scenarioId: 'IT-01', workspace: 'discover' },
   },
   {
     title: 'Observation vs Target',
@@ -72,7 +72,7 @@ const CONCEPTS: ConceptDef[] = [
       '"Resolution time SLA: ≤4h" — a target (an aspiration set contractually, not measured).',
     ],
     watchOut: 'Percentage improvement claims require two observations with identical populations and time windows. "We improved by 20%" is meaningless if the first measurement was an estimate and the second was measured.',
-    tryIt: { label: 'Open IT-06 and find the SLA claim', scenarioId: 'IT-06', workspace: 'journey' },
+    tryIt: { label: 'Open IT-05 and find the SLA claim', scenarioId: 'IT-04', workspace: 'journey' },
   },
   {
     title: 'BPMN Draft vs Finished Model',
@@ -81,10 +81,10 @@ const CONCEPTS: ConceptDef[] = [
     detail: 'The export produces one task per journey step, in sequence, inside a pool. That is enough to open in Camunda or Signavio and start modelling. It is not a finished model. Approval/rejection gateways, escalation loops, parallel provisioning, and timer events must be added manually in the BPMN editor. The handoff notes in the export explain what the sequential model cannot represent.',
     examples: [
       'Exporting 10 journey steps → 10 sequential BPMN tasks, no gateways, no loops.',
-      'The approval step in IT-05 needs a gateway (approved / rejected) — that must be added in BPMN Studio after export.',
+      'The approval step in IT-04 needs a gateway (approved / rejected) — that must be added in BPMN Studio after export.',
     ],
     watchOut: 'Teams that treat the BPMN draft as authoritative skip the modelling step. The export is a starting point, not an end state. Always review handoff notes before handing off to a process engineer.',
-    tryIt: { label: 'Export IT-08 and inspect handoff notes', scenarioId: 'IT-08', workspace: 'map' },
+    tryIt: { label: 'Export IT-07 and inspect handoff notes', scenarioId: 'IT-06', workspace: 'map' },
   },
 ];
 

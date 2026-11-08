@@ -1,4 +1,4 @@
-// IT-12: Enterprise onboarding a managed-service provider — cross-company architecture and governance. (Capstone)
+// IT-11: Enterprise onboarding a managed-service provider — cross-company architecture and governance. (Capstone)
 
 import { newId } from '../../domain/contracts/ids';
 import type {
@@ -12,9 +12,9 @@ import type {
   Service, Capability,
 } from '../../domain/contracts/types';
 import type { ProcessRating } from '../../domain/scoring';
-import type { ScenarioBundle } from './it02SaasOnboarding';
+import type { ScenarioBundle } from './it01SaasOnboarding';
 
-export function buildIT12Scenario(): ScenarioBundle {
+export function buildIT11Scenario(): ScenarioBundle {
   const now = new Date().toISOString();
   const projId = newId('proj');
   const personaId = newId('persona');
@@ -145,7 +145,7 @@ export function buildIT12Scenario(): ScenarioBundle {
     },
   ];
 
-  const manifest: ProjectManifest = { id: projId, title: 'IT-12 · Managed Service Onboarding Journey (Capstone)', description: 'Enterprise experience onboarding a managed-service provider: discovery, transition, first incident and service review. Capstone scenario with cross-company process architecture.', createdAt: now, updatedAt: now, schemaVersion: 2 };
+  const manifest: ProjectManifest = { id: projId, title: 'IT-11 · Managed Service Onboarding Journey (Capstone)', description: 'Enterprise experience onboarding a managed-service provider: discovery, transition, first incident and service review. Capstone scenario with cross-company process architecture.', createdAt: now, updatedAt: now, schemaVersion: 2 };
   const candidates: ProcessCandidate[] = [
     { projectId: projId, id: candId1, title: 'Service discovery and scope agreement', status: 'accepted', rationale: 'Foundational joint process; defines the boundary for all subsequent managed services.', sourceRefs: [], createdAt: now },
     { projectId: projId, id: candId2, title: 'Knowledge transfer and transition', status: 'accepted', rationale: 'Time-bounded process; different roles and deliverables from steady-state operations.', sourceRefs: [], createdAt: now },

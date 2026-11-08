@@ -3,7 +3,9 @@ import { ThemeProvider } from './app/theme';
 import { AppShell, type Workspace } from './app/AppShell';
 import { GuidedPathBanner, GUIDED_STEPS } from './features/guided/GuidedPathBanner';
 import { HomeScreen } from './features/home/HomeScreen';
-import { LearnWorkspace } from './features/learn/LearnWorkspace';
+import { ConceptsTab } from './features/learn/ConceptsTab';
+import { UnitsTab } from './features/learn/UnitsTab';
+import { ChallengesTab } from './features/learn/ChallengesTab';
 import { IdentifyWorkspace } from './features/identify/IdentifyWorkspace';
 import { DiscoverWorkspace } from './features/discover/DiscoverWorkspace';
 import { JourneyWorkspace } from './features/journey/JourneyWorkspace';
@@ -111,8 +113,10 @@ export default function App() {
   function renderWorkspace() {
     const pid = projectId ?? '__default__';
     switch (workspace) {
-      case 'home':     return <HomeScreen onOpenProject={openProject} activeProjectId={projectId} onProjectsReset={resetOpenProject} onStartGuidedMode={startGuidedMode} onNavigate={handleNavigate} />;
-      case 'learn':    return <LearnWorkspace projectId={pid} onOpenProject={openProject} onNavigate={handleNavigate} />;
+      case 'home':       return <HomeScreen onOpenProject={openProject} activeProjectId={projectId} onProjectsReset={resetOpenProject} onStartGuidedMode={startGuidedMode} onNavigate={handleNavigate} />;
+      case 'concepts':   return <div className="workspace"><div className="workspace-narrow"><ConceptsTab onOpenProject={openProject} onNavigate={handleNavigate} /></div></div>;
+      case 'units':      return <div className="workspace"><div className="workspace-narrow"><UnitsTab onOpenProject={openProject} onNavigate={handleNavigate} /></div></div>;
+      case 'challenges': return <div className="workspace"><div className="workspace-narrow"><ChallengesTab onOpenProject={openProject} onNavigate={handleNavigate} /></div></div>;
       case 'identify': return <IdentifyWorkspace projectId={pid} />;
       case 'discover': return <DiscoverWorkspace projectId={pid} />;
       case 'journey':  return <JourneyWorkspace projectId={pid} />;

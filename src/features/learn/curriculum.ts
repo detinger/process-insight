@@ -31,7 +31,7 @@ export const CURRICULUM: CurriculumUnit[] = [
     ],
     exercise: 'Open the IT-02 or IT-03 example. For each journey step, write one sentence starting with "The provider process that enables this step is…". Compare with a colleague.',
     reflection: 'Think of a service you used this week. What did you experience? What internal process do you think ran behind the scenes? How confident are you that your guess is accurate?',
-    relatedScenarios: ['IT-02', 'IT-03'],
+    relatedScenarios: ['IT-01', 'IT-02'],
   },
   {
     unit: 2,
@@ -52,7 +52,7 @@ export const CURRICULUM: CurriculumUnit[] = [
     ],
     exercise: 'Using the IT-05 (new employee access) scenario, identify at least 3 process candidates from the journey steps. Write a trigger and outcome for each. Check: do any share the same trigger?',
     reflection: 'How would you explain the difference between a process boundary and a team boundary to a manager who insists "our team IS the process"?',
-    relatedScenarios: ['IT-04', 'IT-05', 'IT-10'],
+    relatedScenarios: ['IT-03', 'IT-04', 'IT-09'],
   },
   {
     unit: 3,
@@ -73,7 +73,7 @@ export const CURRICULUM: CurriculumUnit[] = [
     ],
     exercise: 'Open the Identify workspace and load the IT-10 (procurement) scenario. Arrange the three process candidates into a hierarchy. Add a relationship between "Vendor security review" and "Procurement and vendor selection".',
     reflection: 'What is the risk of building a landscape without evidence? What decisions might an organisation make incorrectly if the landscape is based on assumptions?',
-    relatedScenarios: ['IT-07', 'IT-10', 'IT-12'],
+    relatedScenarios: ['IT-06', 'IT-09', 'IT-11'],
   },
   {
     unit: 4,
@@ -94,7 +94,7 @@ export const CURRICULUM: CurriculumUnit[] = [
     ],
     exercise: 'Look at the evidence in the IT-06 (major incident) scenario. Identify one claim that could be an assumption. What would you need to verify it? What would you do if two sources contradicted each other?',
     reflection: 'Have you ever made a decision based on incomplete information and later discovered a contradiction? How would explicit evidence tracking have changed the outcome?',
-    relatedScenarios: ['IT-06', 'IT-08'],
+    relatedScenarios: ['IT-05', 'IT-07'],
   },
   {
     unit: 5,
@@ -115,7 +115,7 @@ export const CURRICULUM: CurriculumUnit[] = [
     ],
     exercise: 'Using IT-04 (cloud resource request), identify which steps belong to the user\'s experience versus which steps the system performs silently. Rewrite any system steps as user experience steps.',
     reflection: 'What is the difference between mapping what a user does and mapping what a system does? Why does this distinction matter for process improvement?',
-    relatedScenarios: ['IT-04', 'IT-05'],
+    relatedScenarios: ['IT-03', 'IT-04'],
   },
   {
     unit: 6,
@@ -136,7 +136,7 @@ export const CURRICULUM: CurriculumUnit[] = [
     ],
     exercise: 'In the IT-09 (SaaS cancellation) scenario, identify the two most negative sentiment steps. For each, write a pain point with a distinct symptom, hypothesised cause and proposed intervention.',
     reflection: 'Is it possible for the same touchpoint to have different sentiment for different personas? What would that imply for how you design improvements?',
-    relatedScenarios: ['IT-03', 'IT-09'],
+    relatedScenarios: ['IT-02', 'IT-08'],
   },
   {
     unit: 7,
@@ -157,7 +157,7 @@ export const CURRICULUM: CurriculumUnit[] = [
     ],
     exercise: 'Using IT-05 (new employee access), create a simple three-row blueprint: customer journey steps on top, IT portal interactions in the middle, and HR/security background checks on the bottom.',
     reflection: 'At which point in the IT-05 journey is the line of visibility most important? What would change in the experience if one backstage action were made frontstage (visible to the user)?',
-    relatedScenarios: ['IT-05', 'IT-10'],
+    relatedScenarios: ['IT-04', 'IT-09'],
   },
   {
     unit: 8,
@@ -178,7 +178,7 @@ export const CURRICULUM: CurriculumUnit[] = [
     ],
     exercise: 'In IT-05 (new employee access), the access request is rejected and must be resubmitted. Map this as a rework loop. Who sends the rejection? What information triggers the resubmission? Who approves the second attempt?',
     reflection: 'How many steps in the IT-05 journey are exceptions rather than the happy path? What does that tell you about where the process needs the most attention?',
-    relatedScenarios: ['IT-05', 'IT-07'],
+    relatedScenarios: ['IT-04', 'IT-06'],
   },
   {
     unit: 9,
@@ -199,7 +199,7 @@ export const CURRICULUM: CurriculumUnit[] = [
     ],
     exercise: 'Using the Map workspace on IT-08 (API integration), scope the "Production API access approval" process. Select only the provider-side steps, name each activity from the provider perspective, and add one handoff note for the security questionnaire decision.',
     reflection: 'What is the risk of a team treating a BPMN draft export as a finished and authoritative process model? How would you communicate the limits of the export to a non-technical stakeholder?',
-    relatedScenarios: ['IT-08', 'IT-04'],
+    relatedScenarios: ['IT-07', 'IT-03'],
   },
   {
     unit: 10,
@@ -220,7 +220,7 @@ export const CURRICULUM: CurriculumUnit[] = [
     ],
     exercise: 'In the IT-06 (major incident) scenario, the SLA is stated as 4 hours. Write a KPI definition for "Incident resolution time" with a valid population, time window and direction. Then write one observed value and one target value as separate records.',
     reflection: 'What is the most common way metrics are misused in reports you have seen? What evidence category would you assign to a metric published in a marketing document?',
-    relatedScenarios: ['IT-06', 'IT-09'],
+    relatedScenarios: ['IT-05', 'IT-08'],
   },
   {
     unit: 11,
@@ -241,7 +241,7 @@ export const CURRICULUM: CurriculumUnit[] = [
     ],
     exercise: 'Using the Identify workspace, rate the IT-12 (managed service) process candidates on two criteria: customer impact and operational risk. Apply two different weight sets. Which process changes rank? Why?',
     reflection: 'If two stakeholders disagree on which process to improve first, how would a transparent priority score help the conversation? What would it not resolve?',
-    relatedScenarios: ['IT-10', 'IT-12'],
+    relatedScenarios: ['IT-09', 'IT-11'],
   },
   {
     unit: 12,
@@ -262,6 +262,6 @@ export const CURRICULUM: CurriculumUnit[] = [
     ],
     exercise: 'Using IT-12, complete the full end-to-end flow: (1) identify and prioritize three process candidates; (2) model the customer journey for the transition phase; (3) link at least one pain point with evidence; (4) generate a BPMN draft for "Knowledge transfer and transition" with at least two handoff notes.',
     reflection: 'At the end of the capstone, what is the most valuable thing you produced? What would you need to do before a real stakeholder could use it?',
-    relatedScenarios: ['IT-12'],
+    relatedScenarios: ['IT-11'],
   },
 ];

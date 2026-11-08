@@ -1,41 +1,16 @@
 import { db } from '../../storage/db';
 import { deleteProject } from '../../storage/projectLifecycle';
-import { buildIT02Scenario } from './it02SaasOnboarding';
-import { buildIT03Scenario } from './it03ServiceDesk';
-import { buildIT04Scenario } from './it04CloudResources';
-import { buildIT05Scenario } from './it05EmployeeAccess';
-import { buildIT06Scenario } from './it06MajorIncident';
-import { buildIT07Scenario } from './it07SoftwareRelease';
-import { buildIT08Scenario } from './it08ApiIntegration';
-import { buildIT09Scenario } from './it09SaasRenewal';
-import { buildIT10Scenario } from './it10ITProcurement';
-import { buildIT11Scenario } from './it11CloudMigration';
-import { buildIT12Scenario } from './it12ManagedServiceOnboarding';
-import type { ScenarioBundle } from './it02SaasOnboarding';
-
-const BUILDERS: Record<string, () => ScenarioBundle> = {
-  'IT-02': buildIT02Scenario,
-  'IT-03': buildIT03Scenario,
-  'IT-04': buildIT04Scenario,
-  'IT-05': buildIT05Scenario,
-  'IT-06': buildIT06Scenario,
-  'IT-07': buildIT07Scenario,
-  'IT-08': buildIT08Scenario,
-  'IT-09': buildIT09Scenario,
-  'IT-10': buildIT10Scenario,
-  'IT-11': buildIT11Scenario,
-  'IT-12': buildIT12Scenario,
-};
+import { SCENARIO_REGISTRY } from './registry';
 
 /**
  * Returns the project ID for a scenario, loading it into the DB if not yet present.
  * Returns null if the scenarioId is not recognised.
  */
 export async function loadScenarioById(scenarioId: string): Promise<string | null> {
-  const builder = BUILDERS[scenarioId];
-  if (!builder) return null;
+  const pack = SCENARIO_REGISTRY.find(p => p.id === scenarioId);
+  if (!pack) return null;
 
-  const s = builder();
+  const s = pack.build();
   const existing = await db.projects.where('title').startsWith(scenarioId).first();
   if (existing) {
     if (existing.schemaVersion >= s.manifest.schemaVersion) return existing.id;

@@ -3,19 +3,21 @@ import {
   BookOpen, Search, Compass, Map, LayoutGrid,
   PanelLeftClose, PanelLeftOpen,
   Sun, Moon, Monitor, FolderOpen,
-  Download, GraduationCap,
+  Download, GraduationCap, Lightbulb, ListChecks, Trophy,
 } from 'lucide-react';
 import { BrandMark } from '../components/BrandMark';
 import { WorkspacePath } from '../components/WorkspacePath';
 import { useTheme } from './theme';
 
-export type Workspace = 'home' | 'learn' | 'identify' | 'discover' | 'journey' | 'map';
+export type Workspace = 'home' | 'concepts' | 'units' | 'challenges' | 'identify' | 'discover' | 'journey' | 'map';
 
 const NAV_GROUPS = [
   {
     label: 'Learn',
     items: [
-      { id: 'learn' as Workspace, label: 'Learn', icon: <BookOpen size={16} /> },
+      { id: 'concepts'   as Workspace, label: 'Concepts',   icon: <Lightbulb size={16} /> },
+      { id: 'units'      as Workspace, label: 'Units',      icon: <BookOpen size={16} /> },
+      { id: 'challenges' as Workspace, label: 'Challenges', icon: <Trophy size={16} /> },
     ],
   },
   {
@@ -148,13 +150,13 @@ export function AppShell({ active, onNavigate, children, toolbarContent, project
           </span>
           <div className="toolbar-spacer" />
           {toolbarContent}
-          {onExport && projectId && active !== 'home' && (
+          {onExport && projectId && !['home', 'concepts', 'units', 'challenges'].includes(active) && (
             <button className="btn btn-ghost btn-sm" onClick={() => onExport(projectId)} title="Export project"
               disabled={readOnly}>
               <Download size={15} /> Export
             </button>
           )}
-          {onStartGuidedMode && active !== 'home' && (
+          {onStartGuidedMode && !['home', 'concepts', 'units', 'challenges'].includes(active) && (
             <button
               className="btn btn-sm"
               style={{ background: 'var(--primary)', color: '#fff', border: 'none' }}
@@ -173,7 +175,7 @@ export function AppShell({ active, onNavigate, children, toolbarContent, project
         {children}
 
         {/* Always-visible step navigation (the guided tour has its own stepper) */}
-        {projectId && !guidedBanner && ['discover', 'identify', 'journey', 'map'].includes(active) && (
+        {projectId && !guidedBanner && (['discover', 'identify', 'journey', 'map'] as Workspace[]).includes(active) && (
           <WorkspacePath current={active} onNavigate={onNavigate} />
         )}
       </main>

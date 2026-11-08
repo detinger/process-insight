@@ -1,4 +1,4 @@
-// IT-08: Developer integrating a public API — developer relations, security and platform services.
+// IT-07: Developer integrating a public API — developer relations, security and platform services.
 
 import { newId } from '../../domain/contracts/ids';
 import type {
@@ -12,9 +12,9 @@ import type {
   Service, Capability,
 } from '../../domain/contracts/types';
 import type { ProcessRating } from '../../domain/scoring';
-import type { ScenarioBundle } from './it02SaasOnboarding';
+import type { ScenarioBundle } from './it01SaasOnboarding';
 
-export function buildIT08Scenario(): ScenarioBundle {
+export function buildIT07Scenario(): ScenarioBundle {
   const now = new Date().toISOString();
   const projId = newId('proj');
   const personaId = newId('persona');
@@ -130,7 +130,7 @@ export function buildIT08Scenario(): ScenarioBundle {
     },
   ];
 
-  const manifest: ProjectManifest = { id: projId, title: 'IT-08 · Public API Integration Journey', description: "Developer's experience integrating a third-party API: docs discovery, sandbox, production access approval, first call and rate-limit handling.", createdAt: now, updatedAt: now, schemaVersion: 2 };
+  const manifest: ProjectManifest = { id: projId, title: 'IT-07 · Public API Integration Journey', description: "Developer's experience integrating a third-party API: docs discovery, sandbox, production access approval, first call and rate-limit handling.", createdAt: now, updatedAt: now, schemaVersion: 2 };
   const candidates: ProcessCandidate[] = [
     { projectId: projId, id: candId1, title: 'Developer API onboarding', status: 'accepted', rationale: 'Primary self-service journey from docs to first production call.', sourceRefs: [], createdAt: now },
     { projectId: projId, id: candId2, title: 'Production API access approval', status: 'accepted', rationale: 'Security-gated subprocess; different team and timebox.', sourceRefs: [], createdAt: now },

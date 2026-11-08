@@ -764,3 +764,158 @@ tr:hover td { background: var(--bg-hover); }
   .nav-util .nav-link:last-child { display: none; }
   .workspace { padding: 18px 16px 40px; }
 }
+
+/* ─── Scenario cards ─── */
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.scenario-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: box-shadow 150ms, border-color 150ms;
+}
+.scenario-card:hover {
+  box-shadow: var(--shadow-sm);
+  border-color: var(--primary);
+}
+
+.scenario-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px 0;
+}
+
+.scenario-card-id {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: 0.04em;
+}
+
+.scenario-card-level {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+.scenario-card-title {
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--text-h);
+  margin: 6px 14px 4px;
+  line-height: 1.35;
+}
+
+.scenario-card-summary {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0 14px 10px;
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.scenario-card-carousel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0 4px;
+  background: var(--bg-subtle);
+  border-top: 1px solid var(--border);
+}
+
+.carousel-slide {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+.carousel-slide svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.carousel-nav {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 4px;
+  transition: background 100ms, color 100ms;
+}
+.carousel-nav:hover { background: var(--bg-hover); color: var(--text); }
+
+.carousel-enlarge {
+  position: absolute;
+  top: 6px;
+  right: 32px;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 150ms;
+}
+.scenario-card-carousel:hover .carousel-enlarge { opacity: 1; }
+
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  padding: 6px 0 2px;
+  background: var(--bg-subtle);
+}
+
+.carousel-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: none;
+  background: var(--border);
+  cursor: pointer;
+  padding: 0;
+  transition: background 150ms;
+}
+.carousel-dot.active { background: var(--primary); }
+
+.carousel-label {
+  text-align: center;
+  font-size: 10px;
+  color: var(--text-subtle);
+  padding: 2px 0 8px;
+  background: var(--bg-subtle);
+  border-bottom: 1px solid var(--border);
+}
+
+.scenario-card-actions {
+  display: flex;
+  gap: 8px;
+  padding: 10px 14px 12px;
+  margin-top: auto;
+}

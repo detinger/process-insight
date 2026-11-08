@@ -18,7 +18,7 @@ interface Props {
   onTogglePanel: () => void;
   onToggleSimulation: () => void;
   onShortcuts: () => void;
-  onClose: () => void;
+  onClose?: () => void;
 }
 
 export function ModelerToolbar(p: Props) {
@@ -88,9 +88,11 @@ export function ModelerToolbar(p: Props) {
         <button className="btn btn-sm btn-icon btn-ghost" onClick={p.onShortcuts} title="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts">
           <Keyboard size={15} />
         </button>
-        <button className="btn btn-sm btn-icon btn-ghost" onClick={p.onClose} title="Close editor" aria-label="Close editor">
-          <X size={16} />
-        </button>
+        {p.onClose && (
+          <button className="btn btn-sm btn-icon btn-ghost" onClick={p.onClose} title="Close editor" aria-label="Close editor">
+            <X size={16} />
+          </button>
+        )}
       </div>
     </div>
   );

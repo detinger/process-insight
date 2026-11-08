@@ -1,4 +1,4 @@
-// IT-03: IT Service Desk scenario — incident reporting and fulfillment from the end-user perspective.
+// IT-02: IT Service Desk scenario — incident reporting and fulfillment from the end-user perspective.
 // A developer reports a laptop issue, waits for triage, gets a loaner, and follows up on resolution.
 
 import { newId } from '../../domain/contracts/ids';
@@ -13,9 +13,9 @@ import type {
   Service, Capability,
 } from '../../domain/contracts/types';
 import type { ProcessRating } from '../../domain/scoring';
-import type { ScenarioBundle } from './it02SaasOnboarding';
+import type { ScenarioBundle } from './it01SaasOnboarding';
 
-export function buildIT03Scenario(): ScenarioBundle {
+export function buildIT02Scenario(): ScenarioBundle {
   const now = new Date().toISOString();
 
   const projId       = newId('proj');
@@ -180,7 +180,7 @@ export function buildIT03Scenario(): ScenarioBundle {
 
   const manifest: ProjectManifest = {
     id: projId,
-    title: 'IT-03 · IT Service Desk Journey',
+    title: 'IT-02 · IT Service Desk Journey',
     description: 'Developer end-user experience reporting a hardware incident and receiving a loaner device.',
     createdAt: now, updatedAt: now, schemaVersion: 2,
   };

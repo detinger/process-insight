@@ -12,17 +12,17 @@ const LEVEL_COLORS: Record<string, string> = {
 };
 
 const SCENARIO_LABELS: Record<string, string> = {
-  'IT-02': 'IT-02 · SaaS Onboarding',
-  'IT-03': 'IT-03 · Hardware Incident',
-  'IT-04': 'IT-04 · Cloud Resources',
-  'IT-05': 'IT-05 · Employee Access',
-  'IT-06': 'IT-06 · Major Incident',
-  'IT-07': 'IT-07 · Software Release',
-  'IT-08': 'IT-08 · API Integration',
-  'IT-09': 'IT-09 · SaaS Renewal',
-  'IT-10': 'IT-10 · IT Procurement',
-  'IT-11': 'IT-11 · Cloud Migration',
-  'IT-12': 'IT-12 · Managed Service (Capstone)',
+  'IT-01': 'IT-01 · SaaS Onboarding',
+  'IT-02': 'IT-02 · Hardware Incident',
+  'IT-03': 'IT-03 · Cloud Resources',
+  'IT-04': 'IT-04 · Employee Access',
+  'IT-05': 'IT-05 · Major Incident',
+  'IT-06': 'IT-06 · Software Release',
+  'IT-07': 'IT-07 · API Integration',
+  'IT-08': 'IT-08 · SaaS Renewal',
+  'IT-09': 'IT-09 · IT Procurement',
+  'IT-10': 'IT-10 · Cloud Migration',
+  'IT-11': 'IT-11 · Managed Service (Capstone)',
 };
 
 interface ChallengesTabProps {

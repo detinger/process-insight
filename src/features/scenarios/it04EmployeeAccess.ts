@@ -1,4 +1,4 @@
-// IT-05: New employee requesting system access — HR/IT/security interfaces and accountability.
+// IT-04: New employee requesting system access — HR/IT/security interfaces and accountability.
 // A new engineer discovers missing access on their first day and navigates approval loops.
 
 import { newId } from '../../domain/contracts/ids';
@@ -13,9 +13,9 @@ import type {
   Service, Capability,
 } from '../../domain/contracts/types';
 import type { ProcessRating } from '../../domain/scoring';
-import type { ScenarioBundle } from './it02SaasOnboarding';
+import type { ScenarioBundle } from './it01SaasOnboarding';
 
-export function buildIT05Scenario(): ScenarioBundle {
+export function buildIT04Scenario(): ScenarioBundle {
   const now = new Date().toISOString();
 
   const projId     = newId('proj');
@@ -178,7 +178,7 @@ export function buildIT05Scenario(): ScenarioBundle {
 
   const manifest: ProjectManifest = {
     id: projId,
-    title: 'IT-05 · New Employee Access Journey',
+    title: 'IT-04 · New Employee Access Journey',
     description: "New software engineer's experience requesting system access in their first week, navigating broken links, wrong forms and approval loops.",
     createdAt: now, updatedAt: now, schemaVersion: 2,
   };

@@ -1,4 +1,4 @@
-// IT-09: SaaS administrator handling renewal/cancellation — billing, account management, export and retention.
+// IT-08: SaaS administrator handling renewal/cancellation — billing, account management, export and retention.
 
 import { newId } from '../../domain/contracts/ids';
 import type {
@@ -12,9 +12,9 @@ import type {
   Service, Capability,
 } from '../../domain/contracts/types';
 import type { ProcessRating } from '../../domain/scoring';
-import type { ScenarioBundle } from './it02SaasOnboarding';
+import type { ScenarioBundle } from './it01SaasOnboarding';
 
-export function buildIT09Scenario(): ScenarioBundle {
+export function buildIT08Scenario(): ScenarioBundle {
   const now = new Date().toISOString();
   const projId = newId('proj');
   const personaId = newId('persona');
@@ -132,7 +132,7 @@ export function buildIT09Scenario(): ScenarioBundle {
     },
   ];
 
-  const manifest: ProjectManifest = { id: projId, title: 'IT-09 · SaaS Renewal/Cancellation Journey', description: 'SaaS administrator evaluating renewal, negotiating terms, cancelling, exporting data and closing account.', createdAt: now, updatedAt: now, schemaVersion: 2 };
+  const manifest: ProjectManifest = { id: projId, title: 'IT-08 · SaaS Renewal/Cancellation Journey', description: 'SaaS administrator evaluating renewal, negotiating terms, cancelling, exporting data and closing account.', createdAt: now, updatedAt: now, schemaVersion: 2 };
   const candidates: ProcessCandidate[] = [
     { projectId: projId, id: candId1, title: 'Subscription renewal and cancellation management', status: 'accepted', rationale: 'Core account lifecycle process; spans billing, account management and customer success.', sourceRefs: [], createdAt: now },
     { projectId: projId, id: candId2, title: 'Customer data export and portability', status: 'accepted', rationale: 'Distinct data process; regulatory and compliance implications.', sourceRefs: [], createdAt: now },

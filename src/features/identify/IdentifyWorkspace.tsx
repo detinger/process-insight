@@ -53,7 +53,7 @@ const MAIN_TABS: { id: MainTab; label: string; icon: React.ReactNode; why: strin
 
 export function IdentifyWorkspace({ projectId }: Props) {
   const [mainTab, setMainTab] = useState<MainTab>('identify');
-  const [tab, setTab] = useState<LeftTab>('candidates');
+  const [tab, setTab] = useState<LeftTab>('processes');
   const [candidates, setCandidates] = useState<ProcessCandidate[]>([]);
   const [processes, setProcesses] = useState<ProcessDefinition[]>([]);
   const [relations, setRelations] = useState<LandscapeRelation[]>([]);
@@ -265,13 +265,13 @@ export function IdentifyWorkspace({ projectId }: Props) {
                   </button>
                 </div>
                 <div className="tabs" style={{ borderBottom: 'none' }}>
-                  <button className={`tab${tab === 'candidates' ? ' active' : ''}`}
-                    onClick={() => setTab('candidates')} style={{ flex: 1 }}>
-                    Candidates ({candidates.length})
-                  </button>
                   <button className={`tab${tab === 'processes' ? ' active' : ''}`}
                     onClick={() => setTab('processes')} style={{ flex: 1 }}>
                     Processes ({processes.length})
+                  </button>
+                  <button className={`tab${tab === 'candidates' ? ' active' : ''}`}
+                    onClick={() => setTab('candidates')} style={{ flex: 1 }}>
+                    Candidates ({candidates.length})
                   </button>
                 </div>
               </div>

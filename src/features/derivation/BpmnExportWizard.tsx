@@ -12,7 +12,7 @@ import '../modeler/modeler.css';
 import { validateBpmnXml } from '../../domain/validation/validate';
 import { IssueList } from '../validation/IssueList';
 import type { ValidationReport } from '../../domain/validation/types';
-import type { Journey, JourneyStage, JourneyStep, ProcessDefinition, BpmnExport } from '../../domain/contracts/types';
+import type { Journey, JourneyStage, JourneyStep, ProcessDefinition, BpmnExport, ProcessMap, MapLane } from '../../domain/contracts/types';
 
 interface Props {
   projectId: string;
@@ -46,8 +46,8 @@ interface WizardState {
 
 const STEP_LABELS: Record<WizardStep, string> = {
   1: 'Select scope',
-  2: 'Map activities',
-  3: 'Participant & lanes',
+  2: 'Participant & lanes',
+  3: 'Map activities',
   4: 'Review coverage',
   5: 'Preview',
   6: 'Export',
@@ -76,10 +76,19 @@ export function BpmnExportWizard({ projectId, onClose }: Props) {
   const [showModeler, setShowModeler] = useState(false);
   const [validationReport, setValidationReport] = useState<ValidationReport | null>(null);
   const [priorExports, setPriorExports] = useState<BpmnExport[]>([]);
+  const [processMaps, setProcessMaps] = useState<ProcessMap[]>([]);
+  const [mapLanes, setMapLanes] = useState<MapLane[]>([]);
 
   useEffect(() => {
     db.journeys.where('projectId').equals(projectId).toArray().then(setJourneys);
     db.processes.where('projectId').equals(projectId).toArray().then(setProcesses);
+    Promise.all([
+      db.processMaps.where('projectId').equals(projectId).toArray(),
+      db.mapLanes.where('projectId').equals(projectId).toArray(),
+    ]).then(([maps, lanes]) => {
+      setProcessMaps(maps);
+      setMapLanes(lanes.sort((a, b) => a.order - b.order));
+    });
   }, [projectId]);
 
   useEffect(() => {
@@ -271,8 +280,8 @@ export function BpmnExportWizard({ projectId, onClose }: Props) {
   function canAdvance(): boolean {
     switch (step) {
       case 1: return !!state.journeyId && state.selectedStepIds.length > 0 && !!state.targetProcessName;
-      case 2: return state.mappings.some(m => m.disposition !== 'excluded' && m.activityName.trim());
-      case 3: return state.lanes.length > 0 && !!state.participantName;
+      case 2: return state.lanes.length > 0 && !!state.participantName;
+      case 3: return state.mappings.some(m => m.disposition !== 'excluded' && m.activityName.trim());
       case 4: return true;
       case 5: return !!state.generatedXml;
       case 6: return false;
@@ -280,7 +289,7 @@ export function BpmnExportWizard({ projectId, onClose }: Props) {
   }
 
   function advance() {
-    if (step === 2 && state.mappings.length === 0) initMappings();
+    if (step === 3 && state.mappings.length === 0) initMappings();
     if (step === 4) generate();
     if (step === 5) {
       const xmlToCheck = state.editedXml || state.generatedXml;
@@ -349,20 +358,22 @@ export function BpmnExportWizard({ projectId, onClose }: Props) {
             />
           )}
           {step === 2 && (
-            <Step2
-              orderedSteps={orderedSteps}
-              state={state}
-              onUpdateMapping={updateMapping}
-              onInitMappings={initMappings}
-            />
-          )}
-          {step === 3 && (
             <Step3
               state={state}
               onUpdate={update}
               onAddLane={addLane}
               onUpdateLane={updateLane}
               onRemoveLane={removeLane}
+              processMaps={processMaps}
+              mapLanes={mapLanes}
+            />
+          )}
+          {step === 3 && (
+            <Step2
+              orderedSteps={orderedSteps}
+              state={state}
+              onUpdateMapping={updateMapping}
+              onInitMappings={initMappings}
             />
           )}
           {step === 4 && (
@@ -592,8 +603,8 @@ function Step2({
       <div className="callout callout-recommendation" style={{ marginBottom: 20 }}>
         <Info size={16} className="callout-icon" />
         <div style={{ fontSize: 13 }}>
-          Map each journey step to an activity name in the provider process. A step can be excluded
-          with a rationale (e.g. pre-service awareness is outside the provider's scope).
+          Map each journey step to an activity name in the provider process, and assign it to a lane.
+          A step can be excluded with a rationale (e.g. pre-service awareness is outside the provider's scope).
           The activity name describes provider work, not the customer's experience.
         </div>
       </div>
@@ -678,23 +689,69 @@ function Step2({
 }
 
 function Step3({
-  state, onUpdate, onAddLane, onUpdateLane, onRemoveLane,
+  state, onUpdate, onAddLane, onUpdateLane, onRemoveLane, processMaps, mapLanes,
 }: {
   state: WizardState;
   onUpdate: (patch: Partial<WizardState>) => void;
   onAddLane: () => void;
   onUpdateLane: (id: string, name: string) => void;
   onRemoveLane: (id: string) => void;
+  processMaps: ProcessMap[];
+  mapLanes: MapLane[];
 }) {
+  const [selectedMapId, setSelectedMapId] = useState('');
+
+  function importFromMap() {
+    const map = processMaps.find(m => m.id === selectedMapId);
+    if (!map) return;
+    const lanes = mapLanes
+      .filter(l => l.mapId === selectedMapId)
+      .map(l => ({ id: newId('lane'), name: l.label }));
+    if (lanes.length === 0) return;
+    onUpdate({
+      lanes,
+      participantName: state.participantName || map.title,
+    });
+  }
+
   return (
     <div>
       <div className="callout callout-recommendation" style={{ marginBottom: 20 }}>
         <Info size={16} className="callout-icon" />
         <div style={{ fontSize: 13 }}>
           Name the participant (the organization or system performing the process) and define
-          the internal role lanes. External interactions belong in handoff notes, not additional pools.
+          the internal role lanes. Import lanes from a process map, or add them manually.
         </div>
       </div>
+
+      {processMaps.length > 0 && (
+        <div className="field" style={{ marginBottom: 20, padding: '12px 14px', background: 'var(--bg-subtle)', borderRadius: 8, border: '1px solid var(--border)' }}>
+          <label className="field-label" style={{ marginBottom: 6 }}>Import lanes from process map</label>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <select
+              className="input input-sm"
+              style={{ flex: 1 }}
+              value={selectedMapId}
+              onChange={e => setSelectedMapId(e.target.value)}
+            >
+              <option value="">Select a process map…</option>
+              {processMaps.map(m => (
+                <option key={m.id} value={m.id}>{m.title}</option>
+              ))}
+            </select>
+            <button
+              className="btn btn-sm"
+              disabled={!selectedMapId}
+              onClick={importFromMap}
+            >
+              Import lanes
+            </button>
+          </div>
+          <div className="field-hint">
+            Replaces current lanes with the swimlanes from the selected process map.
+          </div>
+        </div>
+      )}
 
       <div className="field" style={{ marginBottom: 20 }}>
         <label className="field-label">Participant name</label>
@@ -798,7 +855,7 @@ function Step4({
           <AlertCircle size={16} className="callout-icon" />
           <div style={{ fontSize: 13 }}>
             {unaccounted.length} step(s) have no activity name and will be skipped in the export.
-            Go back to step 2 to add names or mark them as excluded.
+            Go back to step 3 to add names or mark them as excluded.
           </div>
         </div>
       )}
