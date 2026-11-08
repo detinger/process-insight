@@ -113,10 +113,10 @@ export default function App() {
     switch (workspace) {
       case 'home':     return <HomeScreen onOpenProject={openProject} activeProjectId={projectId} onProjectsReset={resetOpenProject} onStartGuidedMode={startGuidedMode} onNavigate={handleNavigate} />;
       case 'learn':    return <LearnWorkspace projectId={pid} onOpenProject={openProject} onNavigate={handleNavigate} />;
-      case 'identify': return <IdentifyWorkspace projectId={pid} onNavigate={handleNavigate} />;
-      case 'discover': return <DiscoverWorkspace projectId={pid} onNavigate={handleNavigate} />;
-      case 'journey':  return <JourneyWorkspace projectId={pid} onNavigate={handleNavigate} />;
-      case 'map':      return <MapWorkspace projectId={pid} onNavigate={handleNavigate} />;
+      case 'identify': return <IdentifyWorkspace projectId={pid} />;
+      case 'discover': return <DiscoverWorkspace projectId={pid} />;
+      case 'journey':  return <JourneyWorkspace projectId={pid} />;
+      case 'map':      return <MapWorkspace projectId={pid} />;
     }
   }
 

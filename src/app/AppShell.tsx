@@ -6,6 +6,7 @@ import {
   Download, GraduationCap,
 } from 'lucide-react';
 import { BrandMark } from '../components/BrandMark';
+import { WorkspacePath } from '../components/WorkspacePath';
 import { useTheme } from './theme';
 
 export type Workspace = 'home' | 'learn' | 'identify' | 'discover' | 'journey' | 'map';
@@ -170,6 +171,11 @@ export function AppShell({ active, onNavigate, children, toolbarContent, project
 
         {/* Workspace content */}
         {children}
+
+        {/* Always-visible step navigation (the guided tour has its own stepper) */}
+        {projectId && !guidedBanner && ['discover', 'identify', 'journey', 'map'].includes(active) && (
+          <WorkspacePath current={active} onNavigate={onNavigate} />
+        )}
       </main>
     </div>
   );

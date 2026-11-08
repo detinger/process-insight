@@ -11,8 +11,6 @@ import { PriorityScoringPanel } from './PriorityScoringPanel';
 import { wouldCreateCycle } from './hierarchy';
 import { ImpactPanel } from './ImpactPanel';
 import { ProcessLandscapeView, type LandscapeZone } from './ProcessLandscapeView';
-import { WorkspacePath } from '../../components/WorkspacePath';
-import type { Workspace } from '../../app/AppShell';
 import type {
   ProcessCandidate, ProcessDefinition, CandidateStatus, LandscapeRelation,
   Service, Capability, EvidenceRecord, Journey, JourneyStep, RelationshipType,
@@ -20,7 +18,6 @@ import type {
 
 interface Props {
   projectId: string;
-  onNavigate?: (ws: Workspace) => void;
 }
 
 type LeftTab = 'candidates' | 'processes';
@@ -54,7 +51,7 @@ const MAIN_TABS: { id: MainTab; label: string; icon: React.ReactNode; why: strin
     why: 'Rates processes on strategic impact, pain severity, feasibility and volume, then ranks them, so you know which to analyse or improve first instead of tackling everything at once.' },
 ];
 
-export function IdentifyWorkspace({ projectId, onNavigate }: Props) {
+export function IdentifyWorkspace({ projectId }: Props) {
   const [mainTab, setMainTab] = useState<MainTab>('identify');
   const [tab, setTab] = useState<LeftTab>('candidates');
   const [candidates, setCandidates] = useState<ProcessCandidate[]>([]);
@@ -464,9 +461,6 @@ export function IdentifyWorkspace({ projectId, onNavigate }: Props) {
         />
       )}
 
-      {onNavigate && (
-        <WorkspacePath current="identify" onNavigate={onNavigate} />
-      )}
     </div>
   );
 }

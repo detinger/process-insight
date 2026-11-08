@@ -4,13 +4,11 @@ import { db } from '../../storage/db';
 import { BpmnExportWizard } from '../derivation/BpmnExportWizard';
 import { SipocPanel } from './SipocPanel';
 import { ProcessMapPanel } from './ProcessMapPanel';
-import { WorkspacePath } from '../../components/WorkspacePath';
-import type { Workspace } from '../../app/AppShell';
 import type { BpmnExport } from '../../domain/contracts/types';
 
 type MapTab = 'bpmn' | 'sipoc' | 'processmap';
 
-export function MapWorkspace({ projectId, onNavigate }: { projectId: string; onNavigate?: (ws: Workspace) => void }) {
+export function MapWorkspace({ projectId }: { projectId: string }) {
   const [tab, setTab] = useState<MapTab>('sipoc');
   const [wizardOpen, setWizardOpen] = useState(false);
   const [exports, setExports] = useState<BpmnExport[]>([]);
@@ -137,7 +135,6 @@ export function MapWorkspace({ projectId, onNavigate }: { projectId: string; onN
         {tab === 'sipoc'      && <SipocPanel      projectId={projectId} />}
         {tab === 'processmap' && <ProcessMapPanel  projectId={projectId} />}
 
-        {onNavigate && <WorkspacePath current="map" onNavigate={onNavigate} />}
       </div>
 
       {wizardOpen && <BpmnExportWizard projectId={projectId} onClose={handleWizardClose} />}

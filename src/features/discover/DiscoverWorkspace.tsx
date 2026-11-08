@@ -7,8 +7,6 @@ import {
 } from 'lucide-react';
 import { db } from '../../storage/db';
 import { newId } from '../../domain/contracts/ids';
-import { WorkspacePath } from '../../components/WorkspacePath';
-import type { Workspace } from '../../app/AppShell';
 import type {
   DiscoveryInterview, DiscoveryInterviewItem, InterviewItemType,
   DiscoveryObservation, ObservationType2,
@@ -26,7 +24,7 @@ function now() { return new Date().toISOString(); }
 
 // ─── Main workspace ──────────────────────────────────────────
 
-export function DiscoverWorkspace({ projectId, onNavigate }: { projectId: string; onNavigate?: (ws: Workspace) => void }) {
+export function DiscoverWorkspace({ projectId }: { projectId: string }) {
   const [tab, setTab] = useState<DiscoverTab>('interviews');
 
   const TABS: { id: DiscoverTab; label: string }[] = [
@@ -64,7 +62,6 @@ export function DiscoverWorkspace({ projectId, onNavigate }: { projectId: string
         {tab === 'storming'       && <StormingPanel      projectId={projectId} />}
         {tab === 'contradictions' && <ContradictionPanel projectId={projectId} />}
 
-        {onNavigate && <WorkspacePath current="discover" onNavigate={onNavigate} />}
       </div>
     </div>
   );

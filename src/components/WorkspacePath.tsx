@@ -13,6 +13,7 @@ interface Props {
   onNavigate: (ws: Workspace) => void;
 }
 
+/** Persistent step navigation (Discover → Identify → Journey → Map); rendered once by AppShell. */
 export function WorkspacePath({ current, onNavigate }: Props) {
   const idx = STEPS.findIndex(s => s.id === current);
   const next = idx >= 0 && idx < STEPS.length - 1 ? STEPS[idx + 1] : null;
@@ -20,9 +21,9 @@ export function WorkspacePath({ current, onNavigate }: Props) {
   return (
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '14px 24px', marginTop: 32,
+      padding: '8px 20px', flexShrink: 0,
       borderTop: '1px solid var(--border)',
-      background: 'var(--bg-subtle)',
+      background: 'var(--bg-elevated)',
     }}>
       {/* Step indicators */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>

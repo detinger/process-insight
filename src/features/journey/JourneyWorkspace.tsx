@@ -8,8 +8,6 @@ import {
 import { db } from '../../storage/db';
 import { newId } from '../../domain/contracts/ids';
 import { DictionaryPanel } from '../dictionary/DictionaryPanel';
-import { WorkspacePath } from '../../components/WorkspacePath';
-import type { Workspace } from '../../app/AppShell';
 import type {
   Journey, JourneyStage, JourneyStep, JourneyRow, Cell, JourneyCard,
   RowType, CardPayload, PainPoint, PainSeverity, ProcessDefinition,
@@ -23,7 +21,6 @@ import { getChallengesForScenario } from '../learn/challenges';
 
 interface Props {
   projectId: string;
-  onNavigate?: (ws: Workspace) => void;
 }
 
 const DEFAULT_ROWS: { type: RowType; label: string }[] = [
@@ -56,7 +53,7 @@ type RightPanel = 'none' | 'properties' | 'painpoints' | 'evidence' | 'challenge
 
 const SCENARIO_PREFIXES = ['IT-02','IT-03','IT-04','IT-05','IT-06','IT-07','IT-08','IT-09','IT-10','IT-11','IT-12'];
 
-export function JourneyWorkspace({ projectId, onNavigate }: Props) {
+export function JourneyWorkspace({ projectId }: Props) {
   const [journeys, setJourneys] = useState<Journey[]>([]);
   const [activeJourney, setActiveJourney] = useState<Journey | null>(null);
   const [stages, setStages] = useState<JourneyStage[]>([]);
@@ -939,7 +936,6 @@ export function JourneyWorkspace({ projectId, onNavigate }: Props) {
           </div>
         )}
       </div>
-      {onNavigate && <WorkspacePath current="journey" onNavigate={onNavigate} />}
       {dictOpen && (
         <DictionaryPanel
           projectId={projectId}
