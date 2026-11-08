@@ -181,9 +181,11 @@ export function buildIT01Scenario(): ScenarioBundle {
     }
     const actionCellId = newId('cell');
     cells.push({ projectId: projId, id: actionCellId, journeyId, stepId, rowId: rowActions, cardOrder: actionCardIds });
-    // back-fill cellId on the just-added cards
-    for (const c of cards.slice(-actionCardIds.length)) {
-      c.cellId = actionCellId;
+    // back-fill cellId on the just-added cards (guard against slice(-0) = slice(0) = all cards)
+    if (actionCardIds.length > 0) {
+      for (const c of cards.slice(-actionCardIds.length)) {
+        c.cellId = actionCellId;
+      }
     }
 
     // Sentiment row cell
@@ -201,8 +203,10 @@ export function buildIT01Scenario(): ScenarioBundle {
     }
     const sentCellId = newId('cell');
     cells.push({ projectId: projId, id: sentCellId, journeyId, stepId, rowId: rowSentiment, cardOrder: sentCardIds });
-    for (const c of cards.slice(-sentCardIds.length)) {
-      c.cellId = sentCellId;
+    if (sentCardIds.length > 0) {
+      for (const c of cards.slice(-sentCardIds.length)) {
+        c.cellId = sentCellId;
+      }
     }
 
     // Empty pain points + systems cells (students fill these in)
@@ -290,7 +294,7 @@ export function buildIT01Scenario(): ScenarioBundle {
     description: 'Enterprise customer onboarding for a cloud collaboration platform. IT admin perspective.',
     createdAt: now,
     updatedAt: now,
-    schemaVersion: 2,
+    schemaVersion: 3,
   };
 
   const candidates: ProcessCandidate[] = [
