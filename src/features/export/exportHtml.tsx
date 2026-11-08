@@ -5,18 +5,37 @@ import { loadReportData } from './reportData';
 import type { SectionId } from './reportData';
 import { ReportDocument, reportOutline } from './ReportPages';
 
-/** Theme variables (colours, radii) the reused app components rely on. */
-function themeCss(): string {
-  const out: string[] = [];
-  for (const sheet of Array.from(document.styleSheets)) {
-    let rules: CSSRuleList;
-    try { rules = sheet.cssRules; } catch { continue; }
-    for (const rule of Array.from(rules)) {
-      if (rule instanceof CSSStyleRule && /^:root(,|$)/.test(rule.selectorText) && rule.selectorText.includes('[data-theme="light"]')) out.push(rule.cssText);
-      else if (rule instanceof CSSStyleRule && rule.selectorText === ':root') out.push(rule.cssText);
+/** Collects every CSS custom property name declared anywhere in the app's stylesheets. */
+function customPropertyNames(rules: CSSRuleList, into: Set<string>) {
+  for (const rule of Array.from(rules)) {
+    if (rule instanceof CSSStyleRule) {
+      for (let i = 0; i < rule.style.length; i++) {
+        const n = rule.style[i];
+        if (n.startsWith('--')) into.add(n);
+      }
     }
+    const nested = (rule as CSSGroupingRule).cssRules;
+    if (nested) customPropertyNames(nested, into);
   }
-  return out.join('\n');
+}
+
+/**
+ * The light-theme values of all design tokens, as a :root block. The values are read from a
+ * probe element forced to the light theme, so this works whatever the selectors look like
+ * after minification and regardless of the theme the user is currently in.
+ */
+function themeCss(): string {
+  const names = new Set<string>();
+  for (const sheet of Array.from(document.styleSheets)) {
+    try { customPropertyNames(sheet.cssRules, names); } catch { /* cross-origin sheet */ }
+  }
+  const probe = document.createElement('div');
+  probe.setAttribute('data-theme', 'light');
+  document.body.appendChild(probe);
+  const cs = getComputedStyle(probe);
+  const decls = [...names].map(n => [n, cs.getPropertyValue(n).trim()]).filter(([, v]) => v).map(([n, v]) => `${n}:${v}`);
+  probe.remove();
+  return `:root{${decls.join(';')}}`;
 }
 
 const esc = (t: string) => t.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c] as string));
