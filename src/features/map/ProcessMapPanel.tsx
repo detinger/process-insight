@@ -35,11 +35,11 @@ function LaneNode({ data }: { data: Record<string, unknown> }) {
   return (
     <div style={{ width: '100%', height: '100%', background: color, borderBottom: '1px solid rgba(0,0,0,0.07)', position: 'relative', pointerEvents: 'none' }}>
       <div style={{
-        position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)',
+        position: 'absolute', left: 10, top: 8,
         fontWeight: 700, fontSize: 10, color: 'var(--text-muted)',
         textTransform: 'uppercase', letterSpacing: '0.08em',
-        writingMode: 'vertical-rl', userSelect: 'none',
-        maxHeight: LANE_HEIGHT - 20, overflow: 'hidden',
+        userSelect: 'none', whiteSpace: 'nowrap',
+        maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis',
       }}>
         {label}
       </div>

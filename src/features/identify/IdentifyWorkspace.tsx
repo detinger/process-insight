@@ -443,7 +443,7 @@ export function IdentifyWorkspace({ projectId, onNavigate }: Props) {
         )}
 
         {mainTab === 'coverage' && (
-          <div style={{ flex: 1, overflow: 'hidden' }}>
+          <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
             <CoverageMatrix
               processes={processes}
               services={services}
@@ -453,7 +453,7 @@ export function IdentifyWorkspace({ projectId, onNavigate }: Props) {
         )}
 
         {mainTab === 'scoring' && (
-          <div style={{ flex: 1, overflow: 'hidden' }}>
+          <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
             <PriorityScoringPanel projectId={projectId} processes={processes} />
           </div>
         )}

@@ -9,7 +9,6 @@ import { DiscoverWorkspace } from './features/discover/DiscoverWorkspace';
 import { JourneyWorkspace } from './features/journey/JourneyWorkspace';
 import { MapWorkspace } from './features/map/MapWorkspace';
 import { DictionaryPanel } from './features/dictionary/DictionaryPanel';
-import { EvidenceBoard } from './features/journey/EvidenceBoard';
 import { db, setDatabaseWriteAccess } from './storage/db';
 import { exportProject } from './storage/projectIO';
 import { getTabOwnership, type OwnershipState } from './app/tabOwnership';
@@ -19,7 +18,6 @@ export default function App() {
   const [projectId, setProjectId] = useState<string | null>(null);
   const [projectTitle, setProjectTitle] = useState<string | undefined>();
   const [dictOpen, setDictOpen] = useState(false);
-  const [evidenceOpen, setEvidenceOpen] = useState(false);
   const [tabState, setTabState] = useState<OwnershipState>('pending');
   const [storageError, setStorageError] = useState<string | null>(null);
   const [guidedMode, setGuidedMode] = useState(false);
@@ -59,7 +57,7 @@ export default function App() {
     const project = await db.projects.get(id);
     setProjectId(id);
     setProjectTitle(project?.title);
-    setWorkspace('identify');
+    setWorkspace('discover');
   }
 
   function startGuidedMode() {
@@ -105,7 +103,6 @@ export default function App() {
     setProjectId(null);
     setProjectTitle(undefined);
     setDictOpen(false);
-    setEvidenceOpen(false);
     setWorkspace('home');
   }
 
@@ -169,7 +166,6 @@ export default function App() {
           projectId={projectId}
           onDictionary={() => setDictOpen(true)}
           onExport={handleExport}
-          onEvidence={projectId ? () => setEvidenceOpen(true) : undefined}
           readOnly={isObserver}
           onStartGuidedMode={projectId && !guidedMode ? startGuidedMode : undefined}
           guidedBanner={guidedMode && projectId ? (
@@ -190,9 +186,6 @@ export default function App() {
         <DictionaryPanel projectId={projectId ?? '__default__'} onClose={() => setDictOpen(false)} />
       )}
 
-      {evidenceOpen && projectId && (
-        <EvidenceBoard projectId={projectId} onClose={() => setEvidenceOpen(false)} />
-      )}
     </ThemeProvider>
   );
 }

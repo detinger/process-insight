@@ -15,7 +15,7 @@ interface Props {
 
 export function WorkspaceGuide({ storageKey, title, description, steps }: Props) {
   const [open, setOpen] = useState(() => {
-    try { return localStorage.getItem(storageKey) !== 'closed'; } catch { return true; }
+    try { return localStorage.getItem(storageKey) === 'open'; } catch { return false; }
   });
 
   function toggle() {

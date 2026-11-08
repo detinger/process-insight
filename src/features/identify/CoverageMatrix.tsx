@@ -164,8 +164,8 @@ function CrossMatrix({
             <tr>
               <th style={{ minWidth: 180 }}>Process</th>
               {columns.map((col, i) => (
-                <th key={col.id} title={col.label} style={{ textAlign: 'center', maxWidth: 100 }}>
-                  <div style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontSize: 12, padding: '4px 0' }}>
+                <th key={col.id} title={col.label} style={{ textAlign: 'center', minWidth: 90, maxWidth: 130, verticalAlign: 'bottom' }}>
+                  <div style={{ fontSize: 12, padding: '4px 0', whiteSpace: 'normal', wordBreak: 'break-word', lineHeight: 1.25 }}>
                     {col.label}
                   </div>
                   <div style={{ fontSize: 10, color: 'var(--text-subtle)', textAlign: 'center', marginTop: 4 }}>
