@@ -39,17 +39,6 @@ export function MapWorkspace({ projectId, onNavigate }: { projectId: string; onN
   return (
     <div className="workspace">
       <div className="workspace-narrow">
-        <div className="page-header">
-          <div className="page-header-content">
-            <div className="eyebrow">Operations</div>
-            <h1 className="page-title">Map</h1>
-            <p className="page-description">
-              Scope processes with SIPOC, model swimlane diagrams, and generate traceable BPMN drafts for BPMN Studio.
-            </p>
-          </div>
-        </div>
-
-
         {/* Tab nav */}
         <div style={{ display: 'flex', gap: 2, marginBottom: 24, borderBottom: '1px solid var(--border)' }}>
           {TABS.map(t => (

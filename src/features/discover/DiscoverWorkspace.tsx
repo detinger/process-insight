@@ -39,17 +39,6 @@ export function DiscoverWorkspace({ projectId, onNavigate }: { projectId: string
   return (
     <div className="workspace">
       <div className="workspace-narrow">
-        <div className="page-header">
-          <div className="page-header-content">
-            <div className="eyebrow">Workshop</div>
-            <h1 className="page-title">Discover</h1>
-            <p className="page-description">
-              Synthesize interviews, observations and evidence into process candidates and journey insights.
-            </p>
-          </div>
-        </div>
-
-
         {/* Tab nav */}
         <div style={{ display: 'flex', gap: 2, marginBottom: 24, borderBottom: '1px solid var(--border)', flexWrap: 'wrap' }}>
           {TABS.map(t => (

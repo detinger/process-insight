@@ -10,6 +10,8 @@ export interface GuidedStep {
   label: string;
   verb: string;
   hint: string;
+  /** What this workspace is for (formerly the page header text). */
+  about: string;
   /** Detailed, tool-by-tool guidance for this workspace (shown under "Show tips"). */
   tips: { label: string; hint: string }[];
 }
@@ -20,6 +22,7 @@ export const GUIDED_STEPS: GuidedStep[] = [
     workspace: 'discover',
     label: 'Discovery',
     verb: 'Gather your evidence',
+    about: 'Discover (workshop): synthesize interviews, observations and evidence into process candidates and journey insights.',
     hint: 'Log interviews, observations and contradictions. Mark each claim as evidence or assumption. This raw material justifies every decision you make in the next steps.',
     tips: [
       { label: 'Interview synthesis', hint: 'Record each interviewee and add their direct quotes, claims and open questions. If this is a scenario, read the pre-loaded interviews to understand the key themes.' },
@@ -33,6 +36,7 @@ export const GUIDED_STEPS: GuidedStep[] = [
     workspace: 'identify',
     label: 'Process Landscape',
     verb: 'Build the big picture',
+    about: 'Identify (process landscape): identify candidate processes from evidence, classify them, define boundaries and organize into a coherent architecture.',
     hint: 'Use what you found in Discovery to propose and accept process candidates. Build the landscape — management on top, core in the middle, support at the bottom.',
     tips: [
       { label: 'Identify: add process candidates', hint: 'Use the sidebar → "Add". Write down every process you think might be relevant, even if you\'re unsure. You can filter them later.' },
@@ -46,6 +50,7 @@ export const GUIDED_STEPS: GuidedStep[] = [
     workspace: 'journey',
     label: 'Customer Journey',
     verb: 'Map the experience',
+    about: 'Journey: author a journey matrix of stages, steps, touchpoints, sentiment and pain points, grounded in your evidence.',
     hint: 'Create journey stages and steps from the customer\'s or employee\'s perspective. Add sentiment, touchpoints and pain points. Link steps back to the processes you identified.',
     tips: [
       { label: 'Stages and steps', hint: 'Split the journey into stages, then add the steps a person goes through in each stage.' },
@@ -58,6 +63,7 @@ export const GUIDED_STEPS: GuidedStep[] = [
     workspace: 'map',
     label: 'Process Map',
     verb: 'Build the blueprint',
+    about: 'Map (operations): scope processes with SIPOC, model swimlane diagrams, and generate traceable BPMN drafts for BPMN Studio.',
     hint: 'Translate the journey into an operational process blueprint. Define actors in swimlanes, handoffs between teams, decision points and supporting systems.',
     tips: [
       { label: 'Start with SIPOC', hint: 'Open the SIPOC tab and scope the process: who supplies inputs, what the inputs are, the main process steps, outputs, and who receives them. This takes 10 minutes and forces clear thinking before you draw anything.' },
@@ -212,6 +218,9 @@ export function GuidedPathBanner({ currentStep, completedSteps, onGoToStep, onCo
                     {showTips ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
                     {showTips ? 'Hide tips' : 'Show tips for this step'}
                   </button>
+                  {showTips && (
+                    <p style={{ margin: '6px 0 0', fontSize: 12, lineHeight: 1.5, color: 'rgba(255,255,255,0.9)', maxWidth: '80ch' }}>{step.about}</p>
+                  )}
                   {showTips && (
                     <ul style={{ margin: '6px 0 0', paddingLeft: 18, fontSize: 12, lineHeight: 1.5, color: 'rgba(255,255,255,0.85)', maxWidth: '80ch', maxHeight: '30vh', overflowY: 'auto' }}>
                       {step.tips.map(t => (

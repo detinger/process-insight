@@ -202,16 +202,6 @@ export function IdentifyWorkspace({ projectId, onNavigate }: Props) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-      {/* Workspace header: the page title comes first, tabs below it */}
-      <div style={{ padding: '18px 24px 0', flexShrink: 0, background: 'var(--bg)' }}>
-        <div className="eyebrow">Identification</div>
-        <h1 className="page-title" style={{ marginBottom: 6 }}>Process landscape</h1>
-        <p className="page-description" style={{ marginBottom: 14 }}>
-          Identify candidate processes from evidence, classify them, define boundaries
-          and organize into a coherent architecture.
-        </p>
-      </div>
-
       {/* Top-level workspace tabs */}
       <div style={{
         borderBottom: '1px solid var(--border)', padding: '0 20px',
