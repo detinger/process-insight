@@ -13,12 +13,15 @@
     "start": "npx serve dist -l ${PORT:-3000}"
   },
   "dependencies": {
+    "@bpmn-io/properties-panel": "^3.58.1",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@tanstack/react-virtual": "^3.14.26",
     "@xyflow/react": "^12.12.1",
     "bpmn-js": "^18.31.1",
+    "bpmn-js-properties-panel": "^5.65.3",
+    "bpmn-js-token-simulation": "^1.1.0",
     "bpmn-moddle": "^10.3.1",
     "dexie": "^4.4.7",
     "elkjs": "^0.12.1",
